@@ -1,3 +1,2 @@
-# whatsapp-webjs
-
-A whatsapp web app running on puppeteer incorporating node js capabilities
+# whatsappweb-scapper
+A tool to scrap for information and out put on whatsapp groups
