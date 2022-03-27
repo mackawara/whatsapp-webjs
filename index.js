@@ -1,16 +1,16 @@
-require("dotenv").config()
+require("dotenv").config();
 
-const keywordAlert=require("./keywordsClass")
+const keywordAlert = require("./keywordsClass");
 
 //CONTACT
-const juanita = process.env.JUANITA
+const juanita = process.env.JUANITA;
 const me = process.env.ME;
-const mkadzi = process.env.MKADZI
+const mkadzi = process.env.MKADZI;
 //GROUPS
 const hwangeClubcricket = process.env.HWANGECLUBCRICKET;
-const hwangeBusinessMarketing = process.env.HWANGEBUSINESSMARKETING
-const hwangeBusinessMarketing2 = process.env.HWANGEBUSINESSMARKETING2
-const matNorthBusinessGroup = process.env.MATNORTHBUSINESSGROUB
+const hwangeBusinessMarketing = process.env.HWANGEBUSINESSMARKETING;
+const hwangeBusinessMarketing2 = process.env.HWANGEBUSINESSMARKETING2;
+const matNorthBusinessGroup = process.env.MATNORTHBUSINESSGROUB;
 
 //Messages
 
@@ -26,7 +26,7 @@ let randomAdvert = adverts[Math.floor(Math.random() * adverts.length)];
 const { Client, LocalAuth, NoAuth } = require("whatsapp-web.js");
 const match = `match:`;
 const cron = require(`node-cron`);
-console.log(me)
+console.log(me);
 //const fs = require("fs");
 
 //const puppeteer = require("puppeteer")
@@ -45,13 +45,13 @@ const client = new Client({
   puppeteer: { headless: false },
 });
 console.log("client initialising");
-console.time(`initialising`)
+console.time(`initialising`);
 try {
   client.initialize();
 } catch {
   console.log(` authentication not approved`);
 }
-console.timeEnd(`initialising`)
+console.timeEnd(`initialising`);
 const client1 = new Client({
   authStrategy: new LocalAuth({ clientId: "client-one" }),
 });
@@ -64,29 +64,37 @@ client.on("auth_failure", (msg) => {
   console.error("AUTHENTICATION FAILURE", msg);
 });
 
-const scheduledMessagesList = [hwangeBusinessMarketing, hwangeBusinessMarketing2, matNorthBusinessGroup]
+const scheduledMessagesList = [
+  hwangeBusinessMarketing,
+  hwangeBusinessMarketing2,
+  matNorthBusinessGroup,
+];
 client.on("ready", () => {
   console.log("Client is ready!");
-  cron.schedule('35 09 * * Mon,Tue,Wed,Thur,Fri,Sat', () => {
-
-    console.log(`testing`)
+  cron.schedule("55 12 * * Sun,Mon,Tue,Wed,Thur,Fri,Sat", () => {
+    console.log(`testing`);
     /* scheduledMessagesList.map((contactName)=>{ */
-    scheduledMessagesList.forEach((contact) => {
-      client.sendMessage(contact, `${randomAdvert}`)
-    }, {
-      scheduled: true,
-      timezone: "CET"
-    })
-  })
-})
+    scheduledMessagesList.forEach(
+      (contact) => {
+        client.sendMessage(contact, `${randomAdvert}`);
+      },
+      {
+        scheduled: true,
+        timezone: "CET",
+      }
+    );
+  });
+});
 
 async function sendScores() {
-
-  cron.schedule('1,*/30 * * * Wed', async () => {
-    const scores = await startScrapping(2)
-    await console.log(scores)
-    await client.sendMessage(hwangeClubcricket, `Match scores brought to you by *MacBot*  ${scores}`)
-  })
+  cron.schedule("1,*/30 * * * Wed", async () => {
+    const scores = await startScrapping(2);
+    await console.log(scores);
+    await client.sendMessage(
+      hwangeClubcricket,
+      `Match scores brought to you by *MacBot*  ${scores}`
+    );
+  });
 }
 //sendScores()
 //client.sendMessage(me,startScrapping(`match:2`))
@@ -128,17 +136,11 @@ client.on("qr", (qr) => {
 });
 
 client.on(`message`, async (message) => {
-
-  console.log(message)
   const messageContents = message.body;
   const author = message.from.replace("@c.us", "");
   const receiver = message.to.replace("@c.us", "").replace("263", "0");
 
-
-
-
-
-
+  console.log(author, receiver, messageContents);
   // REQUEST FOR match scores in cricket group
 
   if (message.from == hwangeClubcricket && messageContents == `${match}3`) {
@@ -152,9 +154,9 @@ client.on(`message`, async (message) => {
     await message.reply(`${reply}`);
   }
   //Automatic detection of group message with keywords
-  
+
   //USD related keywords
-  
+
   const keywords = [
     `for eco`,
     `for ecocash`,
@@ -165,7 +167,7 @@ client.on(`message`, async (message) => {
     `US for`,
     `usd available`,
   ];
- /*  keywords.filter((keyword) => {
+  /*  keywords.filter((keyword) => {
     
     if (message.body.includes(keyword) &&
     !message.body.includes(`message created by chatBot`)
@@ -178,15 +180,27 @@ client.on(`message`, async (message) => {
       //console.log(`${message.from} :${messageContents}`);
     }
   }) */
-  
-  let getscores= new keywordAlert(keywords,client,message,me)
-getscores.keywordRun()
-})
 
+  let getscores = new keywordAlert(keywords, client, message, me);
+  getscores.keywordRun();
+});
 
 //Businness related keyword
 
-const businessKeywords= [`cartridges`,`catridges`, `printer cartridges`, `HP ink`, `toner`, ` Ink cartridges`, `kyocera`,`lexmark`,`Samsung cartridges`,`Samsung Printer`, `Ricoh`, ` master and ink`]
+const businessKeywords = [
+  `cartridges`,
+  `catridges`,
+  `printer cartridges`,
+  `HP ink`,
+  `toner`,
+  ` Ink cartridges`,
+  `kyocera`,
+  `lexmark`,
+  `Samsung cartridges`,
+  `Samsung Printer`,
+  `Ricoh`,
+  ` master and ink`,
+];
 
 client.on("disconnected", (reason) => {
   console.log("Client was logged out", reason);
