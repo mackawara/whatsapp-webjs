@@ -43,11 +43,11 @@ const SESSION_FILE_PATH = "./session.json";
 const client = new Client({
   authStrategy: new LocalAuth({ clientId: "client" }),
   puppeteer: {
-    headless: false,
+    headless: true,
     "--no-sandbox": true,
     "--disable-setuid-sandbox": true,
-    executablePath:
-      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    /*  executablePath:
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" */
     //executablePath: "OS/Applications/Chrome",
   },
 });
