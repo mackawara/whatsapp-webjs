@@ -42,7 +42,14 @@ const SESSION_FILE_PATH = "./session.json";
 
 const client = new Client({
   authStrategy: new LocalAuth({ clientId: "client" }),
-  puppeteer: { headless: false },
+  puppeteer: {
+    headless: false,
+    "--no-sandbox": true,
+    "--disable-setuid-sandbox": true,
+    executablePath:
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    //executablePath: "OS/Applications/Chrome",
+  },
 });
 console.log("client initialising");
 console.time(`initialising`);
