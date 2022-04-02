@@ -3,7 +3,7 @@ require("dotenv").config();
 const keywordAlert = require("./keywordsClass");
 const express = require("express");
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 6000;
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -16,10 +16,11 @@ app.listen(port, () => {
 //CONTACT
 const juanita = process.env.JUANITA;
 const me = process.env.ME;
-const mkadzi = process.env.MKADZI;
+const mkadzi = process.env.WIFE;
 //GROUPS
 const hwangeClubcricket = process.env.HWANGECLUBCRICKET;
-const hwangeBusinessMarketing = process.env.HWANGEBUSINESSMARKETING;
+const hwgeCheapGadgets = process.env.HWANGECHEAPGADGETS;
+const hwangeBusinessMarketing1 = process.env.HWANGEBUSINESSMARKETING1;
 const hwangeBusinessMarketing2 = process.env.HWANGEBUSINESSMARKETING2;
 const matNorthBusinessGroup = process.env.MATNORTHBUSINESSGROUB;
 
@@ -54,7 +55,7 @@ const SESSION_FILE_PATH = "./session.json";
 const client = new Client({
   authStrategy: new LocalAuth({ clientId: "client" }),
   puppeteer: {
-    headless: true,
+    headless: false,
     "--no-sandbox": true,
     "--disable-setuid-sandbox": true,
     /*  executablePath:
@@ -83,29 +84,36 @@ client.on("auth_failure", (msg) => {
 });
 
 const scheduledMessagesList = [
-  hwangeBusinessMarketing,
+  //me,
+ // mkadzi,
+  hwangeBusinessMarketing1,
   hwangeBusinessMarketing2,
-  matNorthBusinessGroup,
+  hwgeCheapGadgets,
+
+  /*  hwangeBusinessMarketing,
+  hwangeBusinessMarketing2,
+  matNorthBusinessGroup */
 ];
 client.on("ready", () => {
   console.log("Client is ready!");
-  cron.schedule("55 12 * * Sun,Mon,Tue,Wed,Thur,Fri,Sat", () => {
+  cron.schedule("30 09 * * *", () => {
     console.log(`testing`);
-    /* scheduledMessagesList.map((contactName)=>{ */
+    
     scheduledMessagesList.forEach(
       (contact) => {
         client.sendMessage(contact, `${randomAdvert}`);
+        console.log(`message sent to ${contact}`);
       },
       {
         scheduled: true,
-        timezone: "CET",
+        timezone: "SAST",
       }
     );
   });
 });
 
 async function sendScores() {
-  cron.schedule("1,*/30 * * * Wed", async () => {
+  cron.schedule("00 05  * * *", async () => {
     const scores = await startScrapping(2);
     await console.log(scores);
     await client.sendMessage(
