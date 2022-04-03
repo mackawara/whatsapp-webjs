@@ -96,12 +96,13 @@ const scheduledMessagesList = [
 ];
 client.on("ready", () => {
   console.log("Client is ready!");
-  cron.schedule("30 09 * * *", () => {
+  cron.schedule("05 16 * * *", () => {
     console.log(`testing`);
 
     scheduledMessagesList.forEach(
       (contact) => {
-        client.sendMessage(contact, `${randomAdvert}`);
+        setTimeout(client.sendMessage(contact, `${randomAdvert}`), 24000);
+
         console.log(`message sent to ${contact}`);
       },
       {
@@ -166,7 +167,6 @@ client.on(`message`, async (message) => {
   const author = message.from.replace("@c.us", "");
   const receiver = message.to.replace("@c.us", "").replace("263", "0");
 
-  console.log(author, receiver, messageContents);
   // REQUEST FOR match scores in cricket group
 
   if (message.from == hwangeClubcricket && messageContents == `${match}3`) {
@@ -180,10 +180,12 @@ client.on(`message`, async (message) => {
     await message.reply(`${reply}`);
   }
   //Automatic detection of group message with keywords
-
+  /* if (message.from == mkadzi) {
+    client.sendMessage(mkadzi, "newe");
+  } */
   //USD related keywords
 
-  const keywords = [
+  const usdKeywords = [
     `for eco`,
     `for ecocash`,
     `USD available`,
@@ -207,8 +209,16 @@ client.on(`message`, async (message) => {
     }
   }) */
 
-  let getscores = new keywordAlert(keywords, client, message, mkadzi);
-  getscores.keywordRun(message.body);
+  let usdAlert = new keywordAlert(usdKeywords, client, message, mkadzi);
+  usdAlert.keywordRun(message.body);
+
+  let cartridgeAlert = new keywordAlert(
+    businessKeywords,
+    client,
+    message,
+    mkadzi
+  );
+  cartridgeAlert.keywordRun(message.body);
 });
 
 //Businness related keyword

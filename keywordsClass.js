@@ -39,21 +39,20 @@ function keywordAlert(keywordsArray, client, messageObject, contact) {
       `${toTime(messageObject.timestamp)}  \n ${messageObject.from.replace(
         `263`,
         `0`
-      )} \n
-                } group :message from :${messageObject.author}, \n  Message *_${
+      )} \n group :message from :${messageObject.author}, \n  Message *_${
         messageObject.body
       }_* \n *message created by chatBot`
     );
   };
   this.keywordRun = async function (message) {
-    /*   for (let index = 0; index < keywordsArray.length; index++) {
-      const keyword = keywordsArray[index]; */
+    for (let index = 0; index < keywordsArray.length; index++) {
+      const keyword = keywordsArray[index];
 
-    if (message.includes(`for bank transfer`)) {
-      console.log(`message received  with keyword`);
-      //this.processResponse(contact);
-    } else {
-      console.log("keyword not found");
+      if (message.includes(keyword)) {
+        console.log(`message received  with keyword`);
+        this.processResponse(contact);
+        break;
+      }
     }
   };
   //};
