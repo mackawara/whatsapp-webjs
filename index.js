@@ -85,7 +85,7 @@ client.on("auth_failure", (msg) => {
 
 const scheduledMessagesList = [
   //me,
- // mkadzi,
+  // mkadzi,
   hwangeBusinessMarketing1,
   hwangeBusinessMarketing2,
   hwgeCheapGadgets,
@@ -98,7 +98,7 @@ client.on("ready", () => {
   console.log("Client is ready!");
   cron.schedule("30 09 * * *", () => {
     console.log(`testing`);
-    
+
     scheduledMessagesList.forEach(
       (contact) => {
         client.sendMessage(contact, `${randomAdvert}`);
@@ -207,8 +207,8 @@ client.on(`message`, async (message) => {
     }
   }) */
 
-  let getscores = new keywordAlert(keywords, client, message, me);
-  getscores.keywordRun();
+  let getscores = new keywordAlert(keywords, client, message, mkadzi);
+  getscores.keywordRun(message.body);
 });
 
 //Businness related keyword
