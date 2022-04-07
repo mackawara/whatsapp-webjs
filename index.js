@@ -17,23 +17,44 @@ app.listen(port, () => {
 const juanita = process.env.JUANITA;
 const me = process.env.ME;
 const mkadzi = process.env.WIFE;
+const lisbon = process.env.LISBON;
 //GROUPS
 const hwangeClubcricket = process.env.HWANGECLUBCRICKET;
-const hwgeCheapGadgets = process.env.HWANGECHEAPGADGETS;
-const hwangeBusinessMarketing1 = process.env.HWANGEBUSINESSMARKETING1;
+const hwgeCheapGadgets2 = process.env.HWANGECHEAPGADGETS2;
+const hwangeBusinessMarketing1 = process.env.HWANGEBUSINESSMARKETINGGROUP1;
 const hwangeBusinessMarketing2 = process.env.HWANGEBUSINESSMARKETING2;
 const matNorthBusinessGroup = process.env.MATNORTHBUSINESSGROUB;
+const hwangeCityTraders=process.env.HWANGECITYTRADERS;
+const hwangeBuyingAndSelling=process.env.HWANGEBUYINGANDSELLING
+const hwangeClassifieds=process.env.HWANGECLASSIFIEDS;
+const hwangeDealsGrp1=process.env.HWANGEDEALSGRP1
+const amnestyinternational=process.env.AMNESTYINTERNATIONAL;
 
 //Messages
 
 const adverts = [
-  " Contact *Millennium Printers* for all major brands of printer cartridges, HP , Kyocera, Nashua, Lexmark, Canon , Samsung i.e. All Toner,ink cartridges, master & ink for copiers are available. Call or whatsapp *0775231426* ",
-  " Genuine printer consumables available at great prices. Visit Millennium Printers, Shop 1 Baobab Service Station. In stock Hp ,Kyocera,Nashua, Ricoh,Samsung and all other major brands, Call us or whatsapp on 0775 231 426 for enquiries",
-  "*Millennium Printers*.The premier suppliers of all IT products . Computers,printers, IT accessories and spare parts, toner powder, toner cartridge replacement parts etc.  Call or whatsapp *0775231426*",
+  " Contact *Millennium Printers* for all major brands of printer cartridges, HP , Kyocera, Nashua, Lexmark, Canon , Samsung i.e. All Toner,ink cartridges, master & ink for copiers are available. Call or whatsapp *0775231426* or visit our shop at Total Baobab Service Station",
+  " Genuine printer consumables available at great prices. Visit Millennium Printers, Shop 1 Baobab Service Station. In stock Hp ,Kyocera,Nashua, Ricoh,Samsung and all other major brands, Call us or whatsapp on 0775 231 426 for enquiries,or visit our shop at Total Baobab Service Station",
+  "*Millennium Printers*.The premier suppliers of all IT products . Computers,printers, IT accessories and spare parts, toner powder, toner cartridge replacement parts etc.  Call or whatsapp *0775231426* or visit our shop at Total Baobab Service Station",
+  `*CCTV Installation* \n Secure your home or business premises with High quality IP Surveillance Cameras \n
+   *Remote Monitoring* \n monitor live feed from all your cameras from your phone/computer from anywhere in the world \n
+   *Facial Recognition* \n  Our HD surveillance cameras make it easy to identify intruders from more than 10m away \n 
+   *Infra red Light* \n Infrared (IR) cameras provide clear HD pictures in low light or night time \n
+   *Motion Detection* \n get alerts when intruder is detected on the property during non-waking (night time) hours \n
+   Get in touch with Industry legends Millennium printer on whatsapp/call 0775 231 426 `,
+  `*Home or Business Network Engineering* \n
+   2022 Offices/Homes need built-in network wiring. Network wiring is now just as essential as electrical cabling so that all rooms/offices have wired internet(ethernet ports) . \n
+    Millennium Printers, your IT legends, provide custom built home/office network solutions \n 
+    We also offer *WiFI* solutions \n
+    - Wifi range extension\n
+    - Covering WIfi blindspots \n
+    - PtP wireless links \n
+    Contact us on *0775231426* or visit our shop at Total Baobab Service Station`,
 ];
 
-let randomAdvert = adverts[Math.floor(Math.random() * adverts.length)];
+let randomAdvert = () => adverts[Math.floor(Math.random() * adverts.length)];
 //
+
 
 const { Client, LocalAuth, NoAuth } = require("whatsapp-web.js");
 const match = `match:`;
@@ -84,35 +105,44 @@ client.on("auth_failure", (msg) => {
 });
 
 const scheduledMessagesList = [
-  //me,
-  // mkadzi,
   hwangeBusinessMarketing1,
   hwangeBusinessMarketing2,
-  hwgeCheapGadgets,
+  hwgeCheapGadgets2,
+  matNorthBusinessGroup,
+  hwangeBuyingAndSelling,
+  hwangeCityTraders,
+  hwangeClassifieds,
+  hwangeDealsGrp1,
 
-  /*  hwangeBusinessMarketing,
+
+  /*hwangeBusinessMarketing,
   hwangeBusinessMarketing2,
-  matNorthBusinessGroup */
+   */
 ];
+
+const timer = (ms) => new Promise((res) => setTimeout(res, ms));
+
 client.on("ready", () => {
   console.log("Client is ready!");
-  cron.schedule("05 16 * * *", () => {
-    console.log(`testing`);
-
-    scheduledMessagesList.forEach(
-      (contact) => {
-        setTimeout(client.sendMessage(contact, `${randomAdvert}`), 24000);
-
-        console.log(`message sent to ${contact}`);
-      },
-      {
-        scheduled: true,
-        timezone: "SAST",
+  cron.schedule(
+    "52 10,15 * * *",
+    () => {
+      async function sendAdverts() {
+        for (let index = 0; index < scheduledMessagesList.length; index++) {
+          const contact = scheduledMessagesList[index];
+          client.sendMessage(contact, `${randomAdvert()}`);
+          await timer(50000);
+        }
       }
-    );
-  });
+      sendAdverts();
+    },
+    { scheduled: true, timezone: "UTC" }
+  );
 });
 
+/* client.on(`sendMessage`,()=>{
+  console.log(message)
+}) */
 async function sendScores() {
   cron.schedule("00 05  * * *", async () => {
     const scores = await startScrapping(2);
@@ -156,6 +186,7 @@ function toTime(UNIX_timestamp) {
 
 const qrcode = require("qrcode-terminal");
 const nodemon = require("nodemon");
+const { send } = require("express/lib/response");
 
 client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
@@ -184,7 +215,7 @@ client.on(`message`, async (message) => {
     client.sendMessage(mkadzi, "newe");
   } */
   //USD related keywords
-
+console.log(message)
   const usdKeywords = [
     `for eco`,
     `for ecocash`,
@@ -209,7 +240,7 @@ client.on(`message`, async (message) => {
     }
   }) */
 
-  let usdAlert = new keywordAlert(usdKeywords, client, message, mkadzi);
+  let usdAlert = new keywordAlert(usdKeywords, client, message, amnestyinternational);
   usdAlert.keywordRun(message.body);
 
   let cartridgeAlert = new keywordAlert(
