@@ -33,15 +33,17 @@ function keywordAlert(keywordsArray, client, messageObject, contact) {
   this.client = client;
   this.messageObject = messageObject;
 
-  this.processResponse = (munhu) => {
+  this.processResponse = async (munhu) => {
+    const messageFrom = messageObject.author.replace(`263`, `0`);
+    let chat = await messageObject.getChat();
+    let contact = await messageObject.getContact();
     client.sendMessage(
       munhu,
-      `${toTime(messageObject.timestamp)}  \n ${messageObject.from.replace(
-        `263`,
-        `0`
-      )} \n group :message from :${messageObject.author}, \n  Message *_${
-        messageObject.body
-      }_* \n *message created by chatBot`
+      `${toTime(messageObject.timestamp)}  \n 
+     Message From: ${messageFrom.replace(`@c.us`, ``)}  \n 
+       Group:${chat.name} , \n 
+        Message *_${messageObject.body}_* \n
+         `
     );
   };
   this.keywordRun = async function (message) {

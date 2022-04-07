@@ -24,11 +24,11 @@ const hwgeCheapGadgets2 = process.env.HWANGECHEAPGADGETS2;
 const hwangeBusinessMarketing1 = process.env.HWANGEBUSINESSMARKETINGGROUP1;
 const hwangeBusinessMarketing2 = process.env.HWANGEBUSINESSMARKETING2;
 const matNorthBusinessGroup = process.env.MATNORTHBUSINESSGROUB;
-const hwangeCityTraders=process.env.HWANGECITYTRADERS;
-const hwangeBuyingAndSelling=process.env.HWANGEBUYINGANDSELLING
-const hwangeClassifieds=process.env.HWANGECLASSIFIEDS;
-const hwangeDealsGrp1=process.env.HWANGEDEALSGRP1
-const amnestyinternational=process.env.AMNESTYINTERNATIONAL;
+const hwangeCityTraders = process.env.HWANGECITYTRADERS;
+const hwangeBuyingAndSelling = process.env.HWANGEBUYINGANDSELLING;
+const hwangeClassifieds = process.env.HWANGECLASSIFIEDS;
+const hwangeDealsGrp1 = process.env.HWANGEDEALSGRP1;
+const amnestyinternational = process.env.AMNESTYINTERNATIONAL;
 
 //Messages
 
@@ -54,7 +54,6 @@ const adverts = [
 
 let randomAdvert = () => adverts[Math.floor(Math.random() * adverts.length)];
 //
-
 
 const { Client, LocalAuth, NoAuth } = require("whatsapp-web.js");
 const match = `match:`;
@@ -113,7 +112,6 @@ const scheduledMessagesList = [
   hwangeCityTraders,
   hwangeClassifieds,
   hwangeDealsGrp1,
-
 
   /*hwangeBusinessMarketing,
   hwangeBusinessMarketing2,
@@ -194,6 +192,8 @@ client.on("qr", (qr) => {
 });
 
 client.on(`message`, async (message) => {
+  let chat = message.getChat();
+  console.log(chat);
   const messageContents = message.body;
   const author = message.from.replace("@c.us", "");
   const receiver = message.to.replace("@c.us", "").replace("263", "0");
@@ -215,7 +215,7 @@ client.on(`message`, async (message) => {
     client.sendMessage(mkadzi, "newe");
   } */
   //USD related keywords
-console.log(message)
+  console.log(message);
   const usdKeywords = [
     `for eco`,
     `for ecocash`,
@@ -240,7 +240,12 @@ console.log(message)
     }
   }) */
 
-  let usdAlert = new keywordAlert(usdKeywords, client, message, amnestyinternational);
+  let usdAlert = new keywordAlert(
+    usdKeywords,
+    client,
+    message,
+    amnestyinternational
+  );
   usdAlert.keywordRun(message.body);
 
   let cartridgeAlert = new keywordAlert(
