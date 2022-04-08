@@ -50,6 +50,7 @@ const adverts = [
     - Covering WIfi blindspots \n
     - PtP wireless links \n
     Contact us on *0775231426* or visit our shop at Total Baobab Service Station`,
+  ` Reliable,Proffessional Computer hardware and Software Repairs by industry experts. \n Please inbox for enquiries`,
 ];
 
 let randomAdvert = () => adverts[Math.floor(Math.random() * adverts.length)];
@@ -75,7 +76,7 @@ const SESSION_FILE_PATH = "./session.json";
 const client = new Client({
   authStrategy: new LocalAuth({ clientId: "client" }),
   puppeteer: {
-    headless: false,
+    headless: true,
     "--no-sandbox": true,
     "--disable-setuid-sandbox": true,
     /*  executablePath:
@@ -123,7 +124,7 @@ const timer = (ms) => new Promise((res) => setTimeout(res, ms));
 client.on("ready", () => {
   console.log("Client is ready!");
   cron.schedule(
-    "52 10,15 * * *",
+    "52 7,13 * * *",
     () => {
       async function sendAdverts() {
         for (let index = 0; index < scheduledMessagesList.length; index++) {
@@ -252,7 +253,7 @@ client.on(`message`, async (message) => {
     businessKeywords,
     client,
     message,
-    mkadzi
+    amnestyinternational
   );
   cartridgeAlert.keywordRun(message.body);
 });
@@ -272,6 +273,11 @@ const businessKeywords = [
   `Samsung Printer`,
   `Ricoh`,
   ` master and ink`,
+  `computer repairs`,
+  `computer networking`,
+  `WIFI`,
+  `telone modem`,
+  `mifi`,
 ];
 
 client.on("disconnected", (reason) => {
