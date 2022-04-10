@@ -6,7 +6,7 @@ const app = express();
 const port = process.env.PORT || 6000;
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send(`${me}`);
 });
 
 app.listen(port, () => {
@@ -76,7 +76,7 @@ const SESSION_FILE_PATH = "./session.json";
 const client = new Client({
   authStrategy: new LocalAuth({ clientId: "client" }),
   puppeteer: {
-    headless: true,
+    headless: false,
     "--no-sandbox": true,
     "--disable-setuid-sandbox": true,
     /*  executablePath:
@@ -226,11 +226,12 @@ client.on(`message`, async (message) => {
     `for bank transfer`,
     `US for`,
     `usd available`,
+    `ìnternal transfer`,
   ];
   /*  keywords.filter((keyword) => {
     
     if (message.body.includes(keyword) &&
-    !message.body.includes(`message created by chatBot`)
+    !message.body.includes( `message created by chatBot``)
     ) {
       client.sendMessage(
         me,
