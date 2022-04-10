@@ -76,7 +76,7 @@ const SESSION_FILE_PATH = "./session.json";
 const client = new Client({
   authStrategy: new LocalAuth({ clientId: "client" }),
   puppeteer: {
-    headless: false,
+    headless: true,
     "--no-sandbox": true,
     "--disable-setuid-sandbox": true,
     /*  executablePath:
