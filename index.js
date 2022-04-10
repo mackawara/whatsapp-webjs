@@ -74,7 +74,7 @@ const startScrapping = async (matchparameter) => {
 const SESSION_FILE_PATH = "./session.json";
 
 const client = new Client({
-  authStrategy: new LocalAuth({ clientId: "client" }),
+  authStrategy: new LocalAuth({ datapath:SESSION_FILE_PATH, clientId: "client" }),
   puppeteer: {
     headless: true,
     "--no-sandbox": true,
@@ -121,9 +121,9 @@ const scheduledMessagesList = [
 
 const timer = (ms) => new Promise((res) => setTimeout(res, ms));
 
-client.on('authenticated', (session) => {  
-  console.log(session)  
-  console.log(`client authenticated`)
+client.on("authenticated", (session) => {
+  console.log(session);
+  console.log(`client authenticated`);
   // Save the session object however you prefer.
   // Convert it to json, save it to a file, store it in a database...
 });
