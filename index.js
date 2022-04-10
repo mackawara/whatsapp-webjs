@@ -121,6 +121,13 @@ const scheduledMessagesList = [
 
 const timer = (ms) => new Promise((res) => setTimeout(res, ms));
 
+client.on('authenticated', (session) => {  
+  console.log(session)  
+  console.log(`client authenticated`)
+  // Save the session object however you prefer.
+  // Convert it to json, save it to a file, store it in a database...
+});
+
 client.on("ready", () => {
   console.log("Client is ready!");
   cron.schedule(
