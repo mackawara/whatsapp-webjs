@@ -78,7 +78,7 @@ const client = new Client({
     datapath: SESSION_FILE_PATH,
     clientId: "client",
   }), */
-   authStrategy: new NoAuth(),
+   authStrategy: new LocalAuth({dataPath: './.wwebjs_auth/session' }),
   puppeteer: {
     headless: false,
     "--no-sandbox": true,
