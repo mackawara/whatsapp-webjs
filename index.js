@@ -74,13 +74,13 @@ const startScrapping = async (matchparameter) => {
 const SESSION_FILE_PATH = "./session.json";
 
 const client = new Client({
-/*   authStrategy: new LocalAuth({
+  /*   authStrategy: new LocalAuth({
     datapath: SESSION_FILE_PATH,
     clientId: "client",
   }), */
-   authStrategy: new LocalAuth({dataPath: './.wwebjs_auth/session' }),
+  authStrategy: new LocalAuth({ dataPath: "./.wwebjs_auth/session" }),
   puppeteer: {
-    headless: false,
+    headless: true,
     "--no-sandbox": true,
     "--disable-setuid-sandbox": true,
     /*  executablePath:
