@@ -51,6 +51,7 @@ const adverts = [
     - PtP wireless links \n
     Contact us on *0775231426* or visit our shop at Total Baobab Service Station`,
   ` Reliable,Proffessional Computer hardware and Software Repairs by industry experts. \n Please inbox for enquiries`,
+  `HP 415 Ink tank Wireless \n Ships with 15000 pages worth of ink, You wont have to buy ink for almost 2 years`,
 ];
 
 let randomAdvert = () => adverts[Math.floor(Math.random() * adverts.length)];
@@ -78,9 +79,9 @@ const client = new Client({
     datapath: SESSION_FILE_PATH,
     clientId: "client",
   }), */
-  authStrategy: new LocalAuth({ dataPath: "./.wwebjs_auth/session" }),
+  authStrategy: new LocalAuth(),
   puppeteer: {
-    headless: true,
+    headless: false,
     "--no-sandbox": true,
     "--disable-setuid-sandbox": true,
     /*  executablePath:
@@ -132,18 +133,18 @@ client.on("authenticated", (session) => {
   // Convert it to json, save it to a file, store it in a database...
 });
 
+async function sendAdverts() {
+  for (let index = 0; index < scheduledMessagesList.length; index++) {
+    const contact = scheduledMessagesList[index];
+    client.sendMessage(contact, `${randomAdvert()}`);
+    await timer(50000);
+  }
+}
 client.on("ready", () => {
   console.log("Client is ready!");
   cron.schedule(
-    "52 7,13 * * *",
+    "22 7,15 * * *",
     () => {
-      async function sendAdverts() {
-        for (let index = 0; index < scheduledMessagesList.length; index++) {
-          const contact = scheduledMessagesList[index];
-          client.sendMessage(contact, `${randomAdvert()}`);
-          await timer(50000);
-        }
-      }
       sendAdverts();
     },
     { scheduled: true, timezone: "UTC" }
@@ -227,7 +228,7 @@ client.on(`message`, async (message) => {
     client.sendMessage(mkadzi, "newe");
   } */
   //USD related keywords
-  console.log(message);
+
   const usdKeywords = [
     `for eco`,
     `for ecocash`,
