@@ -143,7 +143,7 @@ async function sendAdverts() {
 client.on("ready", () => {
   console.log("Client is ready!");
   cron.schedule(
-    "22 7,15 * * *",
+    "29 7,16 * * *",
     () => {
       sendAdverts();
     },
