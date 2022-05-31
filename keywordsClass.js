@@ -39,10 +39,9 @@ function keywordAlert(keywordsArray, client, messageObject, contact) {
     let contact = await messageObject.getContact();
     client.sendMessage(
       munhu,
-      `${toTime(messageObject.timestamp)}  \n 
-     Message From: ${messageFrom.replace(`@c.us`, ``)}  \n 
-       Group:${chat.name} , \n 
-        Message *_${messageObject.body}_* \n
+      `Time : ${toTime(
+        messageObject.timestamp
+      )}\n Message From : *${messageFrom.replace(`@c.us`,``)} * \n Group:${chat.name} , \n Message : *_${messageObject.body}_* 
          `
     );
   };
