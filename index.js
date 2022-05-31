@@ -60,7 +60,7 @@ let randomAdvert = () => adverts[Math.floor(Math.random() * adverts.length)];
 const { Client, LocalAuth, NoAuth } = require("whatsapp-web.js");
 const match = `match:`;
 const cron = require(`node-cron`);
-console.log(me);
+
 //const fs = require("fs");
 
 //const puppeteer = require("puppeteer")
@@ -84,19 +84,19 @@ const client = new Client({
     headless: false,
     "--no-sandbox": true,
     "--disable-setuid-sandbox": true,
-    /*  executablePath:
-      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" */
+      executablePath:
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" 
     //executablePath: "OS/Applications/Chrome",
   },
 });
 console.log("client initialising");
-console.time(`initialising`);
+;
 try {
   client.initialize();
 } catch {
   console.log(` authentication not approved`);
 }
-console.timeEnd(`initialising`);
+;
 const client1 = new Client({
   authStrategy: new LocalAuth({ clientId: "client-one" }),
 });
@@ -240,10 +240,10 @@ client.on(`message`, async (message) => {
     `usd available`,
     `ìnternal transfer`,
   ];
-  /*  keywords.filter((keyword) => {
+  usdKeywords.filter((keyword) => {
     
     if (message.body.includes(keyword) &&
-    !message.body.includes( `message created by chatBot``)
+    !message.body.includes( `message created by chatBot`)
     ) {
       client.sendMessage(
         me,
@@ -252,7 +252,7 @@ client.on(`message`, async (message) => {
       );
       //console.log(`${message.from} :${messageContents}`);
     }
-  }) */
+  }) 
 
   let usdAlert = new keywordAlert(
     usdKeywords,
@@ -271,7 +271,6 @@ client.on(`message`, async (message) => {
   cartridgeAlert.keywordRun(message.body);
 });
 
-//Businness related keyword
 
 const businessKeywords = [
   `cartridges`,
