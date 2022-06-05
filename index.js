@@ -5,14 +5,6 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 6000;
 
-app.get("/", (req, res) => {
-  res.send(`${me}`);
-});
-
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
-
 //CONTACT
 const juanita = process.env.JUANITA;
 const me = process.env.ME;
@@ -68,17 +60,13 @@ let randomAdvert = () =>
 //
 
 const { Client, LocalAuth, NoAuth } = require("whatsapp-web.js");
-const match = `match:`;
 const cron = require(`node-cron`);
 
 // Path where the session data will be stored
 const SESSION_FILE_PATH = "./session.json";
 
 const client = new Client({
-  /*   authStrategy: new LocalAuth({
-    datapath: SESSION_FILE_PATH,
-    clientId: "client",
-  }), */
+  
   authStrategy: new LocalAuth(),
   puppeteer: {
     headless: false,
@@ -173,13 +161,13 @@ function toTime(UNIX_timestamp) {
 //const sendAdvert= client.sendMessage()
 
 const qrcode = require("qrcode-terminal");
-const { send } = require("express/lib/response");
 
 client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
   console.log(qr);
 });
-
+const messages=require("./messages")
+console.log(messages)
 client.on(`message`, async (message) => {
   console.log(message);
   const messageContents = message.body;
@@ -197,6 +185,13 @@ client.on(`message`, async (message) => {
     `usd available`,
     `ìnternal transfer`,
   ];
+
+  if (messageContents==inBert) {
+    message.reply("Than you for contacting Us please chose any one of the following")
+    message.reply(messages[deliveryOptions])
+  } else {
+    
+  }
   usdKeywords.filter((keyword) => {
     if (
       message.body.includes(keyword) &&
