@@ -186,7 +186,7 @@ client.on(`message`, async (message) => {
     `ìnternal transfer`,
   ];
 
-  if (messageContents==inBert) {
+  if (messageContents=='inBert') {
     message.reply("Than you for contacting Us please chose any one of the following")
     message.reply(messages[deliveryOptions])
   } else {
