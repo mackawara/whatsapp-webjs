@@ -41,7 +41,9 @@ function keywordAlert(keywordsArray, client, messageObject, contact) {
       munhu,
       `Time : ${toTime(
         messageObject.timestamp
-      )}\n Message From : *${messageFrom.replace(`@c.us`,``)} * \n Group:${chat.name} , \n Message : *_${messageObject.body}_* 
+      )}\n Message From : *${messageFrom.replace(`@c.us`, ``)} * \n Group:${
+        chat.name
+      } , \n Message : *_${messageObject.body}_* 
          `
     );
   };
