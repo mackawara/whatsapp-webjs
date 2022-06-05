@@ -8,7 +8,7 @@
     "start": "node index.js",
     "build": "npm install"
   },
-  "author": "",
+  "author": "mac kawara",
   "license": "ISC",
   "dependencies": {
     "botbuilder": "^4.16.0",
