@@ -4,6 +4,8 @@ const keywordAlert = require("./keywordsClass");
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 6000;
+const chatBot = require("./middleware/chatbot");
+
 
 //CONTACT
 const juanita = process.env.JUANITA;
@@ -66,7 +68,6 @@ const cron = require(`node-cron`);
 const SESSION_FILE_PATH = "./session.json";
 
 const client = new Client({
-  
   authStrategy: new LocalAuth(),
   puppeteer: {
     headless: false,
@@ -166,8 +167,7 @@ client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
   console.log(qr);
 });
-const messages=require("./messages")
-console.log(messages)
+const messages = require("./messages");
 client.on(`message`, async (message) => {
   console.log(message);
   const messageContents = message.body;
@@ -186,12 +186,10 @@ client.on(`message`, async (message) => {
     `ìnternal transfer`,
   ];
 
-  if (messageContents=='inBert') {
-    message.reply("Than you for contacting Us please chose any one of the following")
-    message.reply(messages[deliveryOptions])
-  } else {
-    
-  }
+  if (messageContents == "inBert") {
+    const customerNumber=message.from
+    chatBot(client,message,customerNumber)
+  } 
   usdKeywords.filter((keyword) => {
     if (
       message.body.includes(keyword) &&
