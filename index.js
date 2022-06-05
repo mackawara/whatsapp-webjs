@@ -22,14 +22,23 @@ const lisbon = process.env.LISBON;
 
 const hwgeCheapGadgets2 = process.env.HWANGECHEAPGADGETS2;
 const hwangeBusinessMarketing1 = process.env.HWANGEBUSINESSMARKETINGGROUP1;
-const hwangeBusinessMarketing2 = process.env.HWANGEBUSINESSMARKETING2;
-const matNorthBusinessGroup = process.env.MATNORTHBUSINESSGROUB;
+const hwangeBusinessMarketing2 = process.env.HWANGEBUSINESSMARKETINGGROUP2;
+const matNorthBusinessGroup = process.env.MATNORTHBUSINESSGROUP;
 const hwangeCityTraders = process.env.HWANGECITYTRADERS;
 const hwangeBuyingAndSelling = process.env.HWANGEBUYINGANDSELLING;
 const hwangeClassifieds = process.env.HWANGECLASSIFIEDS;
 const hwangeDealsGrp1 = process.env.HWANGEDEALSGRP1;
 const amnestyinternational = process.env.AMNESTYINTERNATIONAL;
 
+const contactListForAds = [
+  hwangeBusinessMarketing1,
+  hwangeBusinessMarketing2,
+  matNorthBusinessGroup,
+  hwangeBuyingAndSelling,
+  hwangeCityTraders,
+  hwangeClassifieds,
+  hwangeDealsGrp1,
+];
 //Messages
 
 const advertMessages = [
@@ -98,16 +107,7 @@ client.on("auth_failure", (msg) => {
   console.error("AUTHENTICATION FAILURE", msg);
 });
 
-const contactListForAds = [
-  hwangeBusinessMarketing1,
-  hwangeBusinessMarketing2,
-  matNorthBusinessGroup,
-  hwangeBuyingAndSelling,
-  hwangeCityTraders,
-  hwangeClassifieds,
-  hwangeDealsGrp1,
-];
-
+console.log(contactListForAds);
 const timer = (ms) => new Promise((res) => setTimeout(res, ms));
 
 client.on("authenticated", (session) => {
@@ -119,20 +119,23 @@ client.on("authenticated", (session) => {
 
 async function sendAdverts() {
   const contact = "263775231426@c.us"; //contactListForAds[index];
-  for (let index = 0; index < contactListForAds.length; index++) {
+  for (let i = 0; i < contactListForAds.length; i++) {
     try {
-      client.sendMessage(contactListForAds[index], `${randomAdvert()}`);
+      client.sendMessage(contactListForAds[i], `${randomAdvert()}`);
       await timer(5000);
     } catch (error) {
       console.log(error);
-      client.sendMessage(me, `failed to send automatic message to ${contactListForAds[index]}`);
+      client.sendMessage(
+        me,
+        `failed to send automatic message to ${contactListForAds[i]}`
+      );
     }
   }
 }
 client.on("ready", () => {
   console.log("Client is ready!");
   cron.schedule(
-    "10 6,16 * * *",
+    "43 6,16 * * *",
     () => {
       sendAdverts();
     },
