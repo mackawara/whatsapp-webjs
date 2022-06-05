@@ -151,20 +151,7 @@ client.on("ready", () => {
   );
 });
 
-/* client.on(`sendMessage`,()=>{
-  console.log(message)
-}) */
-async function sendScores() {
-  cron.schedule("00 05  * * *", async () => {
-    const scores = await startScrapping(2);
-    await console.log(scores);
-    await client.sendMessage(
-      hwangeClubcricket,
-      `Match scores brought to you by *MacBot*  ${scores}`
-    );
-  });
-}
-//sendScores()
+
 //client.sendMessage(me,startScrapping(`match:2`))
 function toTime(UNIX_timestamp) {
   const a = new Date(UNIX_timestamp * 1000);
