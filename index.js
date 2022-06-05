@@ -137,7 +137,7 @@ async function sendAdverts() {
 client.on("ready", () => {
   console.log("Client is ready!");
   cron.schedule(
-    "29 7,16 * * *",
+    "29 5,16 * * *",
     () => {
       sendAdverts();
     },
@@ -185,28 +185,11 @@ client.on("qr", (qr) => {
 
 client.on(`message`, async (message) => {
   let chat = message.getChat();
-  console.log(chat);
+  console.log();
   const messageContents = message.body;
   const author = message.from.replace("@c.us", "");
   const receiver = message.to.replace("@c.us", "").replace("263", "0");
 
-  // REQUEST FOR match scores in cricket group
-
-  if (message.from == hwangeClubcricket && messageContents == `${match}3`) {
-    console.log(message.from);
-    message.reply(
-      `Thank you ${message.notifyName} for  using  *MacBot*, please wait while get the scores for you `
-    );
-
-    const matchString = message.body.replace(match, ``);
-    const reply = await startScrapping(matchString);
-    await message.reply(`${reply}`);
-  }
-  //Automatic detection of group message with keywords
-  /* if (message.from == mkadzi) {
-    client.sendMessage(mkadzi, "newe");
-  } */
-  //USD related keywords
 
   const usdKeywords = [
     `for eco`,
