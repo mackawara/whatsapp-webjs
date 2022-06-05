@@ -84,19 +84,17 @@ const client = new Client({
     headless: false,
     "--no-sandbox": true,
     "--disable-setuid-sandbox": true,
-      executablePath:
-      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" 
+    executablePath:
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     //executablePath: "OS/Applications/Chrome",
   },
 });
 console.log("client initialising");
-;
 try {
   client.initialize();
 } catch {
   console.log(` authentication not approved`);
 }
-;
 const client1 = new Client({
   authStrategy: new LocalAuth({ clientId: "client-one" }),
 });
@@ -118,10 +116,6 @@ const scheduledMessagesList = [
   hwangeCityTraders,
   hwangeClassifieds,
   hwangeDealsGrp1,
-
-  /*hwangeBusinessMarketing,
-  hwangeBusinessMarketing2,
-   */
 ];
 
 const timer = (ms) => new Promise((res) => setTimeout(res, ms));
@@ -137,7 +131,7 @@ async function sendAdverts() {
   for (let index = 0; index < scheduledMessagesList.length; index++) {
     const contact = scheduledMessagesList[index];
     client.sendMessage(contact, `${randomAdvert()}`);
-    await timer(50000);
+    await timer(500);
   }
 }
 client.on("ready", () => {
@@ -151,8 +145,6 @@ client.on("ready", () => {
   );
 });
 
-
-//client.sendMessage(me,startScrapping(`match:2`))
 function toTime(UNIX_timestamp) {
   const a = new Date(UNIX_timestamp * 1000);
   const months = [
@@ -228,18 +220,23 @@ client.on(`message`, async (message) => {
     `ìnternal transfer`,
   ];
   usdKeywords.filter((keyword) => {
-    
-    if (message.body.includes(keyword) &&
-    !message.body.includes( `message created by chatBot`)
+    if (
+      message.body.includes(keyword) &&
+      !message.body.includes(`message created by chatBot`)
     ) {
       client.sendMessage(
         me,
-        `${toTime(message.timestamp)}  at ${message.from
-        } group :message from :${message.author.replace("@c.us", "").replace("263", "0")}, ${message.notifyName} ${message.body} *message created by chatBot`
+        `${toTime(message.timestamp)}  at ${
+          message.from
+        } group :message from :${message.author
+          .replace("@c.us", "")
+          .replace("263", "0")}, ${message.notifyName} ${
+          message.body
+        } *message created by chatBot`
       );
       //console.log(`${message.from} :${messageContents}`);
     }
-  }) 
+  });
 
   let usdAlert = new keywordAlert(
     usdKeywords,
@@ -257,7 +254,6 @@ client.on(`message`, async (message) => {
   );
   cartridgeAlert.keywordRun(message.body);
 });
-
 
 const businessKeywords = [
   `cartridges`,
