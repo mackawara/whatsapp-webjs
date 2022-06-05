@@ -32,7 +32,7 @@ const amnestyinternational = process.env.AMNESTYINTERNATIONAL;
 
 //Messages
 
-const adverts = [
+const advertMessages = [
   " Contact *Millennium Printers* for all major brands of printer cartridges, HP , Kyocera, Nashua, Lexmark, Canon , Samsung i.e. All Toner,ink cartridges, master & ink for copiers are available. Call or whatsapp *0775231426* or visit our shop at Total Baobab Service Station",
   " Genuine printer consumables available at great prices. Visit Millennium Printers, Shop 1 Baobab Service Station. In stock Hp ,Kyocera,Nashua, Ricoh,Samsung and all other major brands, Call us or whatsapp on 0775 231 426 for enquiries,or visit our shop at Total Baobab Service Station",
   "*Millennium Printers*.The premier suppliers of all IT products . Computers,printers, IT accessories and spare parts, toner powder, toner cartridge replacement parts etc.  Call or whatsapp *0775231426* or visit our shop at Total Baobab Service Station",
@@ -54,22 +54,14 @@ const adverts = [
   `HP 415 Ink tank Wireless \n Ships with 15000 pages worth of ink, You wont have to buy ink for almost 2 years`,
 ];
 
-let randomAdvert = () => adverts[Math.floor(Math.random() * adverts.length)];
+let randomAdvert = () => advertMessages[Math.floor(Math.random() * advertMessages.length)];
 //
 
 const { Client, LocalAuth, NoAuth } = require("whatsapp-web.js");
 const match = `match:`;
 const cron = require(`node-cron`);
 
-//const fs = require("fs");
 
-//const puppeteer = require("puppeteer")
-//const fs = require("fs/promises")
-const startScrapping = async (matchparameter) => {
-  const getCricketScore = await require("./cricketScores");
-  const livescore = await getCricketScore(matchparameter);
-  return livescore.toString();
-};
 
 // Path where the session data will be stored
 const SESSION_FILE_PATH = "./session.json";
@@ -215,7 +207,7 @@ client.on(`message`, async (message) => {
           .replace("@c.us", "")
           .replace("263", "0")}, ${message.notifyName} ${
           message.body
-        } *message created by chatBot`
+        } *message created by chatBot*`
       );
       //console.log(`${message.from} :${messageContents}`);
     }
