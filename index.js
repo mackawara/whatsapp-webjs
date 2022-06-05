@@ -19,7 +19,7 @@ const me = process.env.ME;
 const mkadzi = process.env.WIFE;
 const lisbon = process.env.LISBON;
 //GROUPS
-const hwangeClubcricket = process.env.HWANGECLUBCRICKET;
+
 const hwgeCheapGadgets2 = process.env.HWANGECHEAPGADGETS2;
 const hwangeBusinessMarketing1 = process.env.HWANGEBUSINESSMARKETINGGROUP1;
 const hwangeBusinessMarketing2 = process.env.HWANGEBUSINESSMARKETING2;
@@ -54,14 +54,13 @@ const advertMessages = [
   `HP 415 Ink tank Wireless \n Ships with 15000 pages worth of ink, You wont have to buy ink for almost 2 years`,
 ];
 
-let randomAdvert = () => advertMessages[Math.floor(Math.random() * advertMessages.length)];
+let randomAdvert = () =>
+  advertMessages[Math.floor(Math.random() * advertMessages.length)];
 //
 
 const { Client, LocalAuth, NoAuth } = require("whatsapp-web.js");
 const match = `match:`;
 const cron = require(`node-cron`);
-
-
 
 // Path where the session data will be stored
 const SESSION_FILE_PATH = "./session.json";
@@ -99,7 +98,7 @@ client.on("auth_failure", (msg) => {
   console.error("AUTHENTICATION FAILURE", msg);
 });
 
-const scheduledMessagesList = [
+const contactListForAds = [
   hwangeBusinessMarketing1,
   hwangeBusinessMarketing2,
   hwgeCheapGadgets2,
@@ -120,16 +119,21 @@ client.on("authenticated", (session) => {
 });
 
 async function sendAdverts() {
-  for (let index = 0; index < scheduledMessagesList.length; index++) {
-    const contact = scheduledMessagesList[index];
-    client.sendMessage(contact, `${randomAdvert()}`);
-    await timer(500);
+  const contact = "263775231426@c.us"; //contactListForAds[index];
+  try {
+    for (let index = 0; index < contactListForAds.length; index++) {
+      client.sendMessage(contact, `${randomAdvert()}`);
+      await timer(5000);
+    }
+  } catch (error) {
+    console.log(error);
+    client.sendMessage(me, "failed to send automatic message");
   }
 }
 client.on("ready", () => {
   console.log("Client is ready!");
   cron.schedule(
-    "29 5,16 * * *",
+    "50 5,16 * * *",
     () => {
       sendAdverts();
     },
@@ -167,7 +171,6 @@ function toTime(UNIX_timestamp) {
 //const sendAdvert= client.sendMessage()
 
 const qrcode = require("qrcode-terminal");
-const nodemon = require("nodemon");
 const { send } = require("express/lib/response");
 
 client.on("qr", (qr) => {
@@ -176,12 +179,10 @@ client.on("qr", (qr) => {
 });
 
 client.on(`message`, async (message) => {
-  let chat = message.getChat();
-  console.log();
+  console.log(message);
   const messageContents = message.body;
   const author = message.from.replace("@c.us", "");
   const receiver = message.to.replace("@c.us", "").replace("263", "0");
-
 
   const usdKeywords = [
     `for eco`,
