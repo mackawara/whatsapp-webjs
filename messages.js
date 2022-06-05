@@ -6,10 +6,10 @@ const messages = [
         "2.Local : Delivered on the next day collection before 1600hrs",
     },
     parcelOptions: {
-      envelope: "Envelope",
-      cash: "Cash",
-      fastFoodBox: "Fast food Box",
-      groceryPack: "Groceries",
+      envelope: "1.Envelope",
+      cash: "2.Cash",
+      fastFoodBox: "3.Fast food Box",
+      groceryPack: "4.Groceries",
     },
   },
 ];
