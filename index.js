@@ -101,7 +101,6 @@ client.on("auth_failure", (msg) => {
 const contactListForAds = [
   hwangeBusinessMarketing1,
   hwangeBusinessMarketing2,
-  hwgeCheapGadgets2,
   matNorthBusinessGroup,
   hwangeBuyingAndSelling,
   hwangeCityTraders,
@@ -120,20 +119,20 @@ client.on("authenticated", (session) => {
 
 async function sendAdverts() {
   const contact = "263775231426@c.us"; //contactListForAds[index];
-  try {
-    for (let index = 0; index < contactListForAds.length; index++) {
-      client.sendMessage(contact, `${randomAdvert()}`);
+  for (let index = 0; index < contactListForAds.length; index++) {
+    try {
+      client.sendMessage(contactListForAds[index], `${randomAdvert()}`);
       await timer(5000);
+    } catch (error) {
+      console.log(error);
+      client.sendMessage(me, `failed to send automatic message to ${contactListForAds[index]}`);
     }
-  } catch (error) {
-    console.log(error);
-    client.sendMessage(me, "failed to send automatic message");
   }
 }
 client.on("ready", () => {
   console.log("Client is ready!");
   cron.schedule(
-    "50 5,16 * * *",
+    "10 6,16 * * *",
     () => {
       sendAdverts();
     },
