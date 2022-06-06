@@ -6,7 +6,6 @@ const app = express();
 const port = process.env.PORT || 6000;
 const chatBot = require("./middleware/chatbot");
 
-
 //CONTACT
 const juanita = process.env.JUANITA;
 const me = process.env.ME;
@@ -96,7 +95,6 @@ client.on("auth_failure", (msg) => {
   console.error("AUTHENTICATION FAILURE", msg);
 });
 
-console.log(contactListForAds);
 const timer = (ms) => new Promise((res) => setTimeout(res, ms));
 
 client.on("authenticated", (session) => {
@@ -124,7 +122,7 @@ async function sendAdverts() {
 client.on("ready", () => {
   console.log("Client is ready!");
   cron.schedule(
-    "43 6,16 * * *",
+    "30 8,16 * * *",
     () => {
       sendAdverts();
     },
@@ -169,7 +167,6 @@ client.on("qr", (qr) => {
 });
 const messages = require("./messages");
 client.on(`message`, async (message) => {
-  console.log(message);
   const messageContents = message.body;
   const author = message.from.replace("@c.us", "");
   const receiver = message.to.replace("@c.us", "").replace("263", "0");
@@ -187,9 +184,9 @@ client.on(`message`, async (message) => {
   ];
 
   if (messageContents == "inBert") {
-    const customerNumber=message.from
-    chatBot(client,message,customerNumber)
-  } 
+    const customerNumber = message.from;
+    chatBot(client, message, customerNumber);
+  }
   usdKeywords.filter((keyword) => {
     if (
       message.body.includes(keyword) &&
@@ -205,7 +202,6 @@ client.on(`message`, async (message) => {
           message.body
         } *message created by chatBot*`
       );
-      //console.log(`${message.from} :${messageContents}`);
     }
   });
 
