@@ -1,4 +1,4 @@
-const { LegacySessionAuth } = require("whatsapp-web.js");
+
 
 function toTime(UNIX_timestamp) {
   const a = new Date(UNIX_timestamp * 1000);
