@@ -1,37 +1,17 @@
 require("dotenv").config();
 
 const keywordAlert = require("./keywordsClass");
-const express = require("express");
-const app = express();
-const port = process.env.PORT || 6000;
 const chatBot = require("./middleware/chatbot");
 
 //CONTACT
 const juanita = process.env.JUANITA;
 const me = process.env.ME;
+const amnestyinternational = process.env.AMNESTYINTERNATIONAL;
 const mkadzi = process.env.WIFE;
 const lisbon = process.env.LISBON;
 //GROUPS
 
-const hwgeCheapGadgets2 = process.env.HWANGECHEAPGADGETS2;
-const hwangeBusinessMarketing1 = process.env.HWANGEBUSINESSMARKETINGGROUP1;
-const hwangeBusinessMarketing2 = process.env.HWANGEBUSINESSMARKETINGGROUP2;
-const matNorthBusinessGroup = process.env.MATNORTHBUSINESSGROUP;
-const hwangeCityTraders = process.env.HWANGECITYTRADERS;
-const hwangeBuyingAndSelling = process.env.HWANGEBUYINGANDSELLING;
-const hwangeClassifieds = process.env.HWANGECLASSIFIEDS;
-const hwangeDealsGrp1 = process.env.HWANGEDEALSGRP1;
-const amnestyinternational = process.env.AMNESTYINTERNATIONAL;
-
-const contactListForAds = [
-  hwangeBusinessMarketing1,
-  hwangeBusinessMarketing2,
-  matNorthBusinessGroup,
-  hwangeBuyingAndSelling,
-  hwangeCityTraders,
-  hwangeClassifieds,
-  hwangeDealsGrp1,
-];
+const contactGrps = require("./contacts");
 //Messages
 
 const messages = require("./messages");
@@ -82,21 +62,18 @@ const timer = (ms) => new Promise((res) => setTimeout(res, ms));
 client.on("authenticated", (session) => {
   console.log(session);
   console.log(`client authenticated`);
-  // Save the session object however you prefer.
-  // Convert it to json, save it to a file, store it in a database...
 });
 
 async function sendAdverts() {
-  const contact = "263775231426@c.us"; //contactListForAds[index];
-  for (let i = 0; i < contactListForAds.length; i++) {
+  for (let i = 0; i < contactGrps.length; i++) {
     try {
-      client.sendMessage(contactListForAds[i], `${randomAdvert()}`);
-      await timer(5000);
+      client.sendMessage(contactGrps[i], `${randomAdvert()}`);
+      await timer(6500);
     } catch (error) {
       console.log(error);
       client.sendMessage(
         me,
-        `failed to send automatic message to ${contactListForAds[i]}`
+        `failed to send automatic message to ${contactGrps[i]}`
       );
     }
   }
@@ -165,7 +142,7 @@ client.on(`message`, async (message) => {
       !message.body.includes(`message created by chatBot`)
     ) {
       client.sendMessage(
-        me,
+        amnestyinternational,
         `${toTime(message.timestamp)}  at ${
           message.from
         } group :message from :${message.author
