@@ -1,0 +1,33 @@
+const keywords = {
+  cartridgeAlert: [
+    `cartridges`,
+    `catridges`,
+    `printer cartridges`,
+    `HP ink`,
+    `toner`,
+    ` Ink cartridges`,
+    `kyocera`,
+    `lexmark`,
+    `Samsung cartridges`,
+    `Samsung Printer`,
+    `Ricoh`,
+    ` master and ink`,
+    `computer repairs`,
+    `computer networking`,
+    `WIFI`,
+    `telone modem`,
+    `mifi`,
+  ],
+  usdAlerts: [
+    `for eco`,
+    `for ecocash`,
+    `USD available`,
+    `for zipit`,
+    `US for`,
+    `for bank transfer`,
+    `US for`,
+    `usd available`,
+    `ìnternal transfer`,
+  ],
+};
+module.exports = keywords;
