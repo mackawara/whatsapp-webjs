@@ -35,8 +35,8 @@ const contactListForAds = [
 //Messages
 
 const messages = require("./messages");
+const keywords = require("./keywords");
 const advertMessages = messages.advertMessages;
-console.log(advertMessages);
 
 let randomAdvert = () =>
   advertMessages[Math.floor(Math.random() * advertMessages.length)];
@@ -152,17 +152,8 @@ client.on(`message`, async (message) => {
   const author = message.from.replace("@c.us", "");
   const receiver = message.to.replace("@c.us", "").replace("263", "0");
 
-  const usdKeywords = [
-    `for eco`,
-    `for ecocash`,
-    `USD available`,
-    `for zipit`,
-    `US for`,
-    `for bank transfer`,
-    `US for`,
-    `usd available`,
-    `ìnternal transfer`,
-  ];
+  const usdKeywords = keywords.usdAlerts;
+  console.log(usdKeywords);
 
   if (messageContents == "inBert") {
     const customerNumber = message.from;
@@ -203,25 +194,7 @@ client.on(`message`, async (message) => {
   cartridgeAlert.keywordRun(message.body);
 });
 
-const businessKeywords = [
-  `cartridges`,
-  `catridges`,
-  `printer cartridges`,
-  `HP ink`,
-  `toner`,
-  ` Ink cartridges`,
-  `kyocera`,
-  `lexmark`,
-  `Samsung cartridges`,
-  `Samsung Printer`,
-  `Ricoh`,
-  ` master and ink`,
-  `computer repairs`,
-  `computer networking`,
-  `WIFI`,
-  `telone modem`,
-  `mifi`,
-];
+const businessKeywords = keywords.cartridgeAlert;
 
 client.on("disconnected", (reason) => {
   console.log("Client was logged out", reason);
