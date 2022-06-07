@@ -1,4 +1,3 @@
-
 const hwgeCheapGadgets2 = process.env.HWANGECHEAPGADGETS2;
 const hwangeBusinessMarketing1 = process.env.HWANGEBUSINESSMARKETINGGROUP1;
 const hwangeBusinessMarketing2 = process.env.HWANGEBUSINESSMARKETINGGROUP2;
@@ -9,15 +8,14 @@ const hwangeClassifieds = process.env.HWANGECLASSIFIEDS;
 const hwangeDealsGrp1 = process.env.HWANGEDEALSGRP1;
 const amnestyinternational = process.env.AMNESTYINTERNATIONAL;
 
-
-const contactListForAds = [
-    hwangeBusinessMarketing1,
-    hwangeBusinessMarketing2,
-    matNorthBusinessGroup,
-    hwangeBuyingAndSelling,
-    hwangeCityTraders,
-    hwangeClassifieds,
-    hwangeDealsGrp1,
-    hwgeCheapGadgets2
-  ]
-  module.exports=contactList;
+const contactList = [
+  hwangeBusinessMarketing1,
+  hwangeBusinessMarketing2,
+  matNorthBusinessGroup,
+  hwangeBuyingAndSelling,
+  hwangeCityTraders,
+  hwangeClassifieds,
+  hwangeDealsGrp1,
+  hwgeCheapGadgets2,
+];
+module.exports = contactList;
