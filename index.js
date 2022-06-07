@@ -67,7 +67,7 @@ client.on("auth_failure", (msg) => {
 const scheduledMessagesList = [hwangeBusinessMarketing, hwangeBusinessMarketing2, matNorthBusinessGroup]
 client.on("ready", () => {
   console.log("Client is ready!");
-  cron.schedule('35 09 * * Mon,Tue,Wed,Thur,Fri,Sat', () => {
+  cron.schedule('37 1 * * Mon,Tue,Wed,Thur,Fri,Sat', () => {
 
     console.log(`testing`)
     /* scheduledMessagesList.map((contactName)=>{ */
