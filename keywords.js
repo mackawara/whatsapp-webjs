@@ -17,7 +17,7 @@ const keywords = {
     `WIFI`,
     `telone modem`,
     `mifi`,
-    `CCTv`
+    `CCTv`,
   ],
   usdAlerts: [
     `for eco`,
@@ -29,7 +29,7 @@ const keywords = {
     `US for`,
     `usd available`,
     `ìnternal transfer`,
-    `available for USD`
+    `available for USD`,
   ],
 };
 module.exports = keywords;
