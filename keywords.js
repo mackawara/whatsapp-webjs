@@ -1,7 +1,7 @@
 const keywords = {
   cartridgeAlert: [
     `cartridges`,
-    `catridges`,
+    `Toner catridges`,
     `printer cartridges`,
     `HP ink`,
     `toner`,
@@ -11,7 +11,7 @@ const keywords = {
     `Samsung cartridges`,
     `Samsung Printer`,
     `Ricoh`,
-    ` master and ink`,
+    `master and ink for copiers`,
     `computer repairs`,
     `computer networking`,
     `WIFI`,
