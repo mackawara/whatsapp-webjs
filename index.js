@@ -81,7 +81,7 @@ async function sendAdverts() {
 client.on("ready", () => {
   console.log("Client is ready!");
   cron.schedule(
-    "47 11,14 * * *",
+    "02 9,15 * * *",
     () => {
       sendAdverts();
     },
@@ -170,7 +170,7 @@ client.on(`message`, async (message) => {
   );
   cartridgeAlert.keywordRun(message.body);
 });
-
+//
 const businessKeywords = keywords.cartridgeAlert;
 
 client.on("disconnected", (reason) => {
