@@ -11,7 +11,7 @@ const messages = {
     groceryPack: "4.Groceries",
   },
   advertMessages: [
-    " Contact *Millennium Printers* for all major brands of printer cartridges, HP , Kyocera, Nashua, Lexmark, Canon , Samsung i.e. All Toner,ink cartridges, master & ink for copiers are available. \n Call or whatsapp *0775231426* or visit our shop at Total Baobab Service Station",
+    " Contact *Millennium Printers* for all major brands of printer cartridges \n HP ,\n Kyocera, \n Nashua, \n Lexmark,\n Canon ,\n Samsung i.e.\n All Toner,ink cartridges, master & ink for copiers are available. \n Call or whatsapp *0775231426* or visit our shop at Total Baobab Service Station",
     ` Genuine printer consumables available at great prices. Visit Millennium Printers, Shop 1 Baobab Service Station.In stock Hp ,Kyocera,Nashua, Ricoh,Samsung and all other major brands \n Call us or whatsapp on 0775 231 426 for enquiries,or visit our shop at Total Baobab Service Station \n 
       * New shop Opening at Pick Pay malll*`,
     "*Millennium Printers*.The premier suppliers of all IT products . Computers,printers, IT accessories and spare parts, toner powder, toner cartridge replacement parts etc.  Call or whatsapp *0775231426* or visit our shop at Total Baobab Service Station",
