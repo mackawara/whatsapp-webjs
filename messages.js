@@ -29,9 +29,9 @@ const messages = {
         - Covering WIfi blindspots \n
         - PtP wireless links \n
         Contact us on *0775231426* or visit our shop at Total Baobab Service Station`,
-    ` Reliable,Proffessional Computer hardware and Software Repairs by industry experts. \n Please inbox for enquiries`,
-    `HP 415 Ink tank Wireless \n Ships with 15000 pages worth of ink, You wont have to buy ink for almost 2 years. 
-      \n Priced at only $260 it is ideal for small office or home use. For enquiries , please call us on *0775231426* or 0812830008 (landline)`,
+    ` Reliable,Proffessional Computer hardware and Software Repairs by industry experts. \n Please inbox for enquiries \n *Or call us on this number 0775231426*`,
+    `HP 415 Ink tank Wireless \n Ships with 15000 pages worth of ink,\n You wont have to buy ink for 2 years. 
+      \n Priced at only $260 it is ideal for small office or home use.  \n For enquiries , please call us on *0775231426* or 0812830008 (landline)`,
     `Opening Soon at TM Pickn PAy mall  (Shops directly above TM pick N Pay). 
         *Venta Tech * \n A revolutionary IT Shop  run by technology legends \n
          *Services on Offer * \n
