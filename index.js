@@ -67,7 +67,9 @@ client.on("authenticated", (session) => {
 async function sendAdverts() {
   for (let i = 0; i < contactGrps.length; i++) {
     try {
-      client.sendMessage(contactGrps[i], `${randomAdvert()}`);
+     await client.sendMessage(contactGrps[i], `${randomAdvert()}`).catch((err)=>{
+      console.log(err)
+     });
       await timer(6500);
     } catch (error) {
       console.log(error);
@@ -78,6 +80,7 @@ async function sendAdverts() {
     }
   }
 }
+
 client.on("ready", () => {
   console.log("Client is ready!");
   cron.schedule(
