@@ -79,7 +79,7 @@ async function sendAdverts() {
 client.on("ready", () => {
   console.log("Client is ready!");
   cron.schedule(
-    "02 9,15 * * *",
+    "02 8,13 * * *",
     () => {
       sendAdverts();
     },
@@ -120,7 +120,7 @@ const qrcode = require("qrcode-terminal");
 
 client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
-  console.log(qr);
+  
 });
 client.on(`message`, async (message) => {
   const messageContents = message.body;
