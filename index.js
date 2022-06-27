@@ -45,13 +45,6 @@ try {
 } catch {
   console.log(` authentication not approved`);
 }
-const client1 = new Client({
-  authStrategy: new LocalAuth({ clientId: "client-one" }),
-});
-
-const client2 = new Client({
-  authStrategy: new LocalAuth({ clientId: "client-two" }),
-});
 client.on("auth_failure", (msg) => {
   // Fired if session restore was unsuccessful
   console.error("AUTHENTICATION FAILURE", msg);
