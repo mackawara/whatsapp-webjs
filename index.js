@@ -56,13 +56,15 @@ client.on("authenticated", (session) => {
   console.log(session);
   console.log(`client authenticated`);
 });
-
+console.log(contactGrps);
 async function sendAdverts() {
   for (let i = 0; i < contactGrps.length; i++) {
     try {
-     await client.sendMessage(contactGrps[i], `${randomAdvert()}`).catch((err)=>{
-      console.log(err)
-     });
+      await client
+        .sendMessage(contactGrps[i], `${randomAdvert()}`)
+        .catch((err) => {
+          console.log(err);
+        });
       await timer(6500);
     } catch (error) {
       console.log(error);
