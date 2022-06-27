@@ -16,6 +16,5 @@ const contactList = [
   hwangeCityTraders,
   hwangeClassifieds,
   hwangeDealsGrp1,
-  hwgeCheapGadgets2,
 ];
 module.exports = contactList;
