@@ -36,7 +36,7 @@ const client = new Client({
     "--disable-setuid-sandbox": true,
     executablePath:
       "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    //executablePath: "OS/Applications/Chrome",
+    //executablePath: "OS/Applications/Chnpxrome",
   },
 });
 console.log("client initialising");
@@ -120,7 +120,6 @@ const qrcode = require("qrcode-terminal");
 
 client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
-  
 });
 client.on(`message`, async (message) => {
   const messageContents = message.body;
