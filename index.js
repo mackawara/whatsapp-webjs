@@ -27,6 +27,12 @@ const cron = require(`node-cron`);
 
 // Path where the session data will be stored
 const SESSION_FILE_PATH = "./session.json";
+/* 
+const client = new Client({
+        authStrategy: new RemoteAuth({
+            store: store,
+            backupSyncIntervalMs: 300000
+        }) */
 
 const client = new Client({
   authStrategy: new LocalAuth(),
