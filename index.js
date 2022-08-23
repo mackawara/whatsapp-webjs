@@ -31,7 +31,7 @@ const SESSION_FILE_PATH = "./session.json";
 const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
-    headless: true,
+    headless: false,
     "--no-sandbox": true,
     "--disable-setuid-sandbox": true,
     /*   executablePath:
@@ -122,6 +122,7 @@ client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
 });
 client.on(`message`, async (message) => {
+  console.log(message)
   const messageContents = message.body;
   const author = message.from.replace("@c.us", "");
   const receiver = message.to.replace("@c.us", "").replace("263", "0");
@@ -129,10 +130,9 @@ client.on(`message`, async (message) => {
   const usdKeywords = keywords.usdAlerts;
   console.log(usdKeywords);
 
-  if (messageContents == "inBert") {
-    const customerNumber = message.from;
-    chatBot(client, message, customerNumber);
-  }
+   if (message.from==`120363024521597577@g.us`){
+    client.sendMessage(``,message.body)
+   }
   usdKeywords.filter((keyword) => {
     if (
       message.body.includes(keyword) &&
