@@ -5,16 +5,23 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "npm install"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "heroku": "^7.60.1",
     "node-cron": "^3.0.0",
     "nodemon": "^2.0.15",
     "puppeteer": "^13.5.1",
     "qrcode-terminal": "^0.12.0",
+<<<<<<< HEAD
     "whatsapp-web.js": "^1.18.0"
+=======
+    "whatsapp-web.js": "^1.16.6"
+>>>>>>> 1cd82ef9e167517c300fd82ce740a9dd2640bd0e
   }
 }
