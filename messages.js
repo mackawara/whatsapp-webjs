@@ -13,7 +13,7 @@ const messages = {
   advertMessages: [
     " Contact *Millennium Printers* for all major brands of printer cartridges \n HP ,\n Kyocera, \n Nashua, \n Lexmark,\n Canon ,\n Samsung i.e.\n All Toner,ink cartridges, master & ink for copiers are available. \n Call or whatsapp *0775231426* or visit our shop at Total Baobab Service Station",
     ` Genuine printer consumables available at great prices. Visit Millennium Printers, Shop 1 Baobab Service Station.In stock Hp ,Kyocera,Nashua, Ricoh,Samsung and all other major brands \n Call us or whatsapp on 0775 231 426 for enquiries,or visit our shop at Total Baobab Service Station \n 
-      * New shop Opening at Pick Pay malll*`,
+      * New shop now Open at Pick Pay mall*`,
     "*Millennium Printers*.The premier suppliers of all IT products . Computers,printers, IT accessories and spare parts, toner powder, toner cartridge replacement parts etc.  Call or whatsapp *0775231426* or visit our shop at Total Baobab Service Station",
     `*CCTV Installation* \n Secure your home or business premises with High quality IP Surveillance Cameras \n
        *Remote Monitoring* \n monitor live feed from all your cameras from your phone/computer from anywhere in the world \n
@@ -32,7 +32,7 @@ const messages = {
     ` Reliable,Proffessional Computer hardware and Software Repairs by industry experts. \n Please inbox for enquiries \n *Or call us on this number 0775231426*`,
     `HP 415 Ink tank Wireless \n Ships with 15000 pages worth of ink,\n You wont have to buy ink for 2 years. 
       \n Priced at only $260 it is ideal for small office or home use.  \n For enquiries , please call us on *0775231426* or 0812830008 (landline)`,
-    `Opening Soon at TM Pickn PAy mall  (Shops directly above TM pick N Pay). 
+    `Shop TM Pickn PAy mall  (Shops directly above TM pick N Pay). 
         *Venta Tech * \n A revolutionary IT Shop  run by technology legends \n
          *Services on Offer * \n
          1. Web Design / Web app development \n
@@ -49,6 +49,10 @@ const messages = {
          4. Laptops / Desktops\n
          For enquiries vist us at our current shop at Baobab S/ Station , call /whatsapp 0775231426
          `,
+         `Internet acces is human right. \n Venta Hotspots provide you the *fastest internet* you have ever experienced \n
+         We have various vouchers suited for you needs startign from $1 for 1GB\n
+         PS there is *FREE* 30 minutes for students in school uniform \n
+         Address Shop 1 TM Pick N Pay Mall, (Above TM) Entrance to stairs behind TM parcel counter `
   ],
 };
 
