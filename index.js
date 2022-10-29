@@ -6,12 +6,8 @@ const app = express();
 const port = process.env.PORT || 6000;
 const chatBot = require("./middleware/chatbot");
 
-
 //CONTACT
-const juanita = process.env.JUANITA;
-const me = process.env.ME;
-const mkadzi = process.env.WIFE;
-const lisbon = process.env.LISBON;
+
 //GROUPS
 
 const hwgeCheapGadgets2 = process.env.HWANGECHEAPGADGETS2;
@@ -186,10 +182,7 @@ client.on(`message`, async (message) => {
     `ìnternal transfer`,
   ];
 
-  if (messageContents == "inBert") {
-    const customerNumber=message.from
-    chatBot(client,message,customerNumber)
-  } 
+  
   usdKeywords.filter((keyword) => {
     if (
       message.body.includes(keyword) &&
