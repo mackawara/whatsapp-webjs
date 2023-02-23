@@ -31,27 +31,8 @@ const contactListForAds = [
 ];
 //Messages
 
-const advertMessages = [
-  " Contact *Millennium Printers* for all major brands of printer cartridges, HP , Kyocera, Nashua, Lexmark, Canon , Samsung i.e. All Toner,ink cartridges, master & ink for copiers are available. Call or whatsapp *0775231426* or visit our shop at Total Baobab Service Station",
-  " Genuine printer consumables available at great prices. Visit Millennium Printers, Shop 1 Baobab Service Station. In stock Hp ,Kyocera,Nashua, Ricoh,Samsung and all other major brands, Call us or whatsapp on 0775 231 426 for enquiries,or visit our shop at Total Baobab Service Station",
-  "*Millennium Printers*.The premier suppliers of all IT products . Computers,printers, IT accessories and spare parts, toner powder, toner cartridge replacement parts etc.  Call or whatsapp *0775231426* or visit our shop at Total Baobab Service Station",
-  `*CCTV Installation* \n Secure your home or business premises with High quality IP Surveillance Cameras \n
-   *Remote Monitoring* \n monitor live feed from all your cameras from your phone/computer from anywhere in the world \n
-   *Facial Recognition* \n  Our HD surveillance cameras make it easy to identify intruders from more than 10m away \n 
-   *Infra red Light* \n Infrared (IR) cameras provide clear HD pictures in low light or night time \n
-   *Motion Detection* \n get alerts when intruder is detected on the property during non-waking (night time) hours \n
-   Get in touch with Industry legends Millennium printer on whatsapp/call 0775 231 426 `,
-  `*Home or Business Network Engineering* \n
-   2022 Offices/Homes need built-in network wiring. Network wiring is now just as essential as electrical cabling so that all rooms/offices have wired internet(ethernet ports) . \n
-    Millennium Printers, your IT legends, provide custom built home/office network solutions \n 
-    We also offer *WiFI* solutions \n
-    - Wifi range extension\n
-    - Covering WIfi blindspots \n
-    - PtP wireless links \n
-    Contact us on *0775231426* or visit our shop at Total Baobab Service Station`,
-  ` Reliable,Proffessional Computer hardware and Software Repairs by industry experts. \n Please inbox for enquiries`,
-  `HP 415 Ink tank Wireless \n Ships with 15000 pages worth of ink, You wont have to buy ink for almost 2 years`,
-];
+const advertMessages=require ("./adverts")
+console.log(advertMessages)
 
 let randomAdvert = () =>
   advertMessages[Math.floor(Math.random() * advertMessages.length)];
@@ -66,11 +47,11 @@ const SESSION_FILE_PATH = "./session.json";
 const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
-    headless: true,
+    headless: false,
     //"--no-sandbox": true,
     "--disable-setuid-sandbox": true,
-    //executablePath:
-     // "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    executablePath:
+     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     //executablePath: "OS/Applications/Chrome",
   },
 });
