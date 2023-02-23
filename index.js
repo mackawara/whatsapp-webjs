@@ -7,7 +7,7 @@ const port = process.env.PORT || 6000;
 const chatBot = require("./middleware/chatbot");
 
 //CONTACT
-
+const me = process.env.ME;
 //GROUPS
 
 const hwgeCheapGadgets2 = process.env.HWANGECHEAPGADGETS2;
@@ -67,7 +67,7 @@ const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
     headless: false,
-    "--no-sandbox": true,
+    //"--no-sandbox": true,
     "--disable-setuid-sandbox": true,
     executablePath:
       "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -80,19 +80,12 @@ try {
 } catch {
   console.log(` authentication not approved`);
 }
-const client1 = new Client({
-  authStrategy: new LocalAuth({ clientId: "client-one" }),
-});
 
-const client2 = new Client({
-  authStrategy: new LocalAuth({ clientId: "client-two" }),
-});
 client.on("auth_failure", (msg) => {
   // Fired if session restore was unsuccessful
   console.error("AUTHENTICATION FAILURE", msg);
 });
 
-console.log(contactListForAds);
 const timer = (ms) => new Promise((res) => setTimeout(res, ms));
 
 client.on("authenticated", (session) => {
@@ -106,7 +99,11 @@ async function sendAdverts() {
   const contact = "263775231426@c.us"; //contactListForAds[index];
   for (let i = 0; i < contactListForAds.length; i++) {
     try {
-      client.sendMessage(contactListForAds[i], `${randomAdvert()}`);
+      client
+        .sendMessage(contactListForAds[i], `${randomAdvert()}`)
+        .catch((error) => {
+          console.log(error);
+        });
       await timer(5000);
     } catch (error) {
       console.log(error);
@@ -165,7 +162,6 @@ client.on("qr", (qr) => {
 });
 const messages = require("./messages");
 client.on(`message`, async (message) => {
-  console.log(message);
   const messageContents = message.body;
   const author = message.from.replace("@c.us", "");
   const receiver = message.to.replace("@c.us", "").replace("263", "0");
@@ -182,7 +178,6 @@ client.on(`message`, async (message) => {
     `ìnternal transfer`,
   ];
 
-  
   usdKeywords.filter((keyword) => {
     if (
       message.body.includes(keyword) &&
