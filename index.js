@@ -69,8 +69,8 @@ const client = new Client({
     headless: true,
     //"--no-sandbox": true,
     "--disable-setuid-sandbox": true,
-    executablePath:
-      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    //executablePath:
+     // "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     //executablePath: "OS/Applications/Chrome",
   },
 });
