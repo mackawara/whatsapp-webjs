@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const keywordAlert = require("./keywordsClass");
+const keywordAlert = require("./keywordsAlert");
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 6000;
@@ -19,6 +19,7 @@ const hwangeBuyingAndSelling = process.env.HWANGEBUYINGANDSELLING;
 const hwangeClassifieds = process.env.HWANGECLASSIFIEDS;
 const hwangeDealsGrp1 = process.env.HWANGEDEALSGRP1;
 const amnestyinternational = process.env.AMNESTYINTERNATIONAL;
+const tate = process.env.TATENDA;
 
 const contactListForAds = [
   hwangeBusinessMarketing1,
@@ -31,8 +32,8 @@ const contactListForAds = [
 ];
 //Messages
 
-const advertMessages=require ("./adverts")
-console.log(advertMessages)
+const advertMessages = require("./adverts");
+console.log(advertMessages);
 
 let randomAdvert = () =>
   advertMessages[Math.floor(Math.random() * advertMessages.length)];
@@ -51,7 +52,7 @@ const client = new Client({
     //"--no-sandbox": true,
     "--disable-setuid-sandbox": true,
     executablePath:
-     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     //executablePath: "OS/Applications/Chrome",
   },
 });
@@ -98,8 +99,10 @@ async function sendAdverts() {
 client.on("ready", () => {
   console.log("Client is ready!");
   cron.schedule(
-    "43 6,16 * * *",
+    "29 7,13 * * *",
     () => {
+      console.log("cron running");
+     // client.sendMessage(tate, "test message");
       sendAdverts();
     },
     { scheduled: true, timezone: "UTC" }
@@ -142,22 +145,27 @@ client.on("qr", (qr) => {
   console.log(qr);
 });
 const messages = require("./messages");
+
+client.on('message_revoke_everyone', async (after, before) => {
+  // Fired whenever a message is deleted by anyone (including you)
+  console.log(after); // message after it was deleted.
+  if (before) {
+    console.log(before); // message before it was deleted.
+  }
+  else{
+    client.sendMessage(me,`this message was deleted${before.body}`)
+
+  }
+});
+
 client.on(`message`, async (message) => {
   const messageContents = message.body;
   const author = message.from.replace("@c.us", "");
   const receiver = message.to.replace("@c.us", "").replace("263", "0");
-
-  const usdKeywords = [
-    `for eco`,
-    `for ecocash`,
-    `USD available`,
-    `for zipit`,
-    `US for`,
-    `for bank transfer`,
-    `US for`,
-    `usd available`,
-    `ìnternal transfer`,
-  ];
+const keywords=require("./keywords")
+  const usdKeywords = keywords.usdKeyword
+  const businessKeywords=keywords.businessKeywords
+  
 
   usdKeywords.filter((keyword) => {
     if (
@@ -186,13 +194,13 @@ client.on(`message`, async (message) => {
   );
   usdAlert.keywordRun(message.body);
 
-  let cartridgeAlert = new keywordAlert(
+  let businessAlert = new keywordAlert(
     businessKeywords,
     client,
     message,
     amnestyinternational
   );
-  cartridgeAlert.keywordRun(message.body);
+  businessAlert.keywordRun(message.body);
 });
 
 const businessKeywords = [

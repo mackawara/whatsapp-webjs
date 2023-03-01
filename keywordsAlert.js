@@ -52,7 +52,7 @@ function keywordAlert(keywordsArray, client, messageObject, contact) {
       const keyword = keywordsArray[index];
 
       if (message.includes(keyword)) {
-        console.log(`message received  with keyword`);
+        console.log(`message received  with keyword: ${keyword}`);
         this.processResponse(contact);
         break;
       }
