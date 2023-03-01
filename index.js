@@ -37,7 +37,9 @@ console.log(advertMessages);
 
 let randomAdvert = () =>
   advertMessages[Math.floor(Math.random() * advertMessages.length)];
-//
+//CIRCKET SCORES
+const getLiveMatches=require("./config/getLiveMatches")
+getLiveMatches()
 
 const { Client, LocalAuth, NoAuth } = require("whatsapp-web.js");
 const cron = require(`node-cron`);
