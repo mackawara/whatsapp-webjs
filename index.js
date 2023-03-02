@@ -6,8 +6,14 @@ const app = express();
 const port = process.env.PORT || 6000;
 const chatBot = require("./middleware/chatbot");
 
-//CONTACT
-const me = process.env.ME;
+const connectDB = require("./config/database");
+const mongoose=require("mongoose")
+try {
+  // getLeague()
+  connectDB()
+    .then(async () => {
+      console.log("db conected")
+      const me = process.env.ME;
 //GROUPS
 
 const hwgeCheapGadgets2 = process.env.HWANGECHEAPGADGETS2;
@@ -33,34 +39,39 @@ const contactListForAds = [
 //Messages
 
 const advertMessages = require("./adverts");
-console.log(advertMessages);
+
 
 let randomAdvert = () =>
   advertMessages[Math.floor(Math.random() * advertMessages.length)];
 //CIRCKET SCORES
 const getLiveMatches=require("./config/getLiveMatches")
-getLiveMatches()
+//getLiveMatches()
 
-const { Client, LocalAuth, NoAuth } = require("whatsapp-web.js");
+const { Client, RemoteAuth,id } = require("whatsapp-web.js");
 const cron = require(`node-cron`);
+const { MongoStore } = require('wwebjs-mongo');
+const store = new MongoStore({ mongoose: mongoose });
 
 // Path where the session data will be stored
 const SESSION_FILE_PATH = "./session.json";
 
 const client = new Client({
-  authStrategy: new LocalAuth(),
+  authStrategy: new RemoteAuth({
+    clientId: id,
+    store: store,
+    backupSyncIntervalMs: 60000,
+    
+  }),
   puppeteer: {
     headless: false,
     //"--no-sandbox": true,
     "--disable-setuid-sandbox": true,
-    executablePath:
-      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     //executablePath: "OS/Applications/Chrome",
   },
 });
 console.log("client initialising");
 try {
-  client.initialize();
+ client.initialize();
 } catch {
   console.log(` authentication not approved`);
 }
@@ -228,3 +239,8 @@ const businessKeywords = [
 client.on("disconnected", (reason) => {
   console.log("Client was logged out", reason);
 });
+
+    })}catch{
+
+    }
+//CONTACT
