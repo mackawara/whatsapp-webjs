@@ -34,14 +34,17 @@ function keywordAlert(keywordsArray, client, messageObject, contact) {
   this.messageObject = messageObject;
 
   this.processResponse = async (munhu) => {
-    const messageFrom = messageObject.author.replace(`263`, `0`);
+    
+  //  const messageFrom = messageObject.author.replace(`263`, `0`);
+    //console.log(messageFrom)
     let chat = await messageObject.getChat();
     let contact = await messageObject.getContact();
+    console.log(contact)
     client.sendMessage(
       munhu,
       `Time : ${toTime(
         messageObject.timestamp
-      )}\n Message From : *${messageFrom.replace(`@c.us`, ``)} * \n Group:${
+      )}\n Message From : *${contact}* \n Group:${
         chat.name
       } , \n Message : *_${messageObject.body}_* 
          `
