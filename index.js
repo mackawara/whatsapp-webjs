@@ -8,6 +8,9 @@ const chatBot = require("./middleware/chatbot");
 
 const connectDB = require("./config/database");
 const mongoose = require("mongoose");
+const uploadImage = require("./middleware/uploadImage");
+const cloudinary = require("./middleware/cloudinary");
+uploadImage("assets/wifihostspot2.png");
 
 try {
   // connect to mongodb
@@ -47,7 +50,7 @@ try {
     const getLiveMatches = require("./config/getLiveMatches");
     //getLiveMatches()
 
-    const { Client, RemoteAuth, id } = require("whatsapp-web.js");
+    const { Client, RemoteAuth, MessageMedia, id } = require("whatsapp-web.js");
     const cron = require(`node-cron`);
     const { MongoStore } = require("wwebjs-mongo");
     const store = new MongoStore({ mongoose: mongoose });
@@ -79,6 +82,9 @@ try {
       // Fired if session restore was unsuccessful
       console.error("AUTHENTICATION FAILURE", msg);
     });
+    //Sending media messages
+
+    //cloudinary
 
     const timer = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -108,7 +114,17 @@ try {
         }
       }
     }
-    client.on("ready", () => {
+
+    const cloudinary = require("./middleware/cloudinary");
+    const wifiHotSpot = MessageMedia.fromUrl("https://res.cloudinary.com/df94bonis/image/upload/v1677776762/pigc81xnml3acqaj7zv9.png");
+    const compRepairs = MessageMedia.fromUrl("https://res.cloudinary.com/df94bonis/image/upload/v1677776283/myowemkgypift0lldq5z.png");
+    const cctvImage = await MessageMedia.fromUrl(
+      "https://res.cloudinary.com/df94bonis/image/upload/v1677774235/zwyntyrmx0xvz796ygim.jpg"
+    );
+    client.on("ready", async () => {
+         client
+        .sendMessage(amnestyinternational, cctvImage, { caption: "test" })
+        .then(() => console.log("message sent")); 
       console.log("Client is ready!");
       cron.schedule(
         "29 7,13 * * *",
@@ -116,6 +132,15 @@ try {
           console.log("cron running");
           // client.sendMessage(tate, "test message");
           sendAdverts();
+        },
+        { scheduled: true, timezone: "UTC" }
+      );
+      cron.schedule(
+        "29 7,13 * * *",
+        () => {
+          console.log("cron running");
+          // client.sendMessage(tate, "test message");
+          client;
         },
         { scheduled: true, timezone: "UTC" }
       );
