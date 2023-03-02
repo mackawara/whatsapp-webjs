@@ -41,8 +41,9 @@ try {
       hwangeDealsGrp1,
     ];
     //Messages
+   
 
-    const advertMessages = require("./adverts");
+    
 
     let randomAdvert = () =>
       advertMessages[Math.floor(Math.random() * advertMessages.length)];
@@ -58,6 +59,17 @@ try {
     // Path where the session data will be stored
     const SESSION_FILE_PATH = "./session.json";
 
+    //messages
+    const cloudinary = require("./middleware/cloudinary");
+    const wifiHotSpot = MessageMedia.fromUrl("https://res.cloudinary.com/df94bonis/image/upload/v1677776762/pigc81xnml3acqaj7zv9.png");
+    const compRepairs = MessageMedia.fromUrl("https://res.cloudinary.com/df94bonis/image/upload/v1677776283/myowemkgypift0lldq5z.png");
+    const cctvImage = await MessageMedia.fromUrl(
+      "https://res.cloudinary.com/df94bonis/image/upload/v1677774235/zwyntyrmx0xvz796ygim.jpg"
+    );
+    let advertMessages = require("./adverts");
+    const images=[wifiHotSpot,compRepairs,cctvImage]
+   advertMessages=advertMessages.concat(images)
+   console.log(advertMessages)
     const client = new Client({
       authStrategy: new RemoteAuth({
         clientId: id,
@@ -115,16 +127,9 @@ try {
       }
     }
 
-    const cloudinary = require("./middleware/cloudinary");
-    const wifiHotSpot = MessageMedia.fromUrl("https://res.cloudinary.com/df94bonis/image/upload/v1677776762/pigc81xnml3acqaj7zv9.png");
-    const compRepairs = MessageMedia.fromUrl("https://res.cloudinary.com/df94bonis/image/upload/v1677776283/myowemkgypift0lldq5z.png");
-    const cctvImage = await MessageMedia.fromUrl(
-      "https://res.cloudinary.com/df94bonis/image/upload/v1677774235/zwyntyrmx0xvz796ygim.jpg"
-    );
+    
     client.on("ready", async () => {
-         client
-        .sendMessage(amnestyinternational, cctvImage, { caption: "test" })
-        .then(() => console.log("message sent")); 
+         
       console.log("Client is ready!");
       cron.schedule(
         "29 7,13 * * *",
