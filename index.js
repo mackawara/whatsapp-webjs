@@ -8,8 +8,9 @@ const chatBot = require("./middleware/chatbot");
 
 const connectDB = require("./config/database");
 const mongoose=require("mongoose")
+
 try {
-  // getLeague()
+  // connect to mongodb
   connectDB()
     .then(async () => {
       console.log("db conected")
@@ -63,8 +64,8 @@ const client = new Client({
     
   }),
   puppeteer: {
-    headless: false,
-    //"--no-sandbox": true,
+    headless: true,
+    "--no-sandbox": true,
     "--disable-setuid-sandbox": true,
     //executablePath: "OS/Applications/Chrome",
   },
@@ -242,5 +243,5 @@ client.on("disconnected", (reason) => {
 
     })}catch{
 
-    }
+    } 
 //CONTACT
