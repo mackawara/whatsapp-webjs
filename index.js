@@ -10,7 +10,6 @@ const connectDB = require("./config/database");
 const mongoose = require("mongoose");
 const uploadImage = require("./middleware/uploadImage");
 const cloudinary = require("./middleware/cloudinary");
-uploadImage("assets/wifihostspot2.png");
 
 try {
   // connect to mongodb
@@ -57,7 +56,7 @@ try {
     const store = new MongoStore({ mongoose: mongoose });
 
     // Path where the session data will be stored
-    const SESSION_FILE_PATH = "./session.json";
+    const SESSION_FILE_PATH = store;
 
     //messages
     const cloudinary = require("./middleware/cloudinary");
@@ -69,7 +68,7 @@ try {
     let advertMessages = require("./adverts");
     const images=[wifiHotSpot,compRepairs,cctvImage]
    advertMessages=advertMessages.concat(images)
-   console.log(advertMessages)
+   
     const client = new Client({
       authStrategy: new RemoteAuth({
         clientId: id,
@@ -77,7 +76,7 @@ try {
         backupSyncIntervalMs: 60000,
       }),
       puppeteer: {
-        headless: true,
+        headless: false,
         "--no-sandbox": true,
         "--disable-setuid-sandbox": true,
         //executablePath: "OS/Applications/Chrome",
@@ -103,6 +102,7 @@ try {
     client.on("authenticated", (session) => {
       console.log(session);
       console.log(`client authenticated`);
+      
       // Save the session object however you prefer.
       // Convert it to json, save it to a file, store it in a database...
     });
@@ -221,7 +221,6 @@ try {
               message.body
             } *message created by chatBot*`
           );
-          //console.log(`${message.from} :${messageContents}`);
         }
       });
 
