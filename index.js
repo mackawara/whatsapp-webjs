@@ -76,7 +76,7 @@ try {
         backupSyncIntervalMs: 60000,
       }),
       puppeteer: {
-        headless: false,
+        headless: true,
         "--no-sandbox": true,
         "--disable-setuid-sandbox": true,
         //executablePath: "OS/Applications/Chrome",
