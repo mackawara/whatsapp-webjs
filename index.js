@@ -33,7 +33,7 @@ mongoose.connect(DB_STRING).then(async () => {
      // dataPath:"./session.json"
     }),
     puppeteer: {
-      handleSIGINT: false,
+      handleSIGINT: true,
       headless: false,
       args: ['--no-sandbox','--disable-dev-shm-usage', "--disabled-setupid-sandbox"],
   }
