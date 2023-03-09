@@ -3,8 +3,8 @@ require("dotenv").config();
 const keywordAlert = require("./keywordsAlert");
 const express = require("express");
 const app = express();
-const port = process.env.PORT || 6000;
-const chatBot = require("./middleware/chatbot");
+const port = process.env.PORT || 6000;const chatBot = require("./middleware/chatbot");
+
 
 const uploadImage = require("./middleware/uploadImage");
 const cloudinary = require("./middleware/cloudinary");
@@ -16,38 +16,35 @@ const getFixtures = require("./config/helperFunction/getFixtures");
 //callFootballApi(2);
 
 // connect to mongodb
-const { Client, RemoteAuth, MessageMedia, id } = require("whatsapp-web.js");
+const connectDB=require("./config/database")
+const { Client, RemoteAuth, MessageMedia,id } = require("whatsapp-web.js");
 const { MongoStore } = require("wwebjs-mongo");
-const mongoose = require("mongoose");
+  const mongoose = require("mongoose");
 const path = require("path");
 // Require database
-const DB_STRING = process.env.DB_STRING;
+const DB_STRING=process.env.DB_STRING
 //connect to db then execute all functions
-mongoose.connect(DB_STRING).then(async () => {
+connectDB().then(async () => {
   const store = new MongoStore({ mongoose: mongoose });
   const client = new Client({
     authStrategy: new RemoteAuth({
       store: store,
       backupSyncIntervalMs: 60000,
-      // clientId:id,
-      // dataPath:"./session.json"
+     // clientId:id,
+     // dataPath:"./session.json"
     }),
     puppeteer: {
       handleSIGINT: true,
       headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-dev-shm-usage",
-        "--disabled-setupid-sandbox",
-      ],
-    },
+      args: ['--no-sandbox','--disable-dev-shm-usage', "--disabled-setupid-sandbox"],
+  }
   });
-
+  
   client.initialize();
   const me = process.env.ME;
   //GROUPS
 
-  const contactListForAds = require("./assets/contacts");
+  //const contactListForAds = require("./assets/contacts");
   //Messages
 
   const uclFixtures = await getFixtures("ucl");
@@ -59,6 +56,7 @@ mongoose.connect(DB_STRING).then(async () => {
   const getLiveMatches = require("./config/getLiveMatches");
   //getLiveMatches()
 
+  
   const cron = require(`node-cron`);
 
   // Path where the session data will be stored
@@ -77,12 +75,14 @@ mongoose.connect(DB_STRING).then(async () => {
   );
   let advertMessages = require("./adverts");
   const images = [wifiHotSpot, compRepairs, cctvImage];
-  //advertMessages = advertMessages.concat(images);
+  advertMessages = advertMessages.concat(images);
   //mongoose
 
   // Require database
+  
 
   // Load the session data
+
 
   client.on("auth_failure", (msg) => {
     // Fired if session restore was unsuccessful
@@ -92,21 +92,20 @@ mongoose.connect(DB_STRING).then(async () => {
   client.on("remote_session_saved", () => {
     console.log("session saved to remoted db");
   });
-  client.on("remote_session_saved", () => {
-    console.log("session saved");
-  });
+  client.on('remote_session_saved', () => {
+    console.log("session saved")
+})
   //const sessionName = id ? `RemoteAuth-${id}` : "RemoteAuth";
   const timer = (ms) => new Promise((res) => setTimeout(res, ms));
 
   client.on("authenticated", async (session) => {
+  
     console.log(`client authenticated`);
     //await store.save({ session: sessionName });
-    //const remoteSessionExists=await store.sessionExists({session: 'yourSessionName'});
+//const remoteSessionExists=await store.sessionExists({session: 'yourSessionName'});
 
     // Save the session object however you prefer.
-    await store.save({ session: session }).then(() => {
-      console.log("session saved");
-    });
+   // await store.save({session: session}).then(()=>{ console.log("session saved")});
 
     // Convert it to json, save it to a file, store it in a database...
   });
@@ -147,6 +146,7 @@ mongoose.connect(DB_STRING).then(async () => {
       () => {
         console.log("cron running");
         // client.sendMessage(tate, "test message");
+      
       },
       { scheduled: true, timezone: "UTC" }
     );
@@ -207,8 +207,7 @@ mongoose.connect(DB_STRING).then(async () => {
     const keywords = require("./keywords");
     const usdKeywords = keywords.usdKeyword;
     const businessKeywords = keywords.businessKeywords;
-    const contact = message.getContact();
-    consonole.log(contact);
+
     usdKeywords.filter((keyword) => {
       if (
         message.body.includes(keyword) &&
