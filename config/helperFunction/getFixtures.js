@@ -6,7 +6,7 @@ const laLiga = new RegExp("La liga", "i");
 const serieA = new RegExp("Serie A", "i");
 const zpsl = new RegExp("ZPSL", "i");
 const uefa=new RegExp("ucl", "i")
-
+//Fetches fixtures from datatbase
 const getFixtures = async(competition,status)=> {
   let league;
   if (englishPremier.test(competition)) {

@@ -1,6 +1,6 @@
 const axios = require("axios");
 const fixtureModel = require("../../models/footballFixtures");
-/* const todayDate = new Date().toISOString().slice(0, 10); */
+ const todayDate = new Date().toISOString().slice(0, 10); 
 
 /* only queries fixutres and scores for current */
 
@@ -14,7 +14,8 @@ const callFootballApi = async (league) => {
       league: league,
       // current:true,
       season: "2022",
-      next: 10,
+      date:todayDate,
+      
 
       timezone: "Africa/Harare",
     },
