@@ -62,4 +62,4 @@ jobs:
           app-name: 'wwebjs'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_60760977A63E4C698B71AFDD0E5FFFC6 }}
-          package: .
+          package: release.zip
