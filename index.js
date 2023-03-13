@@ -54,6 +54,7 @@ connectDB().then(async () => {
         "--no-sandbox",
         "--disable-dev-shm-usage",
         "--disabled-setupid-sandbox",
+        "--use-gl=egl",
       ],
     },
   });
