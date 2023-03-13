@@ -4,7 +4,7 @@ const keywordAlert = require("./keywordsAlert");
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 6000;
-const chatBot = require("./middleware/chatbot");
+
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -69,7 +69,6 @@ connectDB().then(async () => {
 
   const uclFixtures = await getFixtures("ucl");
 
-  
   let randomAdvert = () =>
     advertMessages[Math.floor(Math.random() * advertMessages.length)];
   //CIRCKET SCORES
@@ -148,6 +147,7 @@ connectDB().then(async () => {
   }
 
   client.on("ready", async () => {
+    client.sendMessage(me, "app running");
     console.log("Client is ready!");
     cron.schedule(
       "29 7,13 * * *",
