@@ -69,7 +69,7 @@ connectDB().then(async () => {
 
   const uclFixtures = await getFixtures("ucl");
 
-  console.log(uclFixtures);
+  
   let randomAdvert = () =>
     advertMessages[Math.floor(Math.random() * advertMessages.length)];
   //CIRCKET SCORES
@@ -82,8 +82,8 @@ connectDB().then(async () => {
   //const SESSION_FILE_PATH = store;
 
   //messages
-  const cloudinary = require("./middleware/cloudinary");
-  const wifiHotSpot = MessageMedia.fromUrl(
+  //const cloudinary = require("./middleware/cloudinary");
+  /* const wifiHotSpot = MessageMedia.fromUrl(
     "https://res.cloudinary.com/df94bonis/image/upload/v1677776762/pigc81xnml3acqaj7zv9.png"
   );
   const compRepairs = MessageMedia.fromUrl(
@@ -91,10 +91,10 @@ connectDB().then(async () => {
   );
   const cctvImage = await MessageMedia.fromUrl(
     "https://res.cloudinary.com/df94bonis/image/upload/v1677774235/zwyntyrmx0xvz796ygim.jpg"
-  );
+  ); */
   let advertMessages = require("./adverts");
-  const images = [wifiHotSpot, compRepairs, cctvImage];
-  advertMessages = advertMessages.concat(images);
+  /* const images = [wifiHotSpot, compRepairs, cctvImage];
+  advertMessages = advertMessages.concat(images); */
   //mongoose
 
   // Require database

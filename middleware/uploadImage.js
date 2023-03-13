@@ -1,4 +1,4 @@
-const cloudinary = require("cloudinary").v2;
+/* const cloudinary = require("cloudinary").v2;
 const uploadImage=async(path)=>{
     console.log(path)
     try {
@@ -16,4 +16,4 @@ const uploadImage=async(path)=>{
             console.log("image not uploaded")
         };
 }
-module.exports=uploadImage
+module.exports=uploadImage */
