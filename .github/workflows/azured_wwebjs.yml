@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: 'wwebjs'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_FE86B4631EBE4965A1194627499A0769 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_270226412E6742DAAE7E6C62AFD7681A }}
           package: .
