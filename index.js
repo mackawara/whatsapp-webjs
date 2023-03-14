@@ -5,7 +5,6 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 6000;
 
-
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
@@ -77,28 +76,7 @@ connectDB().then(async () => {
 
   const cron = require(`node-cron`);
 
-  // Path where the session data will be stored
-  //const SESSION_FILE_PATH = store;
-
-  //messages
-  //const cloudinary = require("./middleware/cloudinary");
-  /* const wifiHotSpot = MessageMedia.fromUrl(
-    "https://res.cloudinary.com/df94bonis/image/upload/v1677776762/pigc81xnml3acqaj7zv9.png"
-  );
-  const compRepairs = MessageMedia.fromUrl(
-    "https://res.cloudinary.com/df94bonis/image/upload/v1677776283/myowemkgypift0lldq5z.png"
-  );
-  const cctvImage = await MessageMedia.fromUrl(
-    "https://res.cloudinary.com/df94bonis/image/upload/v1677774235/zwyntyrmx0xvz796ygim.jpg"
-  ); */
   let advertMessages = require("./adverts");
-  /* const images = [wifiHotSpot, compRepairs, cctvImage];
-  advertMessages = advertMessages.concat(images); */
-  //mongoose
-
-  // Require database
-
-  // Load the session data
   clientOnMessage(client, `message`);
 
   client.on("auth_failure", (msg) => {
@@ -117,13 +95,6 @@ connectDB().then(async () => {
 
   client.on("authenticated", async (session) => {
     console.log(`client authenticated`);
-    //await store.save({ session: sessionName });
-    //const remoteSessionExists=await store.sessionExists({session: 'yourSessionName'});
-
-    // Save the session object however you prefer.
-    // await store.save({session: session}).then(()=>{ console.log("session saved")});
-
-    // Convert it to json, save it to a file, store it in a database...
   });
 
   async function sendAdverts() {
