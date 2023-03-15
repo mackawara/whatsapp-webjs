@@ -37,6 +37,10 @@ const path = require("path");
 // Require database
 const DB_STRING = process.env.DB_STRING;
 //connect to db then execute all functions
+
+//MODELS
+
+const contactModel=require("./models/contactsModel")
 connectDB().then(async () => {
   const store = new MongoStore({ mongoose: mongoose });
   const client = new Client({
