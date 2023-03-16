@@ -21,11 +21,16 @@ const cronScheduler = require("./config/helperFunction/cronScheduler");
 // APi calls
 //football API
 const callFootballApi = require("./config/helperFunction/callFootballApi");
+
+
 //update DB every morning on fixturs
 const getFixtures = require("./config/helperFunction/getFixtures");
-cronScheduler(43, 9, getFixtures("la liga"));
-cronScheduler(44, 9, getFixtures("Serie a"));
-cronScheduler(45, 9, getFixtures("epl"));
+//cron jobs
+//get day`s fixtures
+//cronScheduler(30,9,callFootballApi("epl"))
+cronScheduler("*/5", "11-23", callFootballApi("europa"));
+//cronScheduler(44, 9, getFixtures("Serie a"));
+//cronScheduler(45, 9, getFixtures("epl"));
 //callFootballApi(2);
 
 // connect to mongodb
@@ -39,8 +44,12 @@ const DB_STRING = process.env.DB_STRING;
 //connect to db then execute all functions
 
 //MODELS
+//contacts
+const tate = process.env.TATENDA;
+//groups
+const liveSoccer1=process.env.LIVESOCCER1
 
-const contactModel=require("./models/contactsModel")
+const contactModel = require("./models/contactsModel");
 connectDB().then(async () => {
   const store = new MongoStore({ mongoose: mongoose });
   const client = new Client({
@@ -62,15 +71,18 @@ connectDB().then(async () => {
     },
   });
 
+  
+
+
   client.initialize();
   const me = process.env.ME;
   //GROUPS
 
   //const contactListForAds = require("./assets/contacts");
   //Messages
-  const clientOnMessage = require("./config/helperFunction/clientOnmessage");
+  const clientOn = require("./config/helperFunction/clientOn");
 
-  const uclFixtures = await getFixtures("ucl");
+ // const uclFixtures = await getFixtures("ucl");
 
   let randomAdvert = () =>
     advertMessages[Math.floor(Math.random() * advertMessages.length)];
@@ -79,10 +91,14 @@ connectDB().then(async () => {
   //getLiveMatches()
 
   const cron = require(`node-cron`);
-
+//client.setDisplayName("Live Soccer Score")
   let advertMessages = require("./adverts");
-  clientOnMessage(client, `message`);
+  clientOn(client, `message`);
+  clientOn(client, "group-join");
+  clientOn(client, "group-leave");
 
+  //client.createGroup("New Group",)
+  //client.createGroup("New group", [me, tate]);
   client.on("auth_failure", (msg) => {
     // Fired if session restore was unsuccessful
     console.error("AUTHENTICATION FAILURE", msg);
@@ -100,7 +116,8 @@ connectDB().then(async () => {
   client.on("authenticated", async (session) => {
     console.log(`client authenticated`);
   });
-
+ const europa=  await(getFixtures("europa"))
+ 
   async function sendAdverts() {
     const contact = "263775231426@c.us"; //contactListForAds[index];
     for (let i = 0; i < contactListForAds.length; i++) {
@@ -122,7 +139,7 @@ connectDB().then(async () => {
   }
 
   client.on("ready", async () => {
-    client.sendMessage(me, "app running");
+    
     console.log("Client is ready!");
     cron.schedule(
       "29 7,13 * * *",
@@ -142,7 +159,7 @@ connectDB().then(async () => {
       { scheduled: true, timezone: "UTC" }
     );
   });
-
+  //cronScheduler("20",13,client.sendMessage("263775231426@c.us",europa))
   // client.sendMessage(me,uclFixtures)
   function toTime(UNIX_timestamp) {
     const a = new Date(UNIX_timestamp * 1000);
@@ -175,6 +192,10 @@ connectDB().then(async () => {
 
   const qrcode = require("qrcode-terminal");
 
+  client.on("qr", (qr) => {
+    qrcode.generate(qr, { small: true });
+    console.log(qr);
+  });
   client.on("qr", (qr) => {
     qrcode.generate(qr, { small: true });
     console.log(qr);

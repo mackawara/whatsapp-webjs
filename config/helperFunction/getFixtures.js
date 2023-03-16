@@ -5,9 +5,11 @@ const englishPremier = new RegExp("epl", "i");
 const laLiga = new RegExp("La liga", "i");
 const serieA = new RegExp("Serie A", "i");
 const zpsl = new RegExp("ZPSL", "i");
-const uefa=new RegExp("ucl", "i")
+const europa = new RegExp("Europa", "i");
+const uefa = new RegExp("ucl", "i");
 //Fetches fixtures from datatbase
-const getFixtures = async(competition,status)=> {
+const getFixtures = async (competition, status) => {
+  console.log("get fixtures called");
   let league;
   if (englishPremier.test(competition)) {
     league = 39;
@@ -17,9 +19,10 @@ const getFixtures = async(competition,status)=> {
     league = 140;
   } else if (zpsl.test(competition)) {
     league = 401;
-  }
-  else if(uefa.test(competition)){
-    league=2;
+  } else if (uefa.test(competition)) {
+    league = 2;
+  } else if (uefa.test(competition)) {
+    league = 2;
   }
   const message = [];
   const fixtures = await FixtureModel.find({
@@ -33,7 +36,10 @@ const getFixtures = async(competition,status)=> {
     round = fixture.round;
     message.push(line);
   });
-  const formatted = `AllSports Update :\n ${comp}\n round:${round} \n ${message.join(" ")}\n  ,*To recieve league fixtures*, Send *league: name of league*  to +263715248036 as shown below  \n For English premier league fixtures, send: *league: Epl* \n For La liga send *league: La liga* etc. \n Brought to you by All sports`;
+  const formatted = `AllSports Update :\n ${comp}\n round:${round} \n ${message.join(
+    " "
+  )}\n  ,*To recieve league fixtures*, Send *league: name of league*  to +263715248036 as shown below  \n For English premier league fixtures, send: *league: Epl* \n For La liga send *league: La liga* etc. \n Brought to you by All sports`;
+  console.log(formatted);
   return formatted;
 };
 module.exports = getFixtures;
