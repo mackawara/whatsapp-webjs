@@ -14,6 +14,7 @@ const clientOn = async (client, arg1) => {
       const msgBody = msg.body;
       if (chat.isGroup) {
         console.log(chat);
+        console.log(msg);
         const groupName = chat.name,
           grpDescription = chat.description,
           grpOwner = chat.owner.user;
@@ -35,10 +36,7 @@ const clientOn = async (client, arg1) => {
 
         chat.sendSeen();
         // msg.reply("hi thank you");
-        client.sendMessage(
-          from,
-          `Hi ${senderNotifyName}, we will get back to you shortly`
-        );
+        ;
       }
     });
   }

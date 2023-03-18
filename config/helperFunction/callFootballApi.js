@@ -10,7 +10,7 @@ const zpsl = new RegExp("ZPSL", "i");
 const uefa = new RegExp("ucl", "i");
 const europa = new RegExp("Europa", "i");
 const callFootballApi = async (competition) => {
-  console.log("api fottnall called")
+  console.log("api fottnall called");
   let league;
   if (englishPremier.test(competition)) {
     league = 39;
@@ -31,7 +31,7 @@ const callFootballApi = async (competition) => {
     url: `https://api-football-v1.p.rapidapi.com/v3/fixtures`,
     params: {
       league: league,
-     // current: true,
+      // current: true,
       season: "2022",
       date: todayDate,
 
@@ -47,6 +47,7 @@ const callFootballApi = async (competition) => {
     //check if the match is finished or hasnt started
     const inProgress = /1H|2H|HT|ET/;
     const matchFinishedNotStarted = /FT|NS/;
+    const postponed = /PST/;
     const afterEtPen = /AET|PEN/;
     if (matchFinishedNotStarted.test(matchStatus.short)) {
       return matchStatus.long;
@@ -59,6 +60,10 @@ const callFootballApi = async (competition) => {
         penalty.home < penalty.away ? penalty.home : penalty.away;
 
       return `${matchStatus.long} *${winner} won ${winningScore}-${losingScore}*`;
+    } else if (postponed.test(matchStatus.short)) {
+      return `match postponed`;
+    } else {
+      return "match status not available";
     }
   };
   const scoreFormatter = (score, matchStatus, home, away) => {
@@ -100,11 +105,12 @@ const callFootballApi = async (competition) => {
         result.score.penalty,
         winner
       );
+
       const penalties = result.score.penalty;
       const scoresHome = result.goals.home ? result.goals.home : "";
       const scoresAway = result.goals.home ? result.goals.home : "";
       const scores = ` ${home} ${scoresHome} vs ${scoresAway} ${away}`;
-      const score = scoreFormatter(scores, matchStatus.long, home, away);
+      const score = scoreFormatter(scores, matchStatus, home, away);
 
       const fixture = new fixtureModel({
         matchStatus: matchStatus,

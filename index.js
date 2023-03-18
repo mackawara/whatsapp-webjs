@@ -27,7 +27,7 @@ const getFixtures = require("./config/helperFunction/getFixtures");
 //cron jobs
 //get day`s fixtures
 //cronScheduler(30,9,callFootballApi("epl"))
-cronScheduler("*/5", "11-23", callFootballApi("ucl"));
+cronScheduler("*/5", "11-23", callFootballApi("epl"));
 //cronScheduler(44, 9, getFixtures("Serie a"));
 //cronScheduler(45, 9, getFixtures("epl"));
 //callFootballApi(2);
@@ -46,8 +46,8 @@ const DB_STRING = process.env.DB_STRING;
 //contacts
 const tate = process.env.TATENDA;
 //groups
-const liveSoccer1=process.env.LIVESOCCER1
-
+const liveSoccer1 = process.env.LIVESOCCER1;
+console.log(liveSoccer1)
 const contactModel = require("./models/contactsModel");
 connectDB().then(async () => {
   const store = new MongoStore({ mongoose: mongoose });
@@ -66,9 +66,6 @@ connectDB().then(async () => {
     },
   });
 
-  
-
-
   client.initialize();
   const me = process.env.ME;
   //GROUPS
@@ -77,7 +74,7 @@ connectDB().then(async () => {
   //Messages
   const clientOn = require("./config/helperFunction/clientOn");
 
- // const uclFixtures = await getFixtures("ucl");
+  // const uclFixtures = await getFixtures("ucl");
 
   let randomAdvert = () =>
     advertMessages[Math.floor(Math.random() * advertMessages.length)];
@@ -86,7 +83,7 @@ connectDB().then(async () => {
   //getLiveMatches()
 
   const cron = require(`node-cron`);
-//client.setDisplayName("Live Soccer Score")
+  //client.setDisplayName("Live Soccer Score")
   let advertMessages = require("./adverts");
   clientOn(client, `message`);
   clientOn(client, "group-join");
@@ -111,8 +108,8 @@ connectDB().then(async () => {
   client.on("authenticated", async (session) => {
     console.log(`client authenticated`);
   });
- const europa=  await(getFixtures("europa"))
- 
+  //const europa = await getFixtures("europa");
+
   async function sendAdverts() {
     const contact = "263775231426@c.us"; //contactListForAds[index];
     for (let i = 0; i < contactListForAds.length; i++) {
@@ -134,7 +131,9 @@ connectDB().then(async () => {
   }
 
   client.on("ready", async () => {
-    
+    console.log("before ")
+    //client.sendMessage(liveSoccer1,"search")
+    console.log("after")
     console.log("Client is ready!");
     cron.schedule(
       "29 7,13 * * *",
@@ -184,7 +183,8 @@ connectDB().then(async () => {
   }
 
   //const sendAdvert= client.sendMessage()
-
+  const eplFixtures=await getFixtures("epl")
+cronScheduler("*/5","12-14",client.sendMessage(me,eplFixtures))
   const qrcode = require("qrcode-terminal");
 
   client.on("qr", (qr) => {
@@ -206,7 +206,7 @@ connectDB().then(async () => {
       client.sendMessage(me, `this message was deleted${before.body}`);
     }
   });
-
+  
   client.on(`message`, async (message) => {
     const messageContents = message.body;
     const author = message.from.replace("@c.us", "");
@@ -232,7 +232,7 @@ connectDB().then(async () => {
         );
       }
     });
-
+   
     /*   let usdAlert = new keywordAlert(
           usdKeywords,
           client,
