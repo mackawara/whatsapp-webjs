@@ -13,7 +13,7 @@ const clientOn = async (client, arg1) => {
       const serialisedNumber = contact.id._serialised;
       const msgBody = msg.body;
       if (chat.isGroup) {
-        console.log(chat)
+        console.log(chat);
         const groupName = chat.name,
           grpDescription = chat.description,
           grpOwner = chat.owner.user;
@@ -34,9 +34,9 @@ const clientOn = async (client, arg1) => {
         }
 
         chat.sendSeen();
-       // msg.reply("hi thank you");
+        // msg.reply("hi thank you");
         client.sendMessage(
-          me,
+          from,
           `Hi ${senderNotifyName}, we will get back to you shortly`
         );
       }
@@ -52,8 +52,6 @@ const clientOn = async (client, arg1) => {
         "we are sorry to see you leave the group, May you indly share wy you decided to leave"
       );
       client.sendMessage(me, `user just left  the group`);
-      
-      
     });
   } else if (arg1 == "group-join") {
     client.on("group_join", (notification) => {

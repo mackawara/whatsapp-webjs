@@ -22,13 +22,12 @@ const cronScheduler = require("./config/helperFunction/cronScheduler");
 //football API
 const callFootballApi = require("./config/helperFunction/callFootballApi");
 
-
 //update DB every morning on fixturs
 const getFixtures = require("./config/helperFunction/getFixtures");
 //cron jobs
 //get day`s fixtures
 //cronScheduler(30,9,callFootballApi("epl"))
-cronScheduler("*/5", "11-23", callFootballApi("europa"));
+cronScheduler("*/5", "11-23", callFootballApi("ucl"));
 //cronScheduler(44, 9, getFixtures("Serie a"));
 //cronScheduler(45, 9, getFixtures("epl"));
 //callFootballApi(2);
@@ -54,10 +53,6 @@ connectDB().then(async () => {
   const store = new MongoStore({ mongoose: mongoose });
   const client = new Client({
     authStrategy: new LocalAuth(),
-    /* store: store,
-      backupSyncIntervalMs: 60000, */
-    // clientId:id,
-    // dataPath:"./session.json"
 
     puppeteer: {
       handleSIGINT: true,
@@ -274,5 +269,3 @@ connectDB().then(async () => {
     console.log("Client was logged out", reason);
   });
 });
-
-//CONTACT
