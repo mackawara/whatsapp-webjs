@@ -24,10 +24,13 @@ const getFixtures = async (competition, status) => {
   } else if (uefa.test(competition)) {
     league = 2;
   }
+  const slash= new RegExp("/", "g")
+  console.log(new Date().toLocaleDateString().replace( slash,"-"))
   const message = [];
   const fixtures = await FixtureModel.find({
     matchStatus: "Not Started",
     leagueId: league,
+    date: new Date().toISOString().slice(0, 10)
   }).exec();
   let comp, round;
   fixtures.forEach((fixture) => {

@@ -131,6 +131,7 @@ connectDB().then(async () => {
   }
 
   client.on("ready", async () => {
+    cronScheduler("*/5","12-14",client.sendMessage("263775231426@c.us",eplFixtures))
     console.log("before ")
     //client.sendMessage(liveSoccer1,"search")
     console.log("after")
@@ -184,9 +185,8 @@ connectDB().then(async () => {
 
   //const sendAdvert= client.sendMessage()
   const eplFixtures=await getFixtures("epl")
-cronScheduler("*/5","12-14",client.sendMessage(me,eplFixtures))
   const qrcode = require("qrcode-terminal");
-
+  
   client.on("qr", (qr) => {
     qrcode.generate(qr, { small: true });
     console.log(qr);
@@ -196,7 +196,7 @@ cronScheduler("*/5","12-14",client.sendMessage(me,eplFixtures))
     console.log(qr);
   });
   const messages = require("./messages");
-
+  
   client.on("message_revoke_everyone", async (after, before) => {
     // Fired whenever a message is deleted by anyone (including you)
     console.log(after); // message after it was deleted.
@@ -214,56 +214,57 @@ cronScheduler("*/5","12-14",client.sendMessage(me,eplFixtures))
     const keywords = require("./keywords");
     const usdKeywords = keywords.usdKeyword;
     const businessKeywords = keywords.businessKeywords;
-
+    
     usdKeywords.filter((keyword) => {
       if (
         message.body.includes(keyword) &&
         !message.body.includes(`message created by chatBot`)
-      ) {
-        client.sendMessage(
-          me,
-          `${toTime(message.timestamp)}  at ${
-            message.from
-          } group :message from :${message.author
-            .replace("@c.us", "")
-            .replace("263", "0")}, ${message.notifyName} ${
-            message.body
-          } *message created by chatBot*`
-        );
-      }
-    });
-   
-    /*   let usdAlert = new keywordAlert(
-          usdKeywords,
-          client,
-          message,
-          amnestyinternational
-        ); */
-    //usdAlert.keywordRun(message.body);
-
-    let businessAlert = new keywordAlert(businessKeywords, client, message, me);
-    businessAlert.keywordRun(message.body);
-  });
-
-  const businessKeywords = [
-    `cartridges`,
-    `catridges`,
-    `printer cartridges`,
-    `HP ink`,
-    `toner`,
-    ` Ink cartridges`,
-    `kyocera`,
-    `lexmark`,
-    `Samsung cartridges`,
-    `Samsung Printer`,
-    `Ricoh`,
-    ` master and ink`,
-    `computer repairs`,
-    `computer networking`,
-    `WIFI`,
-    `telone modem`,
-    `mifi`,
-  ];
+        ) {
+          client.sendMessage(
+            me,
+            `${toTime(message.timestamp)}  at ${
+              message.from
+            } group :message from :${message.author
+              .replace("@c.us", "")
+              .replace("263", "0")}, ${message.notifyName} ${
+                message.body
+              } *message created by chatBot*`
+              );
+            }
+          });
+          
+          /*   let usdAlert = new keywordAlert(
+            usdKeywords,
+            client,
+            message,
+            amnestyinternational
+            ); */
+            //usdAlert.keywordRun(message.body);
+            
+            let businessAlert = new keywordAlert(businessKeywords, client, message, me);
+            businessAlert.keywordRun(message.body);
+          });
+          
+          const businessKeywords = [
+            `cartridges`,
+            `catridges`,
+            `printer cartridges`,
+            `HP ink`,
+            `toner`,
+            ` Ink cartridges`,
+            `kyocera`,
+            `lexmark`,
+            `Samsung cartridges`,
+            `Samsung Printer`,
+            `Ricoh`,
+            ` master and ink`,
+            `computer repairs`,
+            `computer networking`,
+            `WIFI`,
+            `telone modem`,
+            `mifi`,
+          ];
+          
 
   client.on("disconnected", (reason) => {
     console.log("Client was logged out", reason);
