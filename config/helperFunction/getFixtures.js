@@ -24,17 +24,17 @@ const getFixtures = async (competition, status) => {
   } else if (uefa.test(competition)) {
     league = 2;
   }
-  const slash= new RegExp("/", "g")
-  console.log(new Date().toLocaleDateString().replace( slash,"-"))
+  const slash = new RegExp("/", "g");
+  console.log(new Date().toLocaleDateString().replace(slash, "-"));
   const message = [];
   const fixtures = await FixtureModel.find({
-    matchStatus: "Not Started",
+    //  matchStatus: "Not Started",
     leagueId: league,
-    date: new Date().toISOString().slice(0, 10)
+    date: new Date().toISOString().slice(0, 10),
   }).exec();
   let comp, round;
   fixtures.forEach((fixture) => {
-    const line = `${fixture.date} *${fixture.home} vs${fixture.away}* ${fixture.time} \n`;
+    const line = `${fixture.date} *${fixture.score}* ${fixture.matchstatus} \n`;
     comp = fixture.competition;
     round = fixture.round;
     message.push(line);
@@ -42,7 +42,6 @@ const getFixtures = async (competition, status) => {
   const formatted = `AllSports Update :\n ${comp}\n round:${round} \n ${message.join(
     " "
   )}\n  ,*To recieve league fixtures*, Send *league: name of league*  to +263715248036 as shown below  \n For English premier league fixtures, send: *league: Epl* \n For La liga send *league: La liga* etc. \n Brought to you by All sports`;
-  console.log(formatted);
   return formatted;
 };
 module.exports = getFixtures;

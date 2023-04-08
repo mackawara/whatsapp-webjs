@@ -1,0 +1,34 @@
+const cron = require("node-cron");
+const axios = require("axios");
+const { get } = require("http");
+const todayDate = new Date().toISOString().slice(0, 10);
+const getIDs = async (date, series) => {
+  const options = {
+    method: 'GET',
+    url: `https://cricbuzz-cricket.p.rapidapi.com/matches/v1/${type}`,
+    headers: {
+      'X-RapidAPI-Key': process.env.RAPIDAPIKEY,
+      'X-RapidAPI-Host': 'cricbuzz-cricket.p.rapidapi.com'
+    }
+  };
+  const results = await axios
+    .request(options)
+    .then((response) => {
+      console.log(response.data.response);
+      return response.data.response;
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
+/* const matchIDs=[`* Match IDs for ${series} matches`]
+results.forEach(match => {
+   // const matchID=match.//and get the ids from the
+   // const fixture=`${match.scores.home} vs ${match.scores.away}`
+   //matchDetails = `${fixture}:*${matchID}*`
+   // matchIDs.push(matchDetails) for example Ind vs Aus : ID
+
+   matchIDs.push(matchDetails) 
+});
+return matchIDs.join("\n") */
+};
+module.exports=getIDs

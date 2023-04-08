@@ -1,4 +1,5 @@
 const me = process.env.ME;
+const getCommentary = require("../getCommentary");
 
 const clientOn = async (client, arg1) => {
   const contactModel = require("../../models/contactsModel");
@@ -13,12 +14,29 @@ const clientOn = async (client, arg1) => {
       const serialisedNumber = contact.id._serialised;
       const msgBody = msg.body;
       if (chat.isGroup) {
-        console.log(chat);
-        console.log(msg);
+        console.log(msg.body);
+        /*  console.log(chat);
+        console.log(msg); */
         const groupName = chat.name,
-          grpDescription = chat.description,
-          grpOwner = chat.owner.user;
-        console.log(groupName, grpDescription, grpOwner);
+          grpDescription = chat.description;
+        //grpOwner = chat.owner.user;
+
+        const testRegex = new RegExp("matchId", "i");
+
+        if (testRegex.test(msgBody.replaceAll(" ", ""))) {
+          console.log("matchid receieved");
+          // getCommentary()
+
+          //get the math they want
+          const matchId = msgBody
+            .replace(/\s/g, "")
+            .slice("8")
+            .trim()
+            .replace(":", "");
+          const matchCommentary = await getCommentary(matchId); // check if message contains a req for ID
+
+          msg.reply(matchCommentary); //do stuff
+        }
       } else {
         let from = msg.from;
 
@@ -36,7 +54,6 @@ const clientOn = async (client, arg1) => {
 
         chat.sendSeen();
         // msg.reply("hi thank you");
-        ;
       }
     });
   }

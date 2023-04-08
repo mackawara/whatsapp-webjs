@@ -1,41 +1,39 @@
 const axios = require("axios");
 const fixtureModel = require("../../models/footballFixtures");
 const todayDate = new Date().toISOString().slice(0, 10);
+const writeFile = require("./writeFile");
 
 /* only queries fixutres and scores for current */
-const englishPremier = new RegExp("epl", "i");
-const laLiga = new RegExp("La liga", "i");
-const serieA = new RegExp("Serie A", "i");
-const zpsl = new RegExp("ZPSL", "i");
-const uefa = new RegExp("ucl", "i");
-const europa = new RegExp("Europa", "i");
-const callFootballApi = async (competition) => {
-  console.log("api fottnall called");
-  let league;
-  if (englishPremier.test(competition)) {
-    league = 39;
-  } else if (serieA.test(competition)) {
-    league = 135;
-  } else if (laLiga.test(competition)) {
-    league = 140;
-  } else if (zpsl.test(competition)) {
-    league = 401;
-  } else if (uefa.test(competition)) {
-    league = 2;
-  } else if (europa.test(competition)) {
-    league = 3;
-  }
 
+const callFootballApi = async (competition) => {
+  console.log("api football called");
+  let league;
+  if (/english premier|premiership|epl/i.test(competition)) {
+    league = 39;
+  } else if (/serie a|italy league/i.test(competition)) {
+    league = 135;
+  } else if (/liga|la liga/i.test(competition)) {
+    league = 140;
+  } else if (/zpsl|zimbabwe/i.test(competition)) {
+    league = 401;
+  } else if (/ucl|uefa|champions league/i.test(competition)) {
+    league = 2;
+  } else if (/europa/i.test(competition)) {
+    league = 3;
+  } else {
+    league = competition;
+  }
+  console.log(`league is ` + league);
   const options = {
     method: "GET",
     url: `https://api-football-v1.p.rapidapi.com/v3/fixtures`,
     params: {
-      league: league,
+      // league: league,
+      live: "all",
       // current: true,
       season: "2022",
-      date: todayDate,
-
-      timezone: "Africa/Harare",
+      // date: todayDate,
+      // timezone: "Africa/Harare",
     },
     headers: {
       "X-RapidAPI-Key": process.env.FOOTBALLAPIKEY,
@@ -45,22 +43,19 @@ const callFootballApi = async (competition) => {
 
   const matchStatusFormatter = (matchStatus, penalty, winner) => {
     //check if the match is finished or hasnt started
-    const inProgress = /1H|2H|HT|ET/;
-    const matchFinishedNotStarted = /FT|NS/;
-    const postponed = /PST/;
-    const afterEtPen = /AET|PEN/;
-    if (matchFinishedNotStarted.test(matchStatus.short)) {
+
+    if (/FT|NS/.test(matchStatus.short)) {
       return matchStatus.long;
-    } else if (inProgress.test(matchStatus.short)) {
+    } else if (/1H|2H|HT|ET/i.test(matchStatus.short)) {
       return `In progress,${matchStatus.long}, ${matchStatus.elapsed} minutes played`;
-    } else if (afterEtPen.test(matchStatus.short)) {
+    } else if (/AET|PEN/i.test(matchStatus.short)) {
       let winningScore =
         penalty.home > penalty.away ? penalty.home : penalty.away;
       let losingScore =
         penalty.home < penalty.away ? penalty.home : penalty.away;
 
       return `${matchStatus.long} *${winner} won ${winningScore}-${losingScore}*`;
-    } else if (postponed.test(matchStatus.short)) {
+    } else if (/PST/.test(matchStatus.short)) {
       return `match postponed`;
     } else {
       return "match status not available";
@@ -84,7 +79,7 @@ const callFootballApi = async (competition) => {
     .catch(function (error) {
       console.error(error);
     });
-
+  writeFile(results, "callFootball.json");
   try {
     results.forEach(async (result) => {
       const time = new Date(
@@ -107,8 +102,8 @@ const callFootballApi = async (competition) => {
       );
 
       const penalties = result.score.penalty;
-      const scoresHome = result.goals.home ? result.goals.home : "";
-      const scoresAway = result.goals.home ? result.goals.home : "";
+      const scoresHome = result.goals.home; //? result.goals.home : "";
+      const scoresAway = result.goals.away; //? result.goals.home : "";
       const scores = ` ${home} ${scoresHome} vs ${scoresAway} ${away}`;
       const score = scoreFormatter(scores, matchStatus, home, away);
 
@@ -122,7 +117,7 @@ const callFootballApi = async (competition) => {
         away: away,
         time: time,
         leagueId: leagueId,
-        score: score,
+        score: scores,
         fixtureID: fixtureID,
         competition: competition,
       });
@@ -139,15 +134,18 @@ const callFootballApi = async (competition) => {
         if (result.length < 1) {
           fixture.save().then(() => console.log("now saved"));
         } else {
-          fixtureModel.findOneAndUpdate(
-            { fixtureID: fixtureID },
-            {
-              date: date,
-              matchStatus: matchStatus,
-              score: score,
-              round: round,
-              fixture: `${fixture.home} vs ${fixture.away}`,
-            } /* ,
+          console.log("findind and up");
+          const fixtureFound = await fixtureModel.find({
+            fixtureID: fixtureID,
+          });
+          fixtureFound.matchStatus = matchStatus;
+          fixtureFound.score = score;
+          fixtureFound.fixture = `${fixture.home} vs ${fixture.away}`;
+
+          await fixtureFound[0].save().then(() => {
+           console.log("es solo pari me");
+          });
+          /* ,
             (error, data) => {
               if (error) {
                 console.log(error);
@@ -155,9 +153,9 @@ const callFootballApi = async (competition) => {
                 console.log(data);
               }
             } */
-          );
         }
       };
+
       queryAndSave();
     });
   } catch (error) {
