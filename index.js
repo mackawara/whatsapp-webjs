@@ -40,15 +40,6 @@ const getCommentary = require("./config/getCommentary");
 const getFixtures = require("./config/helperFunction/getFixtures");
 //cron jobs
 //get day`s fixtures
-cronScheduler("*/5", "4-7", () => {
-  callFootballApi("222");
-  //callFootballApi("ucl");
-  // callFootballApi("zpsl");
-  // callFootballApi("serie a");
-});
-cronScheduler("*/6","4-7",()=>{
-  getC
-})
 //callFootballApi(2);
 // connect to mongodb
 
@@ -144,13 +135,25 @@ connectDB().then(async () => {
 
   client.on("ready", async () => {
     //client.sendMessage(hwangeClubCricket, getmatch);
-   // const eplFixtures = await getFixtures("epl");
+    // const eplFixtures = await getFixtures("epl");
 
     //  cronScheduler("*/3", "14-22", console.log("running")); //client.sendMessage("263775231426@c.us", commentary))
     cronScheduler("*/5", "19-21", async () => {
       client.sendMessage("263775231426@c.us", `${eplFixtures}`);
     });
     console.log("Client is ready!");
+  });
+
+  cronScheduler("*/6", "11-19", async () => {
+    callFootballApi().then(async () => {
+      const epl = await getFixtures("epl");
+      const laliga = await getFixtures("la liga");
+      client.sendMessage(me, epl);
+      client.sendMessage(me, laliga);
+    });
+    //callFootballApi("135");
+    // callFootballApi("zpsl");
+    // callFootballApi("serie a");
   });
 
   // client.sendMessage(me,uclFixtures)

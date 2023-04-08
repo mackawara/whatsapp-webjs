@@ -138,12 +138,23 @@ const callFootballApi = async (competition) => {
           const fixtureFound = await fixtureModel.find({
             fixtureID: fixtureID,
           });
-          fixtureFound.matchStatus = matchStatus;
-          fixtureFound.score = score;
-          fixtureFound.fixture = `${fixture.home} vs ${fixture.away}`;
+          fixtureFound[0].overwrite({
+            matchStatus: matchStatus,
+            fixture: `${home} vs ${away}`,
+            venue: venue,
+            round: round,
+            date: date,
+            home: home,
+            away: away,
+            time: time,
+            leagueId: leagueId,
+            score: scores,
+            fixtureID: fixtureID,
+            competition: competition,
+          });
 
           await fixtureFound[0].save().then(() => {
-           console.log("es solo pari me");
+            console.log("es solo pari me");
           });
           /* ,
             (error, data) => {

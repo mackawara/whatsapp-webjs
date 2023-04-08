@@ -25,7 +25,7 @@ const getFixtures = async (competition, status) => {
     league = 2;
   }
   const slash = new RegExp("/", "g");
-  console.log(new Date().toLocaleDateString().replace(slash, "-"));
+  const date = new Date().toLocaleDateString().replace(slash, "-");
   const message = [];
   const fixtures = await FixtureModel.find({
     //  matchStatus: "Not Started",
@@ -34,12 +34,12 @@ const getFixtures = async (competition, status) => {
   }).exec();
   let comp, round;
   fixtures.forEach((fixture) => {
-    const line = `${fixture.date} *${fixture.score}* ${fixture.matchstatus} \n`;
+    const line = `*${fixture.score}* ${fixture.matchStatus} \n`;
     comp = fixture.competition;
     round = fixture.round;
     message.push(line);
   });
-  const formatted = `AllSports Update :\n ${comp}\n round:${round} \n ${message.join(
+  const formatted = `AllSports Update ${date}:\n ${comp}\n round:${round} \n${message.join(
     " "
   )}\n  ,*To recieve league fixtures*, Send *league: name of league*  to +263715248036 as shown below  \n For English premier league fixtures, send: *league: Epl* \n For La liga send *league: La liga* etc. \n Brought to you by All sports`;
   return formatted;
