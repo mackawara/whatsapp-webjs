@@ -2,11 +2,10 @@ const axios = require("axios");
 const fixtureModel = require("../../models/footballFixtures");
 const todayDate = new Date().toISOString().slice(0, 10);
 const writeFile = require("./writeFile");
-
+fixtureModel.deleteMany();
 /* only queries fixutres and scores for current */
 
 const callFootballApi = async (competition) => {
-  console.log("api football called");
   let league;
   if (/english premier|premiership|epl/i.test(competition)) {
     league = 39;
@@ -23,16 +22,16 @@ const callFootballApi = async (competition) => {
   } else {
     league = competition;
   }
-  console.log(`league is ` + league);
+
   const options = {
     method: "GET",
     url: `https://api-football-v1.p.rapidapi.com/v3/fixtures`,
     params: {
       // league: league,
-      live: "all",
+      //live: "all",
       // current: true,
-      season: "2022",
-      // date: todayDate,
+      //season: "2022",
+      date: todayDate,
       // timezone: "Africa/Harare",
     },
     headers: {
@@ -47,7 +46,7 @@ const callFootballApi = async (competition) => {
     if (/FT|NS/.test(matchStatus.short)) {
       return matchStatus.long;
     } else if (/1H|2H|HT|ET/i.test(matchStatus.short)) {
-      return `In progress,${matchStatus.long}, ${matchStatus.elapsed} minutes played`;
+      return `In progress, ${matchStatus.long}, *${matchStatus.elapsed} mins played*`;
     } else if (/AET|PEN/i.test(matchStatus.short)) {
       let winningScore =
         penalty.home > penalty.away ? penalty.home : penalty.away;
@@ -80,94 +79,101 @@ const callFootballApi = async (competition) => {
       console.error(error);
     });
   writeFile(results, "callFootball.json");
+  
+  
   try {
     results.forEach(async (result) => {
-      const time = new Date(
-        result.fixture.timestamp * 1000
-      ).toLocaleTimeString();
-      const fixtureID = result.fixture.id;
-      const leagueId = result.league.id;
-      const venue = result.fixture.venue.name;
-      const home = result.teams.home.name;
-      const away = result.teams.away.name;
-      const competition = `${result.league.name} ${result.league.season}`;
-      const goals = result.goals;
-      const winner = result.teams.home.winner ? home : away;
-      const round = result.league.round;
-      const date = result.fixture.date.slice(0, 10);
-      const matchStatus = matchStatusFormatter(
-        result.fixture.status,
-        result.score.penalty,
-        winner
-      );
+    //  console.log(result.league.name.replaceAll(" ", ""));
+      const leagues = [3, 2, 401, 135, 39, 140];
 
-      const penalties = result.score.penalty;
-      const scoresHome = result.goals.home; //? result.goals.home : "";
-      const scoresAway = result.goals.away; //? result.goals.home : "";
-      const scores = ` ${home} ${scoresHome} vs ${scoresAway} ${away}`;
-      const score = scoreFormatter(scores, matchStatus, home, away);
+      if (leagues.includes(result.league.id)) {
+        const time = new Date(
+          result.fixture.timestamp * 1000
+        ).toLocaleTimeString();
+        const fixtureID = result.fixture.id;
+        const leagueId = result.league.id;
+        const venue = result.fixture.venue.name;
+        const home = result.teams.home.name;
+        const away = result.teams.away.name;
+        const competition = `${result.league.name} ${result.league.season}`;
+        const goals = result.goals;
+        const winner = result.teams.home.winner ? home : away;
+        const round = result.league.round;
+        const date = result.fixture.date.slice(0, 10);
+        const matchStatus = matchStatusFormatter(
+          result.fixture.status,
+          result.score.penalty,
+          winner
+        );
 
-      const fixture = new fixtureModel({
-        matchStatus: matchStatus,
-        fixture: `${home} vs ${away}`,
-        venue: venue,
-        round: round,
-        date: date,
-        home: home,
-        away: away,
-        time: time,
-        leagueId: leagueId,
-        score: scores,
-        fixtureID: fixtureID,
-        competition: competition,
-      });
+        const penalties = result.score.penalty;
+        const scoresHome = result.goals.home; //? result.goals.home : "";
+        const scoresAway = result.goals.away; //? result.goals.home : "";
+        const scores = ` ${home} ${scoresHome} vs ${scoresAway} ${away}`;
+        const score = scoreFormatter(scores, matchStatus, home, away);
 
-      //Save the api response to DB
-      //check if the fixture is all in the DB and update otherwise create new fixture
-      const queryAndSave = async function () {
-        const result = await fixtureModel
-          .find({
-            fixtureID: fixtureID,
-          })
-          .exec();
+        const fixture = new fixtureModel({
+          matchStatus: matchStatus,
+          fixture: `${home} vs ${away}`,
+          venue: venue,
+          round: round,
+          date: date,
+          home: home,
+          away: away,
+          time: time,
+          leagueId: leagueId,
+          score: scores,
+          fixtureID: fixtureID,
+          competition: competition,
+        });
 
-        if (result.length < 1) {
-          fixture.save().then(() => console.log("now saved"));
-        } else {
-          console.log("findind and up");
-          const fixtureFound = await fixtureModel.find({
-            fixtureID: fixtureID,
-          });
-          fixtureFound[0].overwrite({
-            matchStatus: matchStatus,
-            fixture: `${home} vs ${away}`,
-            venue: venue,
-            round: round,
-            date: date,
-            home: home,
-            away: away,
-            time: time,
-            leagueId: leagueId,
-            score: scores,
-            fixtureID: fixtureID,
-            competition: competition,
-          });
+        //Save the api response to DB
+        //check if the fixture is all in the DB and update otherwise create new fixture
+        const queryAndSave = async function () {
+          const result = await fixtureModel
+            .find({
+              fixtureID: fixtureID,
+            })
+            .exec();
 
-          await fixtureFound[0].save().then(() => {
-            console.log("es solo pari me");
-          });
-          /* ,
-            (error, data) => {
-              if (error) {
-                console.log(error);
-              } else {
-                console.log(data);
-              }
-            } */
-        }
-      };
+          if (result.length < 1) {
+            fixture.save().then(() => console.log("now saved"));
+          } else {
+            console.log("findind and up");
+            const fixtureFound = await fixtureModel.find({
+              fixtureID: fixtureID,
+            });
+            fixtureFound[0].overwrite({
+              matchStatus: matchStatus,
+              fixture: `${home} vs ${away}`,
+              venue: venue,
+              round: round,
+              date: date,
+              home: home,
+              away: away,
+              time: time,
+              leagueId: leagueId,
+              score: scores,
+              fixtureID: fixtureID,
+              competition: competition,
+            });
 
-      queryAndSave();
+            await fixtureFound[0].save().then(() => {
+              console.log("es solo pari me");
+            });
+            /* ,
+              (error, data) => {
+                if (error) {
+                  console.log(error);
+                } else {
+                  console.log(data);
+                }
+              } */
+          }
+        };
+
+        queryAndSave();
+      }
     });
   } catch (error) {
     console.log(error);

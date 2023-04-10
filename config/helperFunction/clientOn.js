@@ -3,7 +3,7 @@ const getCommentary = require("../getCommentary");
 
 const clientOn = async (client, arg1) => {
   const contactModel = require("../../models/contactsModel");
-
+  let groupName, grpDescription;
   if (arg1 == "message") {
     client.on(`${arg1}`, async (msg) => {
       const chat = await msg.getChat();
@@ -14,16 +14,11 @@ const clientOn = async (client, arg1) => {
       const serialisedNumber = contact.id._serialised;
       const msgBody = msg.body;
       if (chat.isGroup) {
+        (groupName = chat.name), (grpDescription = chat.description);
         console.log(msg.body);
-        /*  console.log(chat);
-        console.log(msg); */
-        const groupName = chat.name,
-          grpDescription = chat.description;
         //grpOwner = chat.owner.user;
 
-        const testRegex = new RegExp("matchId", "i");
-
-        if (testRegex.test(msgBody.replaceAll(" ", ""))) {
+        if (/matchid/gi.test(msgBody.replaceAll(" ", ""))) {
           console.log("matchid receieved");
           // getCommentary()
 
@@ -60,17 +55,18 @@ const clientOn = async (client, arg1) => {
   //run when group is left
   else if (arg1 == "group-leave") {
     client.on("group_leave", (notification) => {
+      console.log(notification);
       // User has left or been kicked from the group.
       const user = notification.id.participant;
       client.sendMessage(
         user,
-        "we are sorry to see you leave the group, May you indly share wy you decided to leave"
+        `We are sorry to see you leave our group , May you indly share wy you decided to leave`
       );
-      client.sendMessage(me, `user just left  the group`);
+      client.sendMessage(me, `User ${user} just left  the group`);
     });
   } else if (arg1 == "group-join") {
     client.on("group_join", (notification) => {
-      console.log("left gropu");
+      console.log(notification);
       // User has joined or been added to the group.
       console.log("join", notification);
       client.sendMessage(

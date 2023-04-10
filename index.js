@@ -66,6 +66,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
+      executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -136,24 +137,32 @@ connectDB().then(async () => {
   client.on("ready", async () => {
     //client.sendMessage(hwangeClubCricket, getmatch);
     // const eplFixtures = await getFixtures("epl");
-
-    //  cronScheduler("*/3", "14-22", console.log("running")); //client.sendMessage("263775231426@c.us", commentary))
-    cronScheduler("*/5", "19-21", async () => {
-      client.sendMessage("263775231426@c.us", `${eplFixtures}`);
+    cronScheduler("*/6", "11-23", async () => {
+      callFootballApi().then(async () => {
+        console.log("test");
+        const epl = await getFixtures("epl");
+        const laliga = await getFixtures("la liga");
+        const zpsl = await getFixtures("zpsl");
+        const ucl = await getFixtures("uefa");
+        await client.sendMessage(
+          me,
+          `*Live Soccer updates from EPL, ZPSL, Seire A,La Liga,UEFA champions League*`
+        );
+        await client.sendMessage(me, epl);
+        await client.sendMessage(me, zpsl);
+        await client.sendMessage(me, laliga);
+        await client.sendMessage(
+          me,
+          `To recieve live updates*,add this number +263711489602 to your group. Type matchID and you will recieve a list of that days matches an d the IDs with which you can request a score`
+        );
+      });
+      //callFootballApi("135");
+      // callFootballApi("zpsl");
+      // callFootballApi("serie a");
     });
+
+    //  cronScheduler("*/3", "14-22", console.log
     console.log("Client is ready!");
-  });
-
-  cronScheduler("*/6", "11-19", async () => {
-    callFootballApi().then(async () => {
-      const epl = await getFixtures("epl");
-      const laliga = await getFixtures("la liga");
-      client.sendMessage(me, epl);
-      client.sendMessage(me, laliga);
-    });
-    //callFootballApi("135");
-    // callFootballApi("zpsl");
-    // callFootballApi("serie a");
   });
 
   // client.sendMessage(me,uclFixtures)

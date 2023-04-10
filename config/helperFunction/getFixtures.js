@@ -31,17 +31,24 @@ const getFixtures = async (competition, status) => {
     //  matchStatus: "Not Started",
     leagueId: league,
     date: new Date().toISOString().slice(0, 10),
+    matchStatus: /in progress/i,
   }).exec();
   let comp, round;
-  fixtures.forEach((fixture) => {
-    const line = `*${fixture.score}* ${fixture.matchStatus} \n`;
-    comp = fixture.competition;
-    round = fixture.round;
-    message.push(line);
-  });
-  const formatted = `AllSports Update ${date}:\n ${comp}\n round:${round} \n${message.join(
-    " "
-  )}\n  ,*To recieve league fixtures*, Send *league: name of league*  to +263715248036 as shown below  \n For English premier league fixtures, send: *league: Epl* \n For La liga send *league: La liga* etc. \n Brought to you by All sports`;
-  return formatted;
+  if (fixtures.length > 0) {
+    fixtures.forEach((fixture) => {
+      const line = fixture.time
+        ? `Kickoff: ${fixture.time} *${fixture.score.trim()}* ${
+            fixture.matchStatus
+          }\n`
+        : `No live ${competition} matches`;
+      comp = fixture.competition;
+      round = fixture.round.slice("-2");
+      message.push(line);
+    });
+    const formatted = `${comp} MatchDay:${round} \n${message.join("")}`;
+    return formatted;
+  } else {
+    return `No ${competition} matches in progress at the moment`;
+  }
 };
 module.exports = getFixtures;
