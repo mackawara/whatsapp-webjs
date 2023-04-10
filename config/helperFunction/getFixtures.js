@@ -40,15 +40,15 @@ const getFixtures = async (competition, status) => {
         ? `Kickoff: ${fixture.time} *${fixture.score.trim()}* ${
             fixture.matchStatus
           }\n`
-        : `No live ${competition} matches`;
+        : ``;
       comp = fixture.competition;
       round = fixture.round.slice("-2");
-      message.push(line);
+      !line == `` ? message.push(line) : console.log("no live matches");
     });
     const formatted = `${comp} MatchDay:${round} \n${message.join("")}`;
     return formatted;
   } else {
-    return `No ${competition} matches in progress at the moment`;
+    return ``;
   }
 };
 module.exports = getFixtures;

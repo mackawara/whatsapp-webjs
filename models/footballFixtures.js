@@ -7,7 +7,6 @@ const fixtureSchema = new mongoose.Schema({
   },
   venue: {
     type: String,
-    required: true,
   },
   leagueId: {
     type: String,

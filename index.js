@@ -66,7 +66,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+     // executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -139,18 +139,30 @@ connectDB().then(async () => {
     // const eplFixtures = await getFixtures("epl");
     cronScheduler("*/6", "11-23", async () => {
       callFootballApi().then(async () => {
-        console.log("test");
+        let update = [];
         const epl = await getFixtures("epl");
         const laliga = await getFixtures("la liga");
         const zpsl = await getFixtures("zpsl");
         const ucl = await getFixtures("uefa");
+        if (!epl == "") {
+          update.push(epl);
+        }
+        if (!laliga == "") {
+          update.push(laliga);
+        }
+        if (!zpsl == "") {
+          update.push(zpsl);
+        }
+        if (!ucl == "") {
+          update.push(ucl);
+        }
+        update.join("\n");
+        console.log(update);
         await client.sendMessage(
           me,
           `*Live Soccer updates from EPL, ZPSL, Seire A,La Liga,UEFA champions League*`
         );
-        await client.sendMessage(me, epl);
-        await client.sendMessage(me, zpsl);
-        await client.sendMessage(me, laliga);
+        // await client.sendMessage(me, update);
         await client.sendMessage(
           me,
           `To recieve live updates*,add this number +263711489602 to your group. Type matchID and you will recieve a list of that days matches an d the IDs with which you can request a score`
