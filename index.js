@@ -21,17 +21,18 @@ app.listen(port, () => {});
 
 const uploadImage = require("./middleware/uploadImage");
 const cloudinary = require("./middleware/cloudinary");
-//cron
+
+const todayDate = new Date().toISOString().slice(0, 10);
+const matchIDModel = require("./models/cricketMatchIds");
 
 // APi calls
 //football API
 const callFootballApi = require("./config/helperFunction/callFootballApi");
 // crikcet Api calls
 //CIRCKET SCORES
-/* const getMatchIds = require("./config/getMatchIds");
-getMatchIds("upcoming", "league"); */
+const getMatchIds = require("./config/getMatchIds");
+getMatchIds("upcoming", "League");
 
-//console.log(sd);
 const getIds = require("./config/helperFunction/cricbuzz");
 const getCommentary = require("./config/getCommentary");
 //getCommentary("66197");
@@ -53,11 +54,14 @@ const DB_STRING = process.env.DB_STRING;
 //connect to db then execute all functions
 //getCommentary("66190");
 //MODELS
+
 //contacts
 const tate = process.env.TATENDA;
-const hwangeClubCricket = process.env.HWANGECLUBDELACRICKET;
 //groups
+const hwangeClubCricket = process.env.HWANGECLUBDELACRICKET;
 const liveSoccer1 = process.env.LIVESOCCER1;
+const liveCricket1 = process.env.LIVECRICKET1;
+const hwangeDealsgrp1 = process.env.HWANGEDEALSGRP1;
 
 const contactModel = require("./models/contactsModel");
 connectDB().then(async () => {
@@ -66,7 +70,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      // executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -90,8 +94,6 @@ connectDB().then(async () => {
   let randomAdvert = () =>
     advertMessages[Math.floor(Math.random() * advertMessages.length)];
 
-  //getLiveMatches()
-
   const cron = require(`node-cron`);
   //client.setDisplayName("Live Soccer Score")
   let advertMessages = require("./adverts");
@@ -113,7 +115,7 @@ connectDB().then(async () => {
     console.log(`client authenticated`);
   });
   //const europa = await getFixtures("europa");
-
+  const contactListForAds = [hwangeDealsgrp1];
   async function sendAdverts() {
     const contact = "263775231426@c.us"; //contactListForAds[index];
     for (let i = 0; i < contactListForAds.length; i++) {
@@ -135,45 +137,101 @@ connectDB().then(async () => {
   }
 
   client.on("ready", async () => {
-    //client.sendMessage(hwangeClubCricket, getmatch);
-    // const eplFixtures = await getFixtures("epl");
-    cronScheduler("*/6", "11-23", async () => {
-      callFootballApi().then(async () => {
-        let update = [];
-        const epl = await getFixtures("epl");
-        const laliga = await getFixtures("la liga");
-        const zpsl = await getFixtures("zpsl");
-        const ucl = await getFixtures("uefa");
-        if (!epl == "") {
-          update.push(epl);
-        }
-        if (!laliga == "") {
-          update.push(laliga);
-        }
-        if (!zpsl == "") {
-          update.push(zpsl);
-        }
-        if (!ucl == "") {
-          update.push(ucl);
-        }
-        update.join("\n");
-        console.log(update);
+    const cricketMatchesToday = await matchIDModel
+      .find({
+        date: new Date().toISOString().slice(0, 10),
+      })
+      .exec();
+    console.log(cricketMatchesToday);
+
+    // send Finished match updates
+    let firstkickOff;
+    cronScheduler("*", "8", async () => {
+      await callFootballApi();
+      let update = [];
+      const epl = await getFixtures("epl", "Not Started");
+      const laliga = await getFixtures("la liga", "Not Started");
+      const zpsl = await getFixtures("zpsl", "Not Started");
+      const ucl = await getFixtures("uefa", "Not Started");
+      const europa = await getFixtures("europa", "Not Started");
+      // get fixtures retuns an empty string if it does nt find fixturs that meet the criteria
+      await update.push(epl, laliga, zpsl, ucl, europa);
+
+      const upcoming = update.filter((league) => !league == "").join("\n");
+      upcoming.length > 0
+        ? client.sendMessage(liveSoccer1, upcoming)
+        : console.log("Upcoming not started =" + upcoming);
+    });
+    cronScheduler("*", "14-23", async () => {
+      await callFootballApi();
+      let results = [];
+      const epl = await getFixtures("epl", "Match Finished");
+      const laliga = await getFixtures("la liga", "Match Finished");
+      const zpsl = await getFixtures("zpsl", "Match Finished");
+      const ucl = await getFixtures("uefa", "Match Finished");
+      const europa = await getFixtures("europa", "Match Finished");
+      // get fixtures retuns an empty string if it does nt find fixturs that meet the criteria
+      results.push(epl, laliga, zpsl, ucl, europa);
+
+      const finishedMatches = results
+        .filter((league) => !league == "")
+        .join("\n");
+      finishedMatches.length > 0
+        ? client.sendMessage(liveSoccer1, finishedMatches)
+        : console.log("Finished matches =" + finishedMatches);
+    });
+    cronScheduler("*", "14-23", async () => {
+      await callFootballApi();
+      let update = [];
+      const epl = await getFixtures("epl", "In Progress");
+      const laliga = await getFixtures("la liga", "In Progress");
+      const zpsl = await getFixtures("zpsl", "In Progress");
+      const ucl = await getFixtures("uefa", "In Progress");
+      const europa = await getFixtures("europa", "In Progress");
+      if (!epl == "") {
+        update.push(epl);
+        console.log("No epl matches in progress");
+      }
+      if (!laliga == "") {
+        update.push(laliga);
+        console.log("No laliga matches in progress");
+      }
+      if (!zpsl == "") {
+        update.push(zpsl);
+        console.log("No zpsl matches in progress");
+      }
+      if (!ucl == "") {
+        update.push(ucl);
+        console.log("No ucl matches in progress");
+      }
+      if (!europa == "") {
+        update.push(europa);
+        console.log("No europ matches in progress");
+      }
+      let message = update.filter((result) => !result == "");
+
+      if (update.length > 0) {
         await client.sendMessage(
           me,
           `*Live Soccer updates from EPL, ZPSL, Seire A,La Liga,UEFA champions League*`
         );
-        // await client.sendMessage(me, update);
+        await client.sendMessage(liveSoccer1, update.join("\n"));
         await client.sendMessage(
           me,
           `To recieve live updates*,add this number +263711489602 to your group. Type matchID and you will recieve a list of that days matches an d the IDs with which you can request a score`
         );
-      });
-      //callFootballApi("135");
-      // callFootballApi("zpsl");
-      // callFootballApi("serie a");
+      } else {
+        console.log("no updates");
+      }
     });
+    cronScheduler("5", "5,7,9,11,13,16", async () => {
+      sendAdverts();
+    });
+    //  cronScheduler("*/6", "16-21", async () => {
+    //  const ipl = await getCommentary(); //gets live commentary of games
+    //client.sendMessage(liveCricket1, ipl);
+    //});
 
-    //  cronScheduler("*/3", "14-22", console.log
     console.log("Client is ready!");
   });
 
@@ -213,22 +271,8 @@ connectDB().then(async () => {
     qrcode.generate(qr, { small: true });
     console.log(qr);
   });
-  client.on("qr", (qr) => {
-    qrcode.generate(qr, { small: true });
-    console.log(qr);
-  });
   const messages = require("./messages");
   //const getmatch = await getCommentary("66173");
-
-  client.on("message_revoke_everyone", async (after, before) => {
-    // Fired whenever a message is deleted by anyone (including you)
-    console.log(after); // message after it was deleted.
-    if (before) {
-      console.log(before); // message before it was deleted.
-    } else {
-      client.sendMessage(me, `this message was deleted${before.body}`);
-    }
-  });
 
   client.on(`message`, async (message) => {
     const messageContents = message.body;

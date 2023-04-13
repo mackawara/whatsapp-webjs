@@ -4,7 +4,7 @@ module.exports = writeFile = async (data, path) => {
     fs.writeFile(path, JSON.stringify(data), (err) => {
       console.log("successfully saved");
     });
-  } catch (error) {
+  } catch (err) {
     console.log(err);
   }
 };

@@ -2,7 +2,6 @@ const axios = require("axios");
 const fixtureModel = require("../../models/footballFixtures");
 const todayDate = new Date().toISOString().slice(0, 10);
 const writeFile = require("./writeFile");
-fixtureModel.deleteMany();
 /* only queries fixutres and scores for current */
 
 const callFootballApi = async (competition) => {
@@ -72,18 +71,16 @@ const callFootballApi = async (competition) => {
   const results = await axios
     .request(options)
     .then((response) => {
-      console.log(response.data.response);
       return response.data.response;
     })
     .catch(function (error) {
       console.error(error);
     });
-  writeFile(results, "callFootball.json");
-  
-  
+  //writeFile(results, "callFootball.json");
+
   try {
     results.forEach(async (result) => {
-    //  console.log(result.league.name.replaceAll(" ", ""));
+      //  console.log(result.league.name.replaceAll(" ", ""));
       const leagues = [3, 2, 401, 135, 39, 140];
 
       if (leagues.includes(result.league.id)) {
@@ -139,11 +136,10 @@ const callFootballApi = async (competition) => {
           if (result.length < 1) {
             fixture.save().then(() => console.log("now saved"));
           } else {
-            console.log("findind and up");
             const fixtureFound = await fixtureModel.find({
               fixtureID: fixtureID,
             });
-            fixtureFound[0].overwrite({
+            /*  fixtureFound[0].overwrite({
               matchStatus: matchStatus,
               fixture: `${home} vs ${away}`,
               venue: venue,
@@ -157,18 +153,10 @@ const callFootballApi = async (competition) => {
               fixtureID: fixtureID,
               competition: competition,
             });
-
+ */
             await fixtureFound[0].save().then(() => {
-              console.log("es solo pari me");
+              console.log("fixture updated");
             });
-            /* ,
-              (error, data) => {
-                if (error) {
-                  console.log(error);
-                } else {
-                  console.log(data);
-                }
-              } */
           }
         };
 

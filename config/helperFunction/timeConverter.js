@@ -15,13 +15,13 @@ const timeConverter = (UNIX_timestamp) => {
     "Dec",
   ];
   const year = a.getFullYear();
-  const month = months[a.getMonth()];
+  const month = parseInt(a.getMonth())+1;
   const date = a.getDate();
   const hour = a.getHours();
   const min = a.getMinutes();
   const sec = a.getSeconds();
   const time = hour + ":" + min + "0 GMT";
-  const dateFull = `${date} ${month} ${year}`;
+  const dateFull = `${year}-${month}-${date}`;
   const dateArr = [time, dateFull];
 
   return dateArr;

@@ -5,8 +5,8 @@ const contactsSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  isBloceked:{
-    type:String,
+  isBloceked: {
+    type: String,
     required: true,
   },
   number: {

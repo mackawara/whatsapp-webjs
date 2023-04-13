@@ -6,6 +6,8 @@ const matchIdmodel = require("../models/cricketMatchIds");
 const queryAndSave = require("./helperFunction/queryDbNSave");
 
 const getMatchIds = async (type, matchType) => {
+  matchIdmodel.deleteMany();
+
   const options = {
     method: "GET",
     url: `https://cricbuzz-cricket.p.rapidapi.com/matches/v1/${type}`,
@@ -21,13 +23,9 @@ const getMatchIds = async (type, matchType) => {
     .then(function (response) {
       if (response.data.typeMatches) {
         const matchesAll = response.data; //JSON.parse(dummyresult); // array of all matches split by typpe
-        //console.log(matchesAll.typeMatches);
 
         matchesAll.typeMatches.forEach((match) => {
           if (match.matchType == matchType) {
-            console.log(matchType);
-            //console.log(match)
-            // const matchFormat = match.seriesAdWrapper.matchFormat;
             const matchArr = match.seriesMatches;
             matchArr.forEach((match) => {
               if (match.seriesAdWrapper) {
@@ -37,14 +35,15 @@ const getMatchIds = async (type, matchType) => {
                   const seriesName = matchInfo.seriesName;
                   const matchID = matchInfo.matchId;
                   const matchFormat = matchInfo.matchFormat;
-                  const date = timeConverter(parseInt(matchInfo.startDate))[1];
+                  const date = new Date(parseInt(matchInfo.startDate))
+                    .toISOString()
+                    .slice(0, 10);
                   const startTime = timeConverter(
                     parseInt(matchInfo.startDate)
                   )[0];
                   const team1 = matchInfo.team1.teamName;
                   const team2 = matchInfo.team2.teamName;
 
-                  // matchesList.push(
                   const item = `${matchFormat} match:${team1} vs ${team2} \nStarting time: ${Date} \nMatchID : ${matchID}`;
 
                   const matchModel = new matchIdmodel({

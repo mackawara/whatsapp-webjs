@@ -1,6 +1,6 @@
 const queryAndSave = async function (model, item, queryString, itemId) {
   const stringified = `${queryString}`;
-  console.log(itemId, stringified);
+
   const result = await model
     .find({
       [queryString]: itemId,

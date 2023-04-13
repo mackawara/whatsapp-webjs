@@ -9,7 +9,6 @@ const europa = new RegExp("Europa", "i");
 const uefa = new RegExp("ucl", "i");
 //Fetches fixtures from datatbase
 const getFixtures = async (competition, status) => {
-  console.log("get fixtures called");
   let league;
   if (englishPremier.test(competition)) {
     league = 39;
@@ -19,36 +18,36 @@ const getFixtures = async (competition, status) => {
     league = 140;
   } else if (zpsl.test(competition)) {
     league = 401;
-  } else if (uefa.test(competition)) {
-    league = 2;
+  } else if (europa.test(competition)) {
+    league = 3;
   } else if (uefa.test(competition)) {
     league = 2;
   }
   const slash = new RegExp("/", "g");
   const date = new Date().toLocaleDateString().replace(slash, "-");
   const message = [];
+  const testRegex = new RegExp(`${status}`, "i", "g");
   const fixtures = await FixtureModel.find({
     //  matchStatus: "Not Started",
     leagueId: league,
     date: new Date().toISOString().slice(0, 10),
-    matchStatus: /in progress/i,
+    matchStatus: testRegex, // find matches that match the status
   }).exec();
   let comp, round;
   if (fixtures.length > 0) {
     fixtures.forEach((fixture) => {
-      const line = fixture.time
-        ? `Kickoff: ${fixture.time} *${fixture.score.trim()}* ${
-            fixture.matchStatus
-          }\n`
-        : ``;
+      const line = `Kickoff: ${fixture.time} *${fixture.score.trim()}* \n ${
+        fixture.matchStatus
+      }\n`;
       comp = fixture.competition;
       round = fixture.round.slice("-2");
-      !line == `` ? message.push(line) : console.log("no live matches");
+      message.push(line);
     });
     const formatted = `${comp} MatchDay:${round} \n${message.join("")}`;
+
     return formatted;
   } else {
-    return ``;
+    return ""; // return empty string if no matching fixtures
   }
 };
 module.exports = getFixtures;

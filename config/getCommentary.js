@@ -18,19 +18,32 @@ const getCommentary = async (matchId) => {
     const response = res.data;
     console.log(res.data);
     // writeFile(response.data, "testFile.json");
-    //  const response=readFile("/../../testFile.json")
+    let matchState, matchDesc, seriesname, team1, team2; //  const response=readFile("/../../testFile.json")
+    if (response.matchHeader) {
+      (matchStatus = response.matchHeader.status),
+        (matchState = response.matchHeader.state),
+        (matchDesc = response.matchHeader.matchDescription),
+        (seriesname = response.matchHeader.seriesDesc),
+        (team1 = response.matchHeader.team1.name),
+        (team2 = response.matchHeader.team2.name);
+    } else {
+      matchStatus,
+        matchState,
+        matchDesc,
+        seriesname,
+        team1,
+        (tean2 = response.matchHeader.state);
+    }
 
-    const matchStatus = response.matchHeader.status,
-      matchState = response.matchHeader.state,
-      matchDesc = response.matchHeader.matchDescription,
-      seriesname = response.matchHeader.seriesDesc,
-      team1 = response.matchHeader.team1.name,
-      team2 = response.matchHeader.team2.name,
-      currRR = response.miniscore ? response.miniscore.currentRunRate : "none",
+    const currRR = response.miniscore
+        ? response.miniscore.currentRunRate
+        : "none",
       reqRR = response.miniscore ? response.miniscore.requiredRunRate : "none",
       miniscore = response.miniscore;
     // lastWicket = response.miniscore.lastWicket;
-    let inningsList = response.miniscore?miniscore.matchScoreDetails.inningsScoreList: []
+    let inningsList = response.miniscore
+      ? miniscore.matchScoreDetails.inningsScoreList
+      : [];
     inningsList = inningsList.map((innings) => {
       return `${innings.batTeamName} *${innings.score}-${innings.wickets}* ,${innings.overs} overs \n`;
     });
@@ -59,7 +72,7 @@ const getCommentary = async (matchId) => {
         commentary.push(miniScoreCard);
       }
     });
-    commentary = commentary.slice("0", "6").map((comment) => {
+    commentary = commentary.slice("0", "8").map((comment) => {
       return comment + "\n";
     });
     return commentary.join("\n");

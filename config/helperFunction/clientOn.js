@@ -1,21 +1,36 @@
 const me = process.env.ME;
 const getCommentary = require("../getCommentary");
+const callOpenAi = require("../openai");
+const keywords = require("../../keywords");
 
-const clientOn = async (client, arg1) => {
+const clientOn = async (client, arg1, arg2) => {
   const contactModel = require("../../models/contactsModel");
   let groupName, grpDescription;
   if (arg1 == "message") {
-    client.on(`${arg1}`, async (msg) => {
+    client.on(`message`, async (msg) => {
       const chat = await msg.getChat();
       const contact = await msg.getContact();
-
       const contactVName = contact.verifiedName;
       const contactNumber = contact.number;
       const serialisedNumber = contact.id._serialised;
       const msgBody = msg.body;
+      msgBody.split(" ").forEach(word=>{
+
+        if (keywords.businessKeywords.includes(word)) {
+          //do stuff
+          client.sendMessage(me,`Business keyword alert:\n ${msgBody} from ${contact}`);
+        }
+        
+      })
+      //queries chatGPT work in progress
+      if (msgBody.includes("openAi")) {
+        const response = await callOpenAi(msgBody);
+        msg.reply(response);
+      }
       if (chat.isGroup) {
         (groupName = chat.name), (grpDescription = chat.description);
-        console.log(msg.body);
+        console.log(chat.name,chat.id._serialized)
+       // console.log(msg.body,groupName,contact);
         //grpOwner = chat.owner.user;
 
         if (/matchid/gi.test(msgBody.replaceAll(" ", ""))) {
@@ -58,10 +73,10 @@ const clientOn = async (client, arg1) => {
       console.log(notification);
       // User has left or been kicked from the group.
       const user = notification.id.participant;
-      client.sendMessage(
+      /* client.sendMessage(
         user,
         `We are sorry to see you leave our group , May you indly share wy you decided to leave`
-      );
+      ); */
       client.sendMessage(me, `User ${user} just left  the group`);
     });
   } else if (arg1 == "group-join") {
@@ -69,11 +84,21 @@ const clientOn = async (client, arg1) => {
       console.log(notification);
       // User has joined or been added to the group.
       console.log("join", notification);
-      client.sendMessage(
+     /*  client.sendMessage(
         notification.id.participant,
         "welcome to ... Here are the group rules for your convenience.... \n"
-      );
-      notification.reply("User joined.");
+      ) */;
+     // notification.reply("User joined.");
+    });
+  } else if (arg1 == "before" && arg2 == "after") {
+    client.on("message_revoke_everyone", async (after, before) => {
+      // Fired whenever a message is deleted by anyone (including you)
+      console.log(after); // message after it was deleted.
+      if (before) {
+        console.log(before); // message before it was deleted.
+      } else {
+        client.sendMessage(me, `this message was deleted${before.body}`);
+      }
     });
   }
 };
