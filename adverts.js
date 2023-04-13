@@ -20,6 +20,7 @@ const advertMessages = [
   "*FASTEST WIFI HOTSPOT IN THE LAND* \n Visit us at \n  VENTA TECH LOCATION: SHOP NO1 Above Pick N Pay Shops (Shops above TM *Entrance between TM and Post*), Hwange   APP or CALL0775231426 Download :\nMovies \n Music \nSoftwares \n   $1 Voucher For 1 hour \n $3 Voucher for 2GB  \n 30 minutes free WiFi for school children in school uniforms",
   "CCTV and alarm Systems brought to you by VENTA TECH \nLOCATION : SHOP NO1  Above TM Pick N Pay Flats, Hwange\n  APP OR CALL 0775231426\n  Professional surveillance (CCTV)  and intrusion detection (ALARM SYSTEMS)\n  HD CAMERAS WITH\nInfrared Vision for low light recording\n  Motion detection\n  Remote viewing ( monitor your cameras from wherever you are)\n Intrusion alerts on your cellphone\n  SECURITY THAT IS  ALWAYS ALERT",
   " *Serialised Receipt Books In full colour*, Business Documents,VENTA TECH provides proffessionally business documents such as Receipt books,Invoice Books, \n LOCATION SHOP NO. 1 Above TM Pick N Pay Flats Hwange \n App or Call 0775231426 \n For all your \n \n Receipts Books  \nInvoice Books \nLog Books \nReports Books \n 20 pack display books \nA4 Envelopes  \n Rulers \nMathematical sets \nDictionary \nSecondary text books ",
+  "*VSAT Internet*, your internet solution for remote areas.\nCall us on 0775231426 and you can have an internet connetcion within 48 hours,literally anywhere , we have unlimited coverage. Ideal for safaris, mines, rural setup etc.Fast reliable internet from Utande:  *Registered Utande reseller* .  "
 ];
 
 module.exports = advertMessages;
