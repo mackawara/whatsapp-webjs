@@ -1,29 +1,19 @@
 require("dotenv").config();
 
 const keywordAlert = require("./keywordsAlert");
-const express = require("express");
-const app = express();
-const port = process.env.PORT || 6000;
 
 //Helper Functions
 const cronScheduler = require("./config/helperFunction/dailyCronScheduler");
 const readFile = require("./config/helperFunction/readFile");
-/* const commentary=require("./config/helperFunction/commentary")
-commentary() */
-//readFile("/../../testFile.json");
-
-//
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-app.listen(port, () => {});
+const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 const uploadImage = require("./middleware/uploadImage");
 const cloudinary = require("./middleware/cloudinary");
 
 const todayDate = new Date().toISOString().slice(0, 10);
+//Db models
 const matchIDModel = require("./models/cricketMatchIds");
+const contactModel = require("./models/contactsModel");
 
 // APi calls
 //football API
@@ -42,18 +32,14 @@ const getFixtures = require("./config/helperFunction/getFixtures");
 //cron jobs
 //get day`s fixtures
 //callFootballApi(2);
-// connect to mongodb
+
+// connect to mongodb before running anything on the app
 
 const connectDB = require("./config/database");
 const { Client, LocalAuth, MessageMedia, id } = require("whatsapp-web.js");
 const { MongoStore } = require("wwebjs-mongo");
 const mongoose = require("mongoose");
 const path = require("path");
-// Require database
-const DB_STRING = process.env.DB_STRING;
-//connect to db then execute all functions
-//getCommentary("66190");
-//MODELS
 
 //contacts
 const tate = process.env.TATENDA;
@@ -63,14 +49,12 @@ const liveSoccer1 = process.env.LIVESOCCER1;
 const liveCricket1 = process.env.LIVECRICKET1;
 const hwangeDealsgrp1 = process.env.HWANGEDEALSGRP1;
 
-const contactModel = require("./models/contactsModel");
 connectDB().then(async () => {
-  // getMatchIds("League", "upcoming");
   const store = new MongoStore({ mongoose: mongoose });
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      // executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -84,8 +68,6 @@ connectDB().then(async () => {
 
   client.initialize();
   const me = process.env.ME;
-
-  //GROUPS
 
   //const contactListForAds = require("./assets/contacts");
   //Messages
@@ -101,15 +83,10 @@ connectDB().then(async () => {
   clientOn(client, "group-join");
   clientOn(client, "group-leave");
 
-  //client.createGroup("New Group",)
-  //client.createGroup("New group", [me, tate]);
   client.on("auth_failure", (msg) => {
     // Fired if session restore was unsuccessful
     console.error("AUTHENTICATION FAILURE", msg);
   });
-
-  //const sessionName = id ? `RemoteAuth-${id}` : "RemoteAuth";
-  const timer = (ms) => new Promise((res) => setTimeout(res, ms));
 
   client.on("authenticated", async (session) => {
     console.log(`client authenticated`);
@@ -125,7 +102,7 @@ connectDB().then(async () => {
           .catch((error) => {
             console.log(error);
           });
-        await timer(5000);
+        await timeDelay(5000);
       } catch (error) {
         console.log(error);
         client.sendMessage(
@@ -137,13 +114,38 @@ connectDB().then(async () => {
   }
 
   client.on("ready", async () => {
-    const cricketMatchesToday = await matchIDModel
-      .find({
-        date: new Date().toISOString().slice(0, 10),
-      })
-      .exec();
-    console.log(cricketMatchesToday);
+    let daysMatchIDs = [];
+    let matchIdMessage = [];
 
+    // getMatch Ids for the days then
+
+    cronScheduler("*", "2,4,6,8", async () => {
+      await getMatchIds("upcoming", "League");
+      let startTimes = [];
+      //  await getMatchIds("upcoming", "International");
+      //await getMatchIds("upcoming", "Domestic");
+      const cricketMatchesToday = await matchIDModel
+        .find({
+          date: new Date().toISOString().slice(0, 10),
+        })
+        .exec();
+      await cricketMatchesToday.forEach((match) => {
+        startTimes.push(
+          match.unixTimeStamp
+        )`${match.fixture}:${match.matchID} Starts at:${match.startingTime}\n`;
+        daysMatchIDs.push(match.matchID);
+      });
+      firstkickOff = Math.min(startTimes.values());
+    });
+
+    const getHrsMins = require("./config/helperFunction/getHrsMins");
+    let minutes = getHrsMins(firstkickOff - 1800000)[0];
+    let hours = getHrsMins(firstkickOff - 180000)[1];
+    cronScheduler(minutes, hours, () => {
+      cronScheduler("*/6", "*", () => {
+        client.sendMessage(liveCricket1, getCommentary(firstkickOff));
+      });
+    });
     // send Finished match updates
     let firstkickOff;
     cronScheduler("*", "8", async () => {
@@ -218,7 +220,7 @@ connectDB().then(async () => {
         await client.sendMessage(liveSoccer1, update.join("\n"));
         await client.sendMessage(
           me,
-          `To recieve live updates*,add this number +263711489602 to your group. Type matchID and you will recieve a list of that days matches an d the IDs with which you can request a score`
+          `Join our facebook group for more exciting soccer new pics etc https://www.facebook.com/groups/623021429278159/`
         );
       } else {
         console.log("no updates");
@@ -263,8 +265,6 @@ connectDB().then(async () => {
     return time;
   }
 
-  //const sendAdvert= client.sendMessage()
-
   const qrcode = require("qrcode-terminal");
 
   client.on("qr", (qr) => {
@@ -300,37 +300,9 @@ connectDB().then(async () => {
       }
     });
 
-    /*   let usdAlert = new keywordAlert(
-            usdKeywords,
-            client,
-            message,
-            amnestyinternational
-            ); */
-    //usdAlert.keywordRun(message.body);
-
     let businessAlert = new keywordAlert(businessKeywords, client, message, me);
     businessAlert.keywordRun(message.body);
   });
-
-  const businessKeywords = [
-    `cartridges`,
-    `catridges`,
-    `printer cartridges`,
-    `HP ink`,
-    `toner`,
-    ` Ink cartridges`,
-    `kyocera`,
-    `lexmark`,
-    `Samsung cartridges`,
-    `Samsung Printer`,
-    `Ricoh`,
-    ` master and ink`,
-    `computer repairs`,
-    `computer networking`,
-    `WIFI`,
-    `telone modem`,
-    `mifi`,
-  ];
 
   client.on("disconnected", (reason) => {
     console.log("Client was logged out", reason);
