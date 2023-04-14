@@ -15,34 +15,26 @@ const todayDate = new Date().toISOString().slice(0, 10);
 const matchIDModel = require("./models/cricketMatchIds");
 const contactModel = require("./models/contactsModel");
 
-// APi calls
+// APi calls functions
 //football API
 const callFootballApi = require("./config/helperFunction/callFootballApi");
-// crikcet Api calls
+const getCommentary = require("./config/getCommentary");
+
 //CIRCKET SCORES
 const getMatchIds = require("./config/getMatchIds");
 getMatchIds("upcoming", "League");
 
-const getIds = require("./config/helperFunction/cricbuzz");
-const getCommentary = require("./config/getCommentary");
-//getCommentary("66197");
-
-//update DB every morning on fixturs
+//database quieries
 const getFixtures = require("./config/helperFunction/getFixtures");
-//cron jobs
-//get day`s fixtures
-//callFootballApi(2);
-
 // connect to mongodb before running anything on the app
 
 const connectDB = require("./config/database");
 const { Client, LocalAuth, MessageMedia, id } = require("whatsapp-web.js");
-const { MongoStore } = require("wwebjs-mongo");
 const mongoose = require("mongoose");
-const path = require("path");
 
 //contacts
 const tate = process.env.TATENDA;
+const me = process.env.ME;
 //groups
 const hwangeClubCricket = process.env.HWANGECLUBDELACRICKET;
 const liveSoccer1 = process.env.LIVESOCCER1;
@@ -50,7 +42,6 @@ const liveCricket1 = process.env.LIVECRICKET1;
 const hwangeDealsgrp1 = process.env.HWANGEDEALSGRP1;
 
 connectDB().then(async () => {
-  const store = new MongoStore({ mongoose: mongoose });
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
@@ -67,30 +58,22 @@ connectDB().then(async () => {
   });
 
   client.initialize();
-  const me = process.env.ME;
 
-  //const contactListForAds = require("./assets/contacts");
-  //Messages
+  //messaging client resources
   const clientOn = require("./config/helperFunction/clientOn");
+  clientOn(client, `message`);
+  clientOn(client, "group-join");
+  clientOn(client, "group-leave");
+  clientOn(client, "authenticated");
+  clientOn(client, "auth_failure");
+  clientOn(client, "qr");
 
   let randomAdvert = () =>
     advertMessages[Math.floor(Math.random() * advertMessages.length)];
 
-  const cron = require(`node-cron`);
-  //client.setDisplayName("Live Soccer Score")
   let advertMessages = require("./adverts");
-  clientOn(client, `message`);
-  clientOn(client, "group-join");
-  clientOn(client, "group-leave");
+  //client
 
-  client.on("auth_failure", (msg) => {
-    // Fired if session restore was unsuccessful
-    console.error("AUTHENTICATION FAILURE", msg);
-  });
-
-  client.on("authenticated", async (session) => {
-    console.log(`client authenticated`);
-  });
   //const europa = await getFixtures("europa");
   const contactListForAds = [hwangeDealsgrp1];
   async function sendAdverts() {
@@ -114,41 +97,47 @@ connectDB().then(async () => {
   }
 
   client.on("ready", async () => {
+    client.setDisplayName("Live Scores,news, articles");
     let daysMatchIDs = [];
     let matchIdMessage = [];
 
-    // getMatch Ids for the days then
-
-    cronScheduler("*", "2,4,6,8", async () => {
+    let firstkickOff;
+    await cronScheduler("*/2", "4-20", async () => {
       await getMatchIds("upcoming", "League");
+      await getMatchIds("upcoming", "International");
+      await getMatchIds("upcoming", "Domestic");
       let startTimes = [];
-      //  await getMatchIds("upcoming", "International");
-      //await getMatchIds("upcoming", "Domestic");
       const cricketMatchesToday = await matchIDModel
         .find({
           date: new Date().toISOString().slice(0, 10),
         })
         .exec();
-      await cricketMatchesToday.forEach((match) => {
+
+      cricketMatchesToday.forEach((match) => {
         startTimes.push(
           match.unixTimeStamp
-        )`${match.fixture}:${match.matchID} Starts at:${match.startingTime}\n`;
-        daysMatchIDs.push(match.matchID);
+        ); /* `${match.fixture}:${match.matchID} Starts at:${match.startingTime}\n`;
+        daysMatchIDs.push(match.matchID); */
       });
-      firstkickOff = Math.min(startTimes.values());
+      firstkickOff = await Math.min(...startTimes);
+      //   console.log(firstkickOff);
+      // console.log("the first kick off is at " + firstkickOff);
+      const getHrsMins = require("./config/helperFunction/getHrsMins");
+      let minutes = getHrsMins(firstkickOff)[0];
+      let hours = getHrsMins(firstkickOff)[1];
+      const firstGame = await cricketMatchesToday.filter(
+        (match) => (match.unixTimeStamp = firstkickOff)
+      )[0];
+      // console.log(minutes, hours);
+      await cronScheduler(minutes, hours, () => {
+        cronScheduler("*/6", "*", () => {
+          client.sendMessage(liveCricket1, getCommentary(firstGame.matchID));
+        });
+      });
     });
 
-    const getHrsMins = require("./config/helperFunction/getHrsMins");
-    let minutes = getHrsMins(firstkickOff - 1800000)[0];
-    let hours = getHrsMins(firstkickOff - 180000)[1];
-    cronScheduler(minutes, hours, () => {
-      cronScheduler("*/6", "*", () => {
-        client.sendMessage(liveCricket1, getCommentary(firstkickOff));
-      });
-    });
     // send Finished match updates
-    let firstkickOff;
-    cronScheduler("*", "8", async () => {
+    cronScheduler("0", "8", async () => {
       await callFootballApi();
       let update = [];
       const epl = await getFixtures("epl", "Not Started");
@@ -164,7 +153,7 @@ connectDB().then(async () => {
         ? client.sendMessage(liveSoccer1, upcoming)
         : console.log("Upcoming not started =" + upcoming);
     });
-    cronScheduler("*", "14-23", async () => {
+    cronScheduler("0", "*/1", async () => {
       await callFootballApi();
       let results = [];
       const epl = await getFixtures("epl", "Match Finished");
@@ -182,7 +171,7 @@ connectDB().then(async () => {
         ? client.sendMessage(liveSoccer1, finishedMatches)
         : console.log("Finished matches =" + finishedMatches);
     });
-    cronScheduler("*", "14-23", async () => {
+    cronScheduler("*/6", "14-23", async () => {
       await callFootballApi();
       let update = [];
       const epl = await getFixtures("epl", "In Progress");
@@ -265,12 +254,6 @@ connectDB().then(async () => {
     return time;
   }
 
-  const qrcode = require("qrcode-terminal");
-
-  client.on("qr", (qr) => {
-    qrcode.generate(qr, { small: true });
-    console.log(qr);
-  });
   const messages = require("./messages");
   //const getmatch = await getCommentary("66173");
 
