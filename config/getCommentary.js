@@ -18,7 +18,7 @@ const getCommentary = async (matchId) => {
     const response = res.data;
     console.log(res.data);
     // writeFile(response.data, "testFile.json");
-    let matchState, matchDesc, seriesname, team1, team2; //  const response=readFile("/../../testFile.json")
+    let matchState,matchStatus, matchDesc, seriesname, team1, team2; //  const response=readFile("/../../testFile.json")
     if (response.matchHeader) {
       (matchStatus = response.matchHeader.status),
         (matchState = response.matchHeader.state),
