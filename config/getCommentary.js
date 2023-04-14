@@ -18,7 +18,7 @@ const getCommentary = async (matchId) => {
     const response = res.data;
     console.log(res.data);
     // writeFile(response.data, "testFile.json");
-    let matchState,matchStatus, matchDesc, seriesname, team1, team2; //  const response=readFile("/../../testFile.json")
+    let matchState, matchStatus, matchDesc, seriesname, team1, team2; //  const response=readFile("/../../testFile.json")
     if (response.matchHeader) {
       (matchStatus = response.matchHeader.status),
         (matchState = response.matchHeader.state),
@@ -27,14 +27,13 @@ const getCommentary = async (matchId) => {
         (team1 = response.matchHeader.team1.name),
         (team2 = response.matchHeader.team2.name);
     } else {
-      matchStatus,
-        matchState,
-        matchDesc,
-        seriesname,
-        team1,
-        (tean2 = response.matchHeader.state);
+      (matchStatus = "Not Available try another match ID"),
+        (matchState = "Not Available");
+      matchDesc = "Not Available";
+      seriesname = "Not Available try another Match ID";
+      team1 = "Not Available";
+      team2 = "Not Available";
     }
-
     const currRR = response.miniscore
         ? response.miniscore.currentRunRate
         : "none",
@@ -52,26 +51,30 @@ const getCommentary = async (matchId) => {
     )} *${matchStatus}*\nCurr RR: *${currRR}*, Req RRate *${reqRR}*\n \n*Commentary*`;
 
     commentary.push(matchDetails);
-    response.commentaryList.forEach((comment) => {
-      const overNumber = comment.overNumber ? comment.overNumber + ":" : "";
+    if (response.commentaryList) {
+      response.commentaryList.forEach((comment) => {
+        const overNumber = comment.overNumber ? comment.overNumber + ":" : "";
 
-      const batttingTeam = comment.batTeamName;
+        const batttingTeam = comment.batTeamName;
 
-      let commText = `${overNumber}${comment.commText}`;
+        let commText = `${overNumber}${comment.commText}`;
 
-      let boldValue;
-      const bold = /(B0\$|B1\$)/;
-      if (comment.commentaryFormats.bold) {
-        boldValue = comment.commentaryFormats.bold.formatValue[0];
-        commText = commText.replace(bold, `*${boldValue}*`);
-      }
-      commentary.push(commText);
-      if (comment.overSeparator) {
-        const ovrSrt = comment.overSeparator;
-        const miniScoreCard = `*End of over ${comment.overNumber}* Innings of ${batttingTeam} ${ovrSrt.score}-${ovrSrt.wickets}Batsmen :${ovrSrt.batStrikerNames[0]} ${ovrSrt.batStrikerRuns} runs off ${ovrSrt.batStrikerBalls} balls ,${ovrSrt.batNonStrikerNames[0]} ${ovrSrt.batNonStrikerRuns}runs off ${ovrSrt.batNonStrikerBalls} balls\n Bowler :${ovrSrt.bowlNames[0]} ${ovrSrt.bowlOvers} overs ${ovrSrt.bowlMaidens} Maidens ${ovrSrt.bowlRuns} runs ${ovrSrt.bowlWickets} wkts`;
-        commentary.push(miniScoreCard);
-      }
-    });
+        let boldValue;
+        const bold = /(B0\$|B1\$)/;
+        if (comment.commentaryFormats.bold) {
+          boldValue = comment.commentaryFormats.bold.formatValue[0];
+          commText = commText.replace(bold, `*${boldValue}*`);
+        }
+        commentary.push(commText);
+        if (comment.overSeparator) {
+          const ovrSrt = comment.overSeparator;
+          const miniScoreCard = `*End of over ${comment.overNumber}* Innings of ${batttingTeam} ${ovrSrt.score}-${ovrSrt.wickets}Batsmen :${ovrSrt.batStrikerNames[0]} ${ovrSrt.batStrikerRuns} runs off ${ovrSrt.batStrikerBalls} balls ,${ovrSrt.batNonStrikerNames[0]} ${ovrSrt.batNonStrikerRuns}runs off ${ovrSrt.batNonStrikerBalls} balls\n Bowler :${ovrSrt.bowlNames[0]} ${ovrSrt.bowlOvers} overs ${ovrSrt.bowlMaidens} Maidens ${ovrSrt.bowlRuns} runs ${ovrSrt.bowlWickets} wkts`;
+          commentary.push(miniScoreCard);
+        }
+      });
+    } else {
+    }
+
     commentary = commentary.slice("0", "8").map((comment) => {
       return comment + "\n";
     });
