@@ -8,6 +8,7 @@ const cronScheduler = async (minutes, hours, task) => {
       console.log("running");
       try {
         task();
+        
       } catch (error) {
         console.error(error);
       }

@@ -31,6 +31,8 @@ const getFixtures = require("./config/helperFunction/getFixtures");
 const connectDB = require("./config/database");
 const { Client, LocalAuth, MessageMedia, id } = require("whatsapp-web.js");
 const mongoose = require("mongoose");
+const { schedule } = require("node-cron");
+const { exit } = require("process");
 
 //contacts
 const tate = process.env.TATENDA;
@@ -74,7 +76,6 @@ connectDB().then(async () => {
   let advertMessages = require("./adverts");
   //client
 
-  //const europa = await getFixtures("europa");
   const contactListForAds = [hwangeDealsgrp1];
   async function sendAdverts() {
     const contact = "263775231426@c.us"; //contactListForAds[index];
@@ -100,40 +101,37 @@ connectDB().then(async () => {
     client.setDisplayName("Live Scores,news, articles");
     let daysMatchIDs = [];
     let matchIdMessage = [];
-
+    //Call cricbuzz api and save stating times andnmatchids to the Db
     let firstkickOff;
-    await cronScheduler("*/2", "4-20", async () => {
+    await cronScheduler("*", "4", async () => {
       await getMatchIds("upcoming", "League");
       await getMatchIds("upcoming", "International");
-      await getMatchIds("upcoming", "Domestic");
+     // await getMatchIds("upcoming", "Domestic");
       let startTimes = [];
+      //find the day`s cricket matchs and save their match Ids to the DB
       const cricketMatchesToday = await matchIDModel
         .find({
           date: new Date().toISOString().slice(0, 10),
         })
         .exec();
 
-      cricketMatchesToday.forEach((match) => {
-        startTimes.push(
-          match.unixTimeStamp
-        ); /* `${match.fixture}:${match.matchID} Starts at:${match.startingTime}\n`;
-        daysMatchIDs.push(match.matchID); */
-      });
-      firstkickOff = await Math.min(...startTimes);
-      //   console.log(firstkickOff);
-      // console.log("the first kick off is at " + firstkickOff);
-      const getHrsMins = require("./config/helperFunction/getHrsMins");
-      let minutes = getHrsMins(firstkickOff)[0];
-      let hours = getHrsMins(firstkickOff)[1];
-      const firstGame = await cricketMatchesToday.filter(
-        (match) => (match.unixTimeStamp = firstkickOff)
-      )[0];
-      // console.log(minutes, hours);
-      await cronScheduler(minutes, hours, () => {
-        cronScheduler("*/6", "*", () => {
-          client.sendMessage(liveCricket1, getCommentary(firstGame.matchID));
+      cricketMatchesToday.forEach(async (match) => {
+        const getHrsMins = require("./config/helperFunction/getHrsMins");
+        let minutes = getHrsMins(match.unixTimeStamp)[0];
+        let hours = getHrsMins(match.unixTimeStamp)[1];
+        await cronScheduler(minutes, hours, () => {
+          if (/match finished/gi.test(getCommentary(match.matchID))) {
+            cronScheduler("*", `${hours + 4}-23`, () => {
+              client.sendMessage(liveCricket1, getCommentary(match.matchID));
+            });
+          } else {
+            cronScheduler("*/6", `*`, () => {
+              client.sendMessage(liveCricket1, getCommentary(match.matchID));
+            });
+          }
         });
       });
+      
     });
 
     // send Finished match updates
@@ -171,6 +169,7 @@ connectDB().then(async () => {
         ? client.sendMessage(liveSoccer1, finishedMatches)
         : console.log("Finished matches =" + finishedMatches);
     });
+    //every six minutes
     cronScheduler("*/6", "14-23", async () => {
       await callFootballApi();
       let update = [];
