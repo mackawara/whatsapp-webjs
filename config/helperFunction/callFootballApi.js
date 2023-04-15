@@ -139,7 +139,7 @@ const callFootballApi = async (competition) => {
             const fixtureFound = await fixtureModel.find({
               fixtureID: fixtureID,
             });
-            /*  fixtureFound[0].overwrite({
+             fixtureFound[0].overwrite({
               matchStatus: matchStatus,
               fixture: `${home} vs ${away}`,
               venue: venue,
@@ -153,7 +153,7 @@ const callFootballApi = async (competition) => {
               fixtureID: fixtureID,
               competition: competition,
             });
- */
+ 
             await fixtureFound[0].save().then(() => {
               console.log("fixture updated");
             });

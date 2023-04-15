@@ -22,7 +22,6 @@ const getCommentary = require("./config/getCommentary");
 
 //CIRCKET SCORES
 const getMatchIds = require("./config/getMatchIds");
-getMatchIds("upcoming", "League");
 
 //database quieries
 const getFixtures = require("./config/helperFunction/getFixtures");
@@ -103,10 +102,10 @@ connectDB().then(async () => {
     let matchIdMessage = [];
     //Call cricbuzz api and save stating times andnmatchids to the Db
     let firstkickOff;
-    await cronScheduler("*", "4", async () => {
+    await cronScheduler("*/5", "14", async () => {
       await getMatchIds("upcoming", "League");
       await getMatchIds("upcoming", "International");
-     // await getMatchIds("upcoming", "Domestic");
+      // await getMatchIds("upcoming", "Domestic");
       let startTimes = [];
       //find the day`s cricket matchs and save their match Ids to the DB
       const cricketMatchesToday = await matchIDModel
@@ -119,9 +118,10 @@ connectDB().then(async () => {
         const getHrsMins = require("./config/helperFunction/getHrsMins");
         let minutes = getHrsMins(match.unixTimeStamp)[0];
         let hours = getHrsMins(match.unixTimeStamp)[1];
-        await cronScheduler(minutes, hours, () => {
-          if (/match finished/gi.test(getCommentary(match.matchID))) {
-            cronScheduler("*", `${hours + 4}-23`, () => {
+        await cronScheduler("*/5", "14", () => {
+          if (!/match finished/gi.test(getCommentary(match.matchID))) {
+            cronScheduler("*/6", `14`, () => {
+              //("*", `${hours + 4}-23`, () => {
               client.sendMessage(liveCricket1, getCommentary(match.matchID));
             });
           } else {
@@ -131,11 +131,10 @@ connectDB().then(async () => {
           }
         });
       });
-      
     });
 
     // send Finished match updates
-    cronScheduler("0", "8", async () => {
+    cronScheduler("*/10", "13", async () => {
       await callFootballApi();
       let update = [];
       const epl = await getFixtures("epl", "Not Started");
@@ -170,7 +169,7 @@ connectDB().then(async () => {
         : console.log("Finished matches =" + finishedMatches);
     });
     //every six minutes
-    cronScheduler("*/6", "14-23", async () => {
+    cronScheduler("*/6", "13-23", async () => {
       await callFootballApi();
       let update = [];
       const epl = await getFixtures("epl", "In Progress");
@@ -180,23 +179,18 @@ connectDB().then(async () => {
       const europa = await getFixtures("europa", "In Progress");
       if (!epl == "") {
         update.push(epl);
-        console.log("No epl matches in progress");
       }
       if (!laliga == "") {
         update.push(laliga);
-        console.log("No laliga matches in progress");
       }
       if (!zpsl == "") {
         update.push(zpsl);
-        console.log("No zpsl matches in progress");
       }
       if (!ucl == "") {
         update.push(ucl);
-        console.log("No ucl matches in progress");
       }
       if (!europa == "") {
         update.push(europa);
-        console.log("No europ matches in progress");
       }
       let message = update.filter((result) => !result == "");
 
@@ -207,7 +201,7 @@ connectDB().then(async () => {
         );
         await client.sendMessage(liveSoccer1, update.join("\n"));
         await client.sendMessage(
-          me,
+          liveSoccer1,
           `Join our facebook group for more exciting soccer new pics etc https://www.facebook.com/groups/623021429278159/`
         );
       } else {
