@@ -46,7 +46,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      // executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -102,7 +102,8 @@ connectDB().then(async () => {
     let matchIdMessage = [];
     //Call cricbuzz api and save stating times andnmatchids to the Db
     let firstkickOff;
-    await cronScheduler("*/5", "14", async () => {
+    await cronScheduler("*/5", "2-12", async () => {
+      console.log("cricket");
       await getMatchIds("upcoming", "League");
       await getMatchIds("upcoming", "International");
       // await getMatchIds("upcoming", "Domestic");
@@ -118,9 +119,9 @@ connectDB().then(async () => {
         const getHrsMins = require("./config/helperFunction/getHrsMins");
         let minutes = getHrsMins(match.unixTimeStamp)[0];
         let hours = getHrsMins(match.unixTimeStamp)[1];
-        await cronScheduler("*/5", "14", () => {
+        await cronScheduler(minutes, hours, () => {
           if (!/match finished/gi.test(getCommentary(match.matchID))) {
-            cronScheduler("*/6", `14`, () => {
+            cronScheduler("*", "*/2", () => {
               //("*", `${hours + 4}-23`, () => {
               client.sendMessage(liveCricket1, getCommentary(match.matchID));
             });
@@ -134,7 +135,7 @@ connectDB().then(async () => {
     });
 
     // send Finished match updates
-    cronScheduler("*/10", "13", async () => {
+    cronScheduler("*", "*/2", async () => {
       await callFootballApi();
       let update = [];
       const epl = await getFixtures("epl", "Not Started");
@@ -150,7 +151,7 @@ connectDB().then(async () => {
         ? client.sendMessage(liveSoccer1, upcoming)
         : console.log("Upcoming not started =" + upcoming);
     });
-    cronScheduler("0", "*/1", async () => {
+    cronScheduler("*", "*/1", async () => {
       await callFootballApi();
       let results = [];
       const epl = await getFixtures("epl", "Match Finished");
@@ -195,10 +196,6 @@ connectDB().then(async () => {
       let message = update.filter((result) => !result == "");
 
       if (update.length > 0) {
-        await client.sendMessage(
-          me,
-          `*Live Soccer updates from EPL, ZPSL, Seire A,La Liga,UEFA champions League*`
-        );
         await client.sendMessage(liveSoccer1, update.join("\n"));
         await client.sendMessage(
           liveSoccer1,
