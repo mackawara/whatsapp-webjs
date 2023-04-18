@@ -8,6 +8,10 @@ const fixtureSchema = new mongoose.Schema({
   venue: {
     type: String,
   },
+  unixTimeStamp: {
+    type: String,
+    required: true,
+  },
   leagueId: {
     type: String,
     required: true,

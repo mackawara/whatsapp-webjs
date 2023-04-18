@@ -80,7 +80,6 @@ const callFootballApi = async (competition) => {
 
   try {
     results.forEach(async (result) => {
-      //  console.log(result.league.name.replaceAll(" ", ""));
       const leagues = [3, 2, 401, 135, 39, 140];
 
       if (leagues.includes(result.league.id)) {
@@ -97,6 +96,7 @@ const callFootballApi = async (competition) => {
         const winner = result.teams.home.winner ? home : away;
         const round = result.league.round;
         const date = result.fixture.date.slice(0, 10);
+        const unixTimeStamp = result.fixture.timestamp;
         const matchStatus = matchStatusFormatter(
           result.fixture.status,
           result.score.penalty,
@@ -118,6 +118,7 @@ const callFootballApi = async (competition) => {
           home: home,
           away: away,
           time: time,
+          unixTimeStamp: unixTimeStamp,
           leagueId: leagueId,
           score: scores,
           fixtureID: fixtureID,
@@ -139,7 +140,7 @@ const callFootballApi = async (competition) => {
             const fixtureFound = await fixtureModel.find({
               fixtureID: fixtureID,
             });
-             fixtureFound[0].overwrite({
+            fixtureFound[0].overwrite({
               matchStatus: matchStatus,
               fixture: `${home} vs ${away}`,
               venue: venue,
@@ -153,7 +154,7 @@ const callFootballApi = async (competition) => {
               fixtureID: fixtureID,
               competition: competition,
             });
- 
+
             await fixtureFound[0].save().then(() => {
               console.log("fixture updated");
             });

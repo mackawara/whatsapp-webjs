@@ -9,12 +9,12 @@ const queryAndSave = async function (model, item, queryString, itemId) {
 
   if (result.length < 1) {
     try {
-      item.save().then(() => console.log("now saved"));
+      item.save().then(() => console.log("new fixture saved"));
     } catch (error) {
       console.error(error);
     }
   } else {
-    console.log("item saved already");
+    console.log("no changes to save");
   }
 };
 module.exports = queryAndSave;
