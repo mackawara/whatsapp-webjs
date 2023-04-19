@@ -99,8 +99,7 @@ connectDB().then(async () => {
     let matchIdMessage = [];
     //Call cricbuzz api and save stating times andnmatchids to the Db
     let firstkickOff;
-    await cronScheduler("*/5", "2-12", async () => {
-      console.log("cricket");
+    await cronScheduler("*/5", "14", async () => {
       await getMatchIds("upcoming", "League");
       await getMatchIds("upcoming", "International");
       // await getMatchIds("upcoming", "Domestic");
@@ -116,9 +115,9 @@ connectDB().then(async () => {
         const getHrsMins = require("./config/helperFunction/getHrsMins");
         let minutes = getHrsMins(match.unixTimeStamp)[0];
         let hours = getHrsMins(match.unixTimeStamp)[1];
-        await cronScheduler(minutes, hours, () => {
+        await cronScheduler("*/5", "14", () => {
           if (!/match finished/gi.test(getCommentary(match.matchID))) {
-            cronScheduler("*", "*/2", () => {
+            cronScheduler("*/6", `14`, () => {
               //("*", `${hours + 4}-23`, () => {
               client.sendMessage(liveCricket1, getCommentary(match.matchID));
             });
@@ -132,7 +131,7 @@ connectDB().then(async () => {
     });
 
     // send Finished match updates
-    cronScheduler("*", "*/2", async () => {
+    cronScheduler("*/10", "13", async () => {
       await callFootballApi();
       let update = [];
       const epl = await getFixtures("epl", "Not Started");
