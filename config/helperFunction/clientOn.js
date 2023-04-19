@@ -4,6 +4,25 @@ const callOpenAi = require("../openai");
 const keywords = require("../../keywords");
 
 const clientOn = async (client, arg1, arg2) => {
+  if (arg1 == "auth_failure") {
+    client.on("auth_failure", (msg) => {
+      // Fired if session restore was unsuccessful
+      console.error("AUTHENTICATION FAILURE", msg);
+    });
+  }
+  if (arg1 == "authenticated") {
+    client.on("authenticated", async (session) => {
+      console.log(`client authenticated`);
+    });
+  }
+  const qrcode = require("qrcode-terminal");
+  if (arg1 == "qr") {
+    client.on("qr", (qr) => {
+      qrcode.generate(qr, { small: true });
+      console.log(qr);
+    });
+  }
+
   const contactModel = require("../../models/contactsModel");
   let groupName, grpDescription;
   if (arg1 == "message") {
@@ -14,14 +33,15 @@ const clientOn = async (client, arg1, arg2) => {
       const contactNumber = contact.number;
       const serialisedNumber = contact.id._serialised;
       const msgBody = msg.body;
-      msgBody.split(" ").forEach(word=>{
-
+      msgBody.split(" ").forEach((word) => {
         if (keywords.businessKeywords.includes(word)) {
           //do stuff
-          client.sendMessage(me,`Business keyword alert:\n ${msgBody} from ${contact}`);
+          client.sendMessage(
+            me,
+            `Business keyword alert:\n ${msgBody} from ${contact}`
+          );
         }
-        
-      })
+      });
       //queries chatGPT work in progress
       if (msgBody.includes("openAi")) {
         const response = await callOpenAi(msgBody);
@@ -29,8 +49,8 @@ const clientOn = async (client, arg1, arg2) => {
       }
       if (chat.isGroup) {
         (groupName = chat.name), (grpDescription = chat.description);
-        console.log(chat.name,chat.id._serialized)
-       // console.log(msg.body,groupName,contact);
+        console.log(chat.name, chat.id._serialized);
+        // console.log(msg.body,groupName,contact);
         //grpOwner = chat.owner.user;
 
         if (/matchid/gi.test(msgBody.replaceAll(" ", ""))) {
@@ -84,11 +104,11 @@ const clientOn = async (client, arg1, arg2) => {
       console.log(notification);
       // User has joined or been added to the group.
       console.log("join", notification);
-     /*  client.sendMessage(
+      /*  client.sendMessage(
         notification.id.participant,
         "welcome to ... Here are the group rules for your convenience.... \n"
-      ) */;
-     // notification.reply("User joined.");
+      ) */
+      // notification.reply("User joined.");
     });
   } else if (arg1 == "before" && arg2 == "after") {
     client.on("message_revoke_everyone", async (after, before) => {
