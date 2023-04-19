@@ -100,8 +100,12 @@ connectDB().then(async () => {
     //Call cricbuzz api and save stating times andnmatchids to the Db
     let firstkickOff;
 <<<<<<< HEAD
+<<<<<<< HEAD
     cronScheduler("*", "2", async () => {
       console.log("cricket");
+=======
+    await cronScheduler("*/5", "14", async () => {
+>>>>>>> parent of 51999b1... changed scedules
 =======
     await cronScheduler("*/5", "14", async () => {
 >>>>>>> parent of 51999b1... changed scedules
@@ -121,9 +125,15 @@ connectDB().then(async () => {
         let minutes = getHrsMins(match.unixTimeStamp)[0];
         let hours = getHrsMins(match.unixTimeStamp)[1];
 <<<<<<< HEAD
+<<<<<<< HEAD
         cronScheduler(minutes, hours, () => {
           if (!/match finished/gi.test(getCommentary(match.matchID))) {
             cronScheduler("0", "*/2", () => {
+=======
+        await cronScheduler("*/5", "14", () => {
+          if (!/match finished/gi.test(getCommentary(match.matchID))) {
+            cronScheduler("*/6", `14`, () => {
+>>>>>>> parent of 51999b1... changed scedules
 =======
         await cronScheduler("*/5", "14", () => {
           if (!/match finished/gi.test(getCommentary(match.matchID))) {
@@ -143,7 +153,11 @@ connectDB().then(async () => {
 
     // send Finished match updates
 <<<<<<< HEAD
+<<<<<<< HEAD
     cronScheduler("0", "*/2", async () => {
+=======
+    cronScheduler("*/10", "13", async () => {
+>>>>>>> parent of 51999b1... changed scedules
 =======
     cronScheduler("*/10", "13", async () => {
 >>>>>>> parent of 51999b1... changed scedules
