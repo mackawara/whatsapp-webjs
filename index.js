@@ -43,7 +43,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      // executablePath: "/usr/bin/chromium-browser",
+      executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -99,8 +99,12 @@ connectDB().then(async () => {
     let matchIdMessage = [];
     //Call cricbuzz api and save stating times andnmatchids to the Db
     let firstkickOff;
+<<<<<<< HEAD
     cronScheduler("*", "2", async () => {
       console.log("cricket");
+=======
+    await cronScheduler("*/5", "14", async () => {
+>>>>>>> parent of 51999b1... changed scedules
       await getMatchIds("upcoming", "League");
       await getMatchIds("upcoming", "International");
       // await getMatchIds("upcoming", "Domestic");
@@ -116,9 +120,15 @@ connectDB().then(async () => {
         const getHrsMins = require("./config/helperFunction/getHrsMins");
         let minutes = getHrsMins(match.unixTimeStamp)[0];
         let hours = getHrsMins(match.unixTimeStamp)[1];
+<<<<<<< HEAD
         cronScheduler(minutes, hours, () => {
           if (!/match finished/gi.test(getCommentary(match.matchID))) {
             cronScheduler("0", "*/2", () => {
+=======
+        await cronScheduler("*/5", "14", () => {
+          if (!/match finished/gi.test(getCommentary(match.matchID))) {
+            cronScheduler("*/6", `14`, () => {
+>>>>>>> parent of 51999b1... changed scedules
               //("*", `${hours + 4}-23`, () => {
               client.sendMessage(liveCricket1, getCommentary(match.matchID));
             });
@@ -132,7 +142,11 @@ connectDB().then(async () => {
     });
 
     // send Finished match updates
+<<<<<<< HEAD
     cronScheduler("0", "*/2", async () => {
+=======
+    cronScheduler("*/10", "13", async () => {
+>>>>>>> parent of 51999b1... changed scedules
       await callFootballApi();
       let update = [];
       const epl = await getFixtures("epl", "Not Started");
@@ -193,6 +207,10 @@ connectDB().then(async () => {
       let message = update.filter((result) => !result == "");
 
       if (update.length > 0) {
+        await client.sendMessage(
+          me,
+          `*Live Soccer updates from EPL, ZPSL, Seire A,La Liga,UEFA champions League*`
+        );
         await client.sendMessage(liveSoccer1, update.join("\n"));
         await client.sendMessage(
           liveSoccer1,
