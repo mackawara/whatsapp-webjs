@@ -1,6 +1,6 @@
 const clientOn = async (client, arg1, arg2) => {
   const me = process.env.ME;
-  
+
   if (arg1 == "auth_failure") {
     client.on("auth_failure", (msg) => {
       // Fired if session restore was unsuccessful
@@ -26,9 +26,7 @@ const clientOn = async (client, arg1, arg2) => {
     client.on(`message`, async (msg) => {
       const chat = await msg.getChat();
       const contact = await msg.getContact();
-      const contactVName = contact.verifiedName;
-      const contactNumber = contact.number;
-      const serialisedNumber = contact.id._serialised;
+
       const msgBody = msg.body;
       msgBody.split(" ").forEach((word) => {
         const keywords = require("../../keywords");
@@ -47,7 +45,7 @@ const clientOn = async (client, arg1, arg2) => {
       } */
       if (chat.isGroup) {
         (groupName = chat.name), (grpDescription = chat.description);
-        console.log(chat.name, chat.id._serialized);
+        console.log(chat.name, chat.id);
         // console.log(msg.body,groupName,contact);
         //grpOwner = chat.owner.user;
 
@@ -90,12 +88,15 @@ const clientOn = async (client, arg1, arg2) => {
     client.on("group_leave", (notification) => {
       console.log(notification);
       // User has left or been kicked from the group.
-      const user = notification.id.participant;
+
       /* client.sendMessage(
         user,
         `We are sorry to see you leave our group , May you indly share wy you decided to leave`
       ); */
-      client.sendMessage(me, `User ${user} just left  the group`);
+      client.sendMessage(
+        me,
+        `User ${notification.id.participant} just left  the group`
+      );
     });
   } else if (arg1 == "group-join") {
     client.on("group_join", (notification) => {
