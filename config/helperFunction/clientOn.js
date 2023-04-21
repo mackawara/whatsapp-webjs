@@ -1,9 +1,6 @@
-const me = process.env.ME;
-const getCommentary = require("../getCommentary");
-const callOpenAi = require("../openai");
-const keywords = require("../../keywords");
-
 const clientOn = async (client, arg1, arg2) => {
+  const me = process.env.ME;
+  const keywords = require("../../keywords");
   if (arg1 == "auth_failure") {
     client.on("auth_failure", (msg) => {
       // Fired if session restore was unsuccessful
@@ -43,10 +40,10 @@ const clientOn = async (client, arg1, arg2) => {
         }
       });
       //queries chatGPT work in progress
-      if (msgBody.includes("openAi")) {
+      /* if (msgBody.includes("openAi")) {
         const response = await callOpenAi(msgBody);
         msg.reply(response);
-      }
+      } */
       if (chat.isGroup) {
         (groupName = chat.name), (grpDescription = chat.description);
         console.log(chat.name, chat.id._serialized);
@@ -63,9 +60,9 @@ const clientOn = async (client, arg1, arg2) => {
             .slice("8")
             .trim()
             .replace(":", "");
-          const matchCommentary = await getCommentary(matchId); // check if message contains a req for ID
+          //const matchCommentary = await getCommentary(matchId); // check if message contains a req for ID
 
-          msg.reply(matchCommentary); //do stuff
+          msg.reply("Do stuff"); //do stuff
         }
       } else {
         let from = msg.from;
