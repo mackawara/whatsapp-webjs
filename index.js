@@ -12,22 +12,22 @@ connectDB().then(async () => {
       handleSIGINT: true,
       headless: true,
       args: [
-        '--log-level=3', // fatal only
-        '--start-maximized',
-        '--no-default-browser-check',
-        '--disable-infobars', 
-        '--disable-web-security',
-        '--disable-site-isolation-trials',
-        '--no-experiments',
-        '--ignore-gpu-blacklist',
-        '--ignore-certificate-errors',
-        '--ignore-certificate-errors-spki-list',
-        '--disable-gpu',
-        '--disable-extensions',
-        '--disable-default-apps',
-        '--enable-features=NetworkService',
-        '--disable-setuid-sandbox',
-        '--no-sandbox'
+        "--log-level=3", // fatal only
+        "--start-maximized",
+        "--no-default-browser-check",
+        "--disable-infobars",
+        "--disable-web-security",
+        "--disable-site-isolation-trials",
+        "--no-experiments",
+        "--ignore-gpu-blacklist",
+        "--ignore-certificate-errors",
+        "--ignore-certificate-errors-spki-list",
+        "--disable-gpu",
+        "--disable-extensions",
+        "--disable-default-apps",
+        "--enable-features=NetworkService",
+        "--disable-setuid-sandbox",
+        "--no-sandbox",
       ],
     },
   });
@@ -45,7 +45,6 @@ connectDB().then(async () => {
     //functions abd resources
     //Helper Functions
 
-    const timeConverter = require("./config/helperFunction/timeConverter");
     const cron = require("node-cron");
 
     //Db models
@@ -86,38 +85,6 @@ connectDB().then(async () => {
       noCaptBusIdeas,
     ];
 
-    client.on(`message`, async (message) => {
-      const keywords = require("./keywords");
-      const usdKeywords = keywords.usdKeyword;
-      const businessKeywords = keywords.businessKeywords;
-
-      usdKeywords.filter((keyword) => {
-        if (
-          message.body.includes(keyword) &&
-          !message.body.includes(`message created by chatBot`)
-        ) {
-          client.sendMessage(
-            me,
-            `${timeConverter(message.timestamp)[0]}  at ${
-              message.from
-            } group :message from :${message.author
-              .replace("@c.us", "")
-              .replace("263", "0")}, ${message.notifyName} ${
-              message.body
-            } *message created by chatBot*`
-          );
-        }
-      });
-
-      const KeywordAlert = require("./keywordsAlert");
-      let businessAlert = new KeywordAlert(
-        businessKeywords,
-        client,
-        message,
-        me
-      );
-      businessAlert.keywordRun(message.body);
-    });
     client.setDisplayName("Live Scores,news, articles");
 
     let randomAdvert = () =>
@@ -135,7 +102,7 @@ connectDB().then(async () => {
             .catch((error) => {
               console.log(error);
             });
-          await timeDelay(5000);
+          await timeDelay(Math.floor(Math.random() * 10) * 1000); //causes a delay of anything between 1-10 secs between each message
         } catch (error) {
           console.log(error);
           client.sendMessage(

@@ -1,6 +1,6 @@
 const clientOn = async (client, arg1, arg2) => {
   const me = process.env.ME;
-  const keywords = require("../../keywords");
+  
   if (arg1 == "auth_failure") {
     client.on("auth_failure", (msg) => {
       // Fired if session restore was unsuccessful
@@ -31,11 +31,12 @@ const clientOn = async (client, arg1, arg2) => {
       const serialisedNumber = contact.id._serialised;
       const msgBody = msg.body;
       msgBody.split(" ").forEach((word) => {
+        const keywords = require("../../keywords");
         if (keywords.businessKeywords.includes(word)) {
           //do stuff
           client.sendMessage(
             me,
-            `Business keyword alert:\n ${msgBody} from ${contact}`
+            `Business keyword alert:\n ${msg.body} from ${msg.getContact()}`
           );
         }
       });
