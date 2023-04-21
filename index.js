@@ -12,10 +12,22 @@ connectDB().then(async () => {
       handleSIGINT: true,
       headless: true,
       args: [
-        "--no-sandbox",
-        "--disable-dev-shm-usage",
-        "--disabled-setupid-sandbox",
-        "--use-gl=egl",
+        '--log-level=3', // fatal only
+        '--start-maximized',
+        '--no-default-browser-check',
+        '--disable-infobars', 
+        '--disable-web-security',
+        '--disable-site-isolation-trials',
+        '--no-experiments',
+        '--ignore-gpu-blacklist',
+        '--ignore-certificate-errors',
+        '--ignore-certificate-errors-spki-list',
+        '--disable-gpu',
+        '--disable-extensions',
+        '--disable-default-apps',
+        '--enable-features=NetworkService',
+        '--disable-setuid-sandbox',
+        '--no-sandbox'
       ],
     },
   });
@@ -112,7 +124,10 @@ connectDB().then(async () => {
       advertMessages[Math.floor(Math.random() * advertMessages.length)];
 
     let advertMessages = require("./adverts");
-    async function sendAdverts() {
+
+    cron.schedule(`15 9,11,13,14,16,18 * * *`, async () => {
+      const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
+
       for (let i = 0; i < contactListForAds.length; i++) {
         try {
           client
@@ -129,8 +144,7 @@ connectDB().then(async () => {
           );
         }
       }
-    }
-    cron.schedule(`15 9,11,13,14,16,18 * * *`, () => sendAdverts());
+    });
     //  cron.schedule("*/6", "16-21", async () => {
     //  const ipl = await getCommentary(); //gets live commentary of games
     //client.sendMessage(liveCricket1, ipl);
