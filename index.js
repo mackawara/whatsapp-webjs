@@ -8,7 +8,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+     // executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -32,23 +32,11 @@ connectDB().then(async () => {
   client.on("ready", async () => {
     //functions abd resources
     //Helper Functions
-    const getHrsMins = require("./config/helperFunction/getHrsMins");
+
     const timeConverter = require("./config/helperFunction/timeConverter");
     const cron = require("node-cron");
 
     //Db models
-    const matchIDModel = require("./models/cricketMatchIds");
-
-    // APi calls functions
-    //football API
-    const callFootballApi = require("./config/helperFunction/callFootballApi");
-    const getCommentary = require("./config/getCommentary");
-
-    //CIRCKET SCORES
-    const getMatchIds = require("./config/getMatchIds");
-
-    //database quieries
-    const getFixtures = require("./config/helperFunction/getFixtures");
 
     clientOn(client, `message`);
     clientOn(client, "group-join");
@@ -119,8 +107,7 @@ connectDB().then(async () => {
       businessAlert.keywordRun(message.body);
     });
     client.setDisplayName("Live Scores,news, articles");
-   
-   
+
     let randomAdvert = () =>
       advertMessages[Math.floor(Math.random() * advertMessages.length)];
 
