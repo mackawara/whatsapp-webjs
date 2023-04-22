@@ -81,7 +81,7 @@ const clientOn = async (client, arg1, arg2) => {
       } */
       if (chat.isGroup) {
         (groupName = chat.name), (grpDescription = chat.description);
-        console.log(chat.name, chat.);
+        console.log(chat.name);
         // console.log(msg.body,groupName,contact);
         //grpOwner = chat.owner.user;
 
