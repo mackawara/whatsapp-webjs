@@ -29,8 +29,44 @@ const clientOn = async (client, arg1, arg2) => {
 
       const msgBody = msg.body;
       msgBody.split(" ").forEach((word) => {
-        const keywords = require("../../keywords");
+        const keywords = {
+          businessKeywords: [
+            "receipt",
+            "invoice books",
+            "cartridges",
+            "toner",
+            "catridge",
+
+            "ink cartridge",
+            "printer cartridge",
+            "CCTV",
+            "camera",
+            "internet",
+            "Hp cartridge",
+            "kyocera",
+            "computer repairs",
+            "photo shoot",
+            "hard drives",
+            "RAM",
+            "laptops",
+            "computer",
+            "cricket",
+          ],
+          usdKeyword: [
+            `for eco`,
+            `for ecocash`,
+            `USD available`,
+            `for zipit`,
+            `US for`,
+            `for bank transfer`,
+            `US for`,
+            `usd available`,
+            `ìnternal transfer`,
+          ],
+        };
+
         if (keywords.businessKeywords.includes(word)) {
+          console.log(msg);
           //do stuff
           client.sendMessage(
             me,
@@ -45,7 +81,7 @@ const clientOn = async (client, arg1, arg2) => {
       } */
       if (chat.isGroup) {
         (groupName = chat.name), (grpDescription = chat.description);
-        console.log(chat.name, chat);
+        console.log(chat.name, chat.);
         // console.log(msg.body,groupName,contact);
         //grpOwner = chat.owner.user;
 
