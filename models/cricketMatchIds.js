@@ -5,6 +5,10 @@ const matchIdSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  typeOf: {
+    type: String,
+    required: false,
+  },
 
   matchID: {
     type: String,
