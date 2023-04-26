@@ -1,4 +1,5 @@
 const connectDB = require("./config/database");
+const getCommentary = require("./config/helperFunction/getCricComm");
 
 require("dotenv").config();
 // connect to mongodb before running anything on the app
@@ -8,7 +9,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      // executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -56,8 +57,56 @@ connectDB().then(async () => {
     //decalre variables that work with client here
 
     client.setDisplayName("Live Scores,news, articles");
+    // cron.schedule(`* * * * *`, async () => {
+    // const getCricketHeadlines = require("./config/helperFunction/getCricComm");
+    //getCricketHeadlines();
+    //});
+    const hwangeClubCricket = process.env.HWANGECLUBDELACRICKET;
+    const liveSoccer1 = process.env.LIVESOCCER1;
+    const liveCricket1 = process.env.LIVECRICKET1;
+    const getMatchIds = require("./config/helperFunction/getMatchIds");
+    await cron.schedule("29 2,6,8,9,12,15,18,21 * * *", async () => {
+      await getMatchIds("upcoming", "League");
+      await getMatchIds("upcoming", "International");
+      await getMatchIds("recent", "International");
+    });
 
-    cron.schedule(`15 9,11,13,15,17,19 * * *`, async () => {
+    const matchIDModel = require("./models/matchIdModel");
+
+    //find the day`s cricket matchs and save their match Ids to the DB
+    const iplMatchesToday = await matchIDModel
+      .find({
+        date: new Date().toISOString().slice(0, 10),
+        matchState: "live",
+        seriesName: "Indian Premier League 2023",
+      })
+      .exec();
+    //console.log(cricketMatchesToday);
+    // loop through the matches and get commentary every 15 minutes
+    iplMatchesToday.forEach(async (match) => {
+      console.log("match in");
+      // send live update for each game every 25 minutes
+      cron.schedule(`*/2 * * * * `, async () => {
+        client.sendMessage(liveSoccer1, await getCommentary(match.matchID));
+      });
+    });
+    const intlMatchesToday = await matchIDModel
+      .find({
+        date: new Date().toISOString().slice(0, 10),
+        matchState: "live",
+        matchType: /ODI|Test|T20I/gi,
+      })
+      .exec();
+    //console.log(cricketMatchesToday);
+    // loop through the matches and get commentary every 15 minutes
+    intlMatchesToday.forEach(async (match) => {
+      console.log("match in");
+      cron.schedule(`*/25 * * * * `, async () => {
+        client.sendMessage(liveSoccer1, await getCommentary(match.matchID));
+      });
+    });
+
+    await cron.schedule(`15 9,11,13,15,17,19 * * *`, async () => {
       let randomAdvert = () =>
         advertMessages[Math.floor(Math.random() * advertMessages.length)];
 
@@ -65,9 +114,7 @@ connectDB().then(async () => {
       //contacts
       const me = process.env.ME;
       //groups
-      const hwangeClubCricket = process.env.HWANGECLUBDELACRICKET;
-      const liveSoccer1 = process.env.LIVESOCCER1;
-      const liveCricket1 = process.env.LIVECRICKET1;
+
       const hwangeDealsgrp1 = "263775932942-1555492418@g.us";
       const sellItHge4 = "263773389927-1588234038@g.us";
       const sellIthge = "263717766191-1583426999@g.us";

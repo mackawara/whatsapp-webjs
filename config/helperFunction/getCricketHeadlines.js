@@ -5,7 +5,7 @@ const getCricketHeadlines = async () => {
   const options = {
     method: "GET",
 
-    url: "https://cricbuzz-cricket.p.rapidapi.com/news/v1/detail/122025",
+    url: 'https://cricbuzz-cricket.p.rapidapi.com/news/v1/index',
     headers: {
       "content-type": "application/octet-stream",
       "X-RapidAPI-Key": process.env.RAPIDAPIKEY,
@@ -17,7 +17,7 @@ const getCricketHeadlines = async () => {
     const response = await axios.request(options);
     writeFile(response.data, "headlines.json");
   } catch (error) {
-    console.error(error);
+    console.error(error.data);
   }
 };
 module.exports = getCricketHeadlines;
