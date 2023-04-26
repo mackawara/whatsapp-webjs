@@ -9,7 +9,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      // executablePath: "/usr/bin/chromium-browser",
+      executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -54,6 +54,7 @@ connectDB().then(async () => {
     clientOn(client, "group-join");
     clientOn(client, "group-leave");
 
+    const matchIDModel = require("./models/matchIdModel");
     //decalre variables that work with client here
 
     client.setDisplayName("Live Scores,news, articles");
@@ -65,44 +66,58 @@ connectDB().then(async () => {
     const liveSoccer1 = process.env.LIVESOCCER1;
     const liveCricket1 = process.env.LIVECRICKET1;
     const getMatchIds = require("./config/helperFunction/getMatchIds");
-    await cron.schedule("29 2,6,8,9,12,15,18,21 * * *", async () => {
-      await getMatchIds("upcoming", "League");
-      await getMatchIds("upcoming", "International");
-      await getMatchIds("recent", "International");
-    });
-
-    const matchIDModel = require("./models/matchIdModel");
-
-    //find the day`s cricket matchs and save their match Ids to the DB
-    const iplMatchesToday = await matchIDModel
-      .find({
+    await cron.schedule("29 2,8,14 * * *", async () => {
+      await getMatchIds("upcoming");
+      await getMatchIds("recent");
+      const completedMatches = await matchIDModel.find({
         date: new Date().toISOString().slice(0, 10),
-        matchState: "live",
-        seriesName: "Indian Premier League 2023",
-      })
-      .exec();
-    //console.log(cricketMatchesToday);
-    // loop through the matches and get commentary every 15 minutes
-    iplMatchesToday.forEach(async (match) => {
-      console.log("match in");
-      // send live update for each game every 25 minutes
-      cron.schedule(`*/2 * * * * `, async () => {
-        client.sendMessage(liveSoccer1, await getCommentary(match.matchID));
+        matchState: /complete/gi,
+      });
+      completedMatches.forEach(async (match) => {
+        const commentary = await getCommentary(match.matchID);
+        client.sendMessage(liveSoccer1, commentary);
+      });
+      const upcoming = await matchIDModel({
+        date: new Date().toISOString().slice(0, 10),
+        matchState: /upcoming|preview/gi,
+      });
+      upcoming.forEach(async (match) => {
+        const commentary = await getCommentary(match.matchID);
+        client.sendMessage(liveSoccer1, commentary);
       });
     });
-    const intlMatchesToday = await matchIDModel
-      .find({
-        date: new Date().toISOString().slice(0, 10),
-        matchState: "live",
-        matchType: /ODI|Test|T20I/gi,
-      })
-      .exec();
-    //console.log(cricketMatchesToday);
-    // loop through the matches and get commentary every 15 minutes
-    intlMatchesToday.forEach(async (match) => {
-      console.log("match in");
-      cron.schedule(`*/25 * * * * `, async () => {
-        client.sendMessage(liveSoccer1, await getCommentary(match.matchID));
+    const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
+    //find the day`s cricket matchs and save their match Ids to the DB
+
+    cron.schedule(`0 2,20 * * *`, async () => {
+      console.log("starters");
+      //at 215am everyday get the international and Ipl matches for the day and put them in an array
+      const iplAndIntlMatches = await matchIDModel
+        .find({
+          date: new Date().toISOString().slice(0, 10),
+          // matchState: /complete/gi,
+          matchType: /league|ODI|test|T20i/gi,
+        })
+        .exec();
+      console.log(iplAndIntlMatches);
+      // loop through the matches and get commentary every 15 minutes
+      iplAndIntlMatches.forEach(async (match) => {
+        console.log("match in");
+        const hours = new Date(parseInt(match.unixTimeStamp)).getHours(),
+          minutes = new Date(match.unixTimeStamp).getMinutes();
+        console.log(hours);
+        // send live update for each game every 25 minutes
+        cron.schedule(`0 ${hours} * * * `, async () => {
+          console.log("in again");
+          const comms = getCommentary(match.matchID);
+          console.log(comms);
+          while (!/in progress/gi.test(comms)) {
+            console.log(comms + "n");
+            const liveComms = getCommentary(match.matchID);
+            client.sendMessage(liveSoccer1, await getCommentary(liveComms));
+            timeDelay(150000);
+          }
+        });
       });
     });
 

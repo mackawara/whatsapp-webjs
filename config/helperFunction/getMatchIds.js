@@ -3,7 +3,7 @@ const timeConverter = require("./timeConverter");
 const matchIdmodel = require("../../models/matchIdModel");
 const queryAndSave = require("./queryAndSave");
 
-const getMatchIds = async (type, matchType) => {
+const getMatchIds = async (type) => {
   console.log("get match ids runnong");
   matchIdmodel.deleteMany();
 
@@ -23,7 +23,7 @@ const getMatchIds = async (type, matchType) => {
         const matchesAll = response.data; //JSON.parse(dummyresult); // array of all matches split by typpe
 
         matchesAll.typeMatches.forEach((match) => {
-          if (match.matchType == matchType) {
+          if (match.matchType) {
             const matchArr = match.seriesMatches;
             matchArr.forEach((match) => {
               if (match.seriesAdWrapper) {
