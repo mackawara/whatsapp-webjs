@@ -66,6 +66,7 @@ connectDB().then(async () => {
     const liveCricket1 = process.env.LIVECRICKET1;
     //database collections
     const matchIDModel = require("./models/matchIdModel");
+    const footballFixturesModel=require("./models/footballFixtures")
 
     //helper Functions
     const getMatchIds = require("./config/helperFunction/getMatchIds");
@@ -74,11 +75,11 @@ connectDB().then(async () => {
 
     await cron.schedule("0 2 * * *", async () => {
       await updateFootballDB();
-      const allFootballMatchesToday = await matchIDModel.find({
+      const matchesToday = await footballFixturesModel.find({
         date: new Date().toISOString().slice(0, 10),
       });
       const startTimes = [];
-      allFootballMatchesToday.forEach(async (match) => {
+      matchesToday.forEach(async (match) => {
         startingTimes.push(match.unixTimeStamp);
       });
       const firstKickOff = new Date(parseInt(Math.min(...startTimes))),
