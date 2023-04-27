@@ -54,7 +54,6 @@ connectDB().then(async () => {
     clientOn(client, "group-join");
     clientOn(client, "group-leave");
 
-    const matchIDModel = require("./models/matchIdModel");
     //decalre variables that work with client here
 
     client.setDisplayName("Live Sport Scores,news, articles");
@@ -65,119 +64,91 @@ connectDB().then(async () => {
     const hwangeClubCricket = process.env.HWANGECLUBDELACRICKET;
     const liveSoccer1 = process.env.LIVESOCCER1;
     const liveCricket1 = process.env.LIVECRICKET1;
+    //database collections
+    const matchIDModel = require("./models/matchIdModel");
+
+    //helper Functions
     const getMatchIds = require("./config/helperFunction/getMatchIds");
-    await cron.schedule("29 2,8,14 * * *", async () => {
-      await getMatchIds("upcoming");
-      await getMatchIds("recent");
-      const completedMatches = await matchIDModel.find({
-        date: new Date().toISOString().slice(0, 10),
-        matchState: /complete/gi,
-      });
-      completedMatches.forEach(async (match) => {
-        const commentary = await getCommentary(match.matchID);
-        client.sendMessage(liveSoccer1, commentary);
-      });
-      const upcoming = await matchIDModel({
-        date: new Date().toISOString().slice(0, 10),
-        matchState: /upcoming|preview/gi,
-      });
-      upcoming.forEach(async (match) => {
-        const commentary = await getCommentary(match.matchID);
-        client.sendMessage(liveSoccer1, commentary);
-      });
-    });
-    const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
-    //find the day`s cricket matchs and save their match Ids to the DB
+    const updateFootballDb = require("./config/helperFunction/updateFootballDb");
+    //get the first match of the day
 
-    cron.schedule(`*/3 2,8,10 * * *`, async () => {
-      console.log("starters");
-      //at 215am everyday get the international and Ipl matches for the day and put them in an array
-      const iplAndIntlMatches = await matchIDModel
-        .find({
-          date: new Date().toISOString().slice(0, 10),
-          // matchState: /complete/gi,\
-          matchType: /league|ODI|test|T20i/gi,
-        })
-        .exec();
-      console.log(iplAndIntlMatches);
-      // loop through the matches and get commentary every 15 minutes
-      iplAndIntlMatches.forEach(async (match) => {
-        console.log("match in");
-        const hours = new Date(parseInt(match.unixTimeStamp)).getHours(),
-          minutes = new Date(match.unixTimeStamp).getMinutes();
-        console.log(hours);
-        // send live update for each game every 25 minutes
-        cron.schedule(`0 ${hours} * * * `, async () => {
-          console.log("in again");
-          const comms = await getCommentary(match.matchID);
-          console.log(comms);
-          console.log(!/in progress/gi.test(comms));
-          do {
-            console.log(comms + "n");
-            //send message prefixed with group invite
-            const groupInvite = ``;
+    await cron.schedule("0 2 * * *", async () => {
+      await updateFootballDB();
+      const allFootballMatchesToday = await matchIDModel.find({
+        date: new Date().toISOString().slice(0, 10),
+      });
+      const startTimes = [];
+      allFootballMatchesToday.forEach(async (match) => {
+        startingTimes.push(match.unixTimeStamp);
+      });
+      const firstKickOff = new Date(parseInt(Math.min(...startTimes))),
+        hours = firstKickOff.getHours(),
+        mins = firstKickOff.getMinutes();
+      // run Live updates form such a time as the first game kickoffs
+      await cron.schedule(`${mins} ${hours}-23 Mon-Fri * *`, async () => {
+        await cron.schedule("*/5 * * * *", async () => {
+          // run every six minutes from 13horus to 23hrs
+          await callFootballApi(); // update the db first
+          const groupLink = ``;
+          let update = [groupLink];
+          const epl = await getFixtures("epl", "In Progress");
+          const laliga = await getFixtures("la liga", "In Progress");
+          const zpsl = await getFixtures("zpsl", "In Progress");
+          const ucl = await getFixtures("uefa", "In Progress");
+          const europa = await getFixtures("europa", "In Progress");
+          if (!epl == "") {
+            update.push(epl);
+          }
+          if (!laliga == "") {
+            update.push(laliga);
+          }
+          if (!zpsl == "") {
+            update.push(zpsl);
+          }
+          if (!ucl == "") {
+            update.push(ucl);
+          }
+          if (!europa == "") {
+            update.push(europa);
+          }
+          //  let message = update.filter((result) => !result == "");
 
-            const liveComms = await getCommentary(match.matchID);
-            const message = [groupInvite, liveComms];
-            client.sendMessage(liveSoccer1, message.join("\n"));
-            timeDelay(150000);
-          } while (!/in progress/gi.test(comms));//if comms test returns true
+          if (update.length > 0) {
+            await client.sendMessage(liveSoccer1, update.join("\n"));
+          } else {
+            console.log("no updates");
+          }
         });
       });
     });
 
-    await cron.schedule(`15 9,11,13,15,17,19 * * *`, async () => {
-      let randomAdvert = () =>
-        advertMessages[Math.floor(Math.random() * advertMessages.length)];
+  //  await cron.schedule("29 2,8,14 * * *", async () => {
+  //    await getMatchIds("upcoming");
+  //    await getMatchIds("recent");
+  //    const completedMatches = await matchIDModel.find({
+  //      date: new Date().toISOString().slice(0, 10),
+  //      matchState: /complete/gi,
+  //    });
+  //    completedMatches.forEach(async (match) => {
+  //      const commentary = await getCommentary(match.matchID);
+  //      client.sendMessage(liveSoccer1, commentary);
+  //    });
+  //    const upcoming = await matchIDModel({
+  //      date: new Date().toISOString().slice(0, 10),
+  //      matchState: /upcoming|preview/gi,
+  //    });
+   //   upcoming.forEach(async (match) => {
+    //    const commentary = await getCommentary(match.matchID);
+    //    client.sendMessage(liveSoccer1, commentary);
+    //    const startHour = new Date(parseInt(match.unixTimeStamp)).getHours();
+   //     cron.schedule(`0 ${startHour} * * *`, async () => {
+    //      do {} while (match); // as long as match s on progress
+    //    });
+    //  });
+    //});
+    const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
+    //find the day`s cricket matchs and save their match Ids to the DB
 
-      let advertMessages = require("./adverts");
-      //contacts
-      const me = process.env.ME;
-      //groups
-
-      const hwangeDealsgrp1 = "263775932942-1555492418@g.us";
-      const sellItHge4 = "263773389927-1588234038@g.us";
-      const sellIthge = "263717766191-1583426999@g.us";
-      const sellIthge2 = "263717766191-1583474819@g.us";
-      const sellIthge5 = "263717766191-1611592932@g.us";
-      const sellIthge3 = "263717766191-1584895535@g.us";
-      const sellIthge6 = "263717766191-1616870613@g.us";
-      const hwangeclassifieds = "263714496540-1579592614@g.us";
-      const hwangeCitytraders = "263774750143-1590396559@g.us";
-      const noCaptBusIdeas = "263783046858-1621225929@g.us";
-
-      const contactListForAds = [
-        hwangeDealsgrp1,
-        sellIthge,
-        sellIthge2,
-        sellItHge4,
-        hwangeCitytraders,
-        hwangeclassifieds,
-        sellIthge5,
-        sellIthge6,
-        sellIthge3,
-        noCaptBusIdeas,
-      ];
-
-      const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
-
-      for (let i = 0; i < contactListForAds.length; i++) {
-        try {
-          client
-            .sendMessage(contactListForAds[i], `${randomAdvert()}`)
-            .catch((error) => {
-              console.log(error);
-            });
-          await timeDelay(Math.floor(Math.random() * 10) * 1000); //causes a delay of anything between 1-10 secs between each message
-        } catch (error) {
-          console.log(error);
-          client.sendMessage(
-            me,
-            `failed to send automatic message to ${contactListForAds[i]}`
-          );
-        }
-      }
-    });
     //  cron.schedule("*/6", "16-21", async () => {
     //  const ipl = await getCommentary(); //gets live commentary of games
     //client.sendMessage(liveCricket1, ipl);
