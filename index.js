@@ -66,6 +66,7 @@ connectDB().then(async () => {
     const liveSoccer1 = process.env.LIVESOCCER1;
     const liveCricket1 = process.env.LIVECRICKET1;
     const getMatchIds = require("./config/helperFunction/getMatchIds");
+    // get the latest updates
     await cron.schedule("29 2,8,14 * * *", async () => {
       await getMatchIds("upcoming");
       await getMatchIds("recent");
