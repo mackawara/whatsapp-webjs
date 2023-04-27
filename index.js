@@ -9,7 +9,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      //  executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -57,7 +57,7 @@ connectDB().then(async () => {
     const matchIDModel = require("./models/matchIdModel");
     //decalre variables that work with client here
 
-    client.setDisplayName("Live Scores,news, articles");
+    client.setDisplayName("Live Sport Scores,news, articles");
     // cron.schedule(`* * * * *`, async () => {
     // const getCricketHeadlines = require("./config/helperFunction/getCricComm");
     //getCricketHeadlines();
@@ -89,13 +89,13 @@ connectDB().then(async () => {
     const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
     //find the day`s cricket matchs and save their match Ids to the DB
 
-    cron.schedule(`0 2,20 * * *`, async () => {
+    cron.schedule(`*/3 2,8,10 * * *`, async () => {
       console.log("starters");
       //at 215am everyday get the international and Ipl matches for the day and put them in an array
       const iplAndIntlMatches = await matchIDModel
         .find({
           date: new Date().toISOString().slice(0, 10),
-          // matchState: /complete/gi,
+          // matchState: /complete/gi,\
           matchType: /league|ODI|test|T20i/gi,
         })
         .exec();
@@ -109,14 +109,19 @@ connectDB().then(async () => {
         // send live update for each game every 25 minutes
         cron.schedule(`0 ${hours} * * * `, async () => {
           console.log("in again");
-          const comms = getCommentary(match.matchID);
+          const comms = await getCommentary(match.matchID);
           console.log(comms);
-          while (!/in progress/gi.test(comms)) {
+          console.log(!/in progress/gi.test(comms));
+          do {
             console.log(comms + "n");
-            const liveComms = getCommentary(match.matchID);
-            client.sendMessage(liveSoccer1, await getCommentary(liveComms));
+            //send message prefixed with group invite
+            const groupInvite = ``;
+
+            const liveComms = await getCommentary(match.matchID);
+            const message = [groupInvite, liveComms];
+            client.sendMessage(liveSoccer1, message.join("\n"));
             timeDelay(150000);
-          }
+          } while (!/in progress/gi.test(comms));//if comms test returns true
         });
       });
     });
