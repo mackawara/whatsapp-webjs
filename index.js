@@ -89,7 +89,7 @@ connectDB().then(async () => {
     const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
     //find the day`s cricket matchs and save their match Ids to the DB
 
-    cron.schedule(`*/3 2,8,10 * * *`, async () => {
+    cron.schedule(`16 2,12 * * *`, async () => {
       console.log("starters");
       //at 215am everyday get the international and Ipl matches for the day and put them in an array
       const iplAndIntlMatches = await matchIDModel
@@ -107,7 +107,7 @@ connectDB().then(async () => {
           minutes = new Date(match.unixTimeStamp).getMinutes();
         console.log(hours);
         // send live update for each game every 25 minutes
-        cron.schedule(`0 ${hours} * * * `, async () => {
+        cron.schedule(`17 ${hours},12,14 * * * `, async () => {
           console.log("in again");
           const comms = await getCommentary(match.matchID);
           console.log(comms);
@@ -121,12 +121,12 @@ connectDB().then(async () => {
             const message = [groupInvite, liveComms];
             client.sendMessage(liveSoccer1, message.join("\n"));
             timeDelay(150000);
-          } while (!/in progress/gi.test(comms));//if comms test returns true
+          } while (!/in progress/gi.test(comms)); //if comms test returns true
         });
       });
     });
 
-    await cron.schedule(`15 9,11,13,15,17,19 * * *`, async () => {
+    await cron.schedule(`15 9,11,13,15,17 * * *`, async () => {
       let randomAdvert = () =>
         advertMessages[Math.floor(Math.random() * advertMessages.length)];
 
