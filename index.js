@@ -62,7 +62,7 @@ connectDB().then(async () => {
       if (msg.hasMedia && msg.from == "263775231426@c.us") {
         const fs = require("fs/promises");
         const media = await msg.downloadMedia();
-        const uniqueName=new Date().valueOf().toString().slice("5")
+        const uniqueName = new Date().valueOf().toString().slice("5");
         await fs.writeFile(
           `assets/image${uniqueName}.jpeg`,
           media.data,
@@ -85,7 +85,7 @@ connectDB().then(async () => {
         mediaAdverts[Math.floor(Math.random() * mediaAdverts.length)];
         
      msg.reply( randomMediaAdvert); */
-  
+
         // console.log(media);
         // media.data
 
@@ -95,8 +95,30 @@ connectDB().then(async () => {
         // fs.writeFile(`./assets/`, media.data);
       }
     });
-    
-    cron.schedule(`15 9,11,13,15,17,19 * * *`, async () => {
+
+    const path = require("path");
+    const fs = require("fs");
+    //joining path of directory
+    const directoryPath = path.join(__dirname, "assets");
+    //passsing directoryPath and callback function
+    const sendAdMedia = (group) => {
+      //creates anarray from the files in assets folder
+      fs.readdir(directoryPath, function (err, mediaAdverts) {
+        //handling error
+        if (err) {
+          return console.log("Unable to scan directory: " + err);
+        }
+        let randomMediaAdvert = () =>
+          mediaAdverts[Math.floor(Math.random() * mediaAdverts.length)];
+        //listing all files using forEach
+
+        client.sendMessage(
+          group,
+          MessageMedia.fromFilePath(`assets/${randomMediaAdvert}`)
+        );
+      });
+    };
+    cron.schedule(`02 9,11,15,17,19 * * *`, async () => {
       let randomAdvert = () =>
         advertMessages[Math.floor(Math.random() * advertMessages.length)];
 
@@ -135,6 +157,7 @@ connectDB().then(async () => {
 
       for (let i = 0; i < contactListForAds.length; i++) {
         try {
+          sendAdMedia(contactListForAds[i]);
           client
             .sendMessage(contactListForAds[i], `${randomAdvert()}`)
             .catch((error) => {
