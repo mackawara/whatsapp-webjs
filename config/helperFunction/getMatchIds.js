@@ -2,7 +2,6 @@ const axios = require("axios");
 const timeConverter = require("./timeConverter");
 const matchIdmodel = require("../../models/matchIdModel");
 const queryAndSave = require("./queryAndSave");
-
 const getMatchIds = async (type) => {
   console.log("get match ids runnong");
   matchIdmodel.deleteMany();
@@ -20,10 +19,16 @@ const getMatchIds = async (type) => {
     .request(options)
     .then(function (response) {
       if (response.data.typeMatches) {
+        console.log(response.data.typeMatches);
         const matchesAll = response.data; //JSON.parse(dummyresult); // array of all matches split by typpe
-
+        const International = /International/gi;
+        const League = /League/gi;
         matchesAll.typeMatches.forEach((match) => {
-          if (match.matchType) {
+          if (
+            International.test(match.matchType) ||
+            League.test(match.matchType)
+          ) {
+            console.log("international mated found");
             const matchArr = match.seriesMatches;
             matchArr.forEach((match) => {
               if (match.seriesAdWrapper) {

@@ -90,41 +90,41 @@ connectDB().then(async () => {
     const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
     //find the day`s cricket matchs and save their match Ids to the DB
 
-    cron.schedule(`16 2,12 * * *`, async () => {
+    cron.schedule(`37 7 * * *`, async () => {
+      await getMatchIds("upcoming");
+      await getMatchIds("recent");
       console.log("starters");
       //at 215am everyday get the international and Ipl matches for the day and put them in an array
-      const iplAndIntlMatches = await matchIDModel
+      await matchIDModel
         .find({
           date: new Date().toISOString().slice(0, 10),
           // matchState: /complete/gi,\
-          matchType: /league|ODI|test|T20i/gi,
+          //matchType: /league|ODI|test|T20i/gi,
         })
-        .exec();
-      console.log(iplAndIntlMatches);
-      // loop through the matches and get commentary every 15 minutes
-      iplAndIntlMatches.forEach(async (match) => {
-        console.log("match in");
-        const hours = new Date(parseInt(match.unixTimeStamp)).getHours(),
-          minutes = new Date(match.unixTimeStamp).getMinutes();
-        console.log(hours);
-        // send live update for each game every 25 minutes
-        cron.schedule(`17 ${hours},12,14 * * * `, async () => {
-          console.log("in again");
-          const comms = await getCommentary(match.matchID);
-          console.log(comms);
-          console.log(!/in progress/gi.test(comms));
-          do {
-            console.log(comms + "n");
-            //send message prefixed with group invite
-            const groupInvite = ``;
+        .exec()
+        .then((matchesToday) => {
+          console.log(matchesToday);
+          matchesToday.forEach(async (match) => {
+            console.log("match in");
+            const hours = new Date(parseInt(match.unixTimeStamp)).getHours(),
+              minutes = new Date(match.unixTimeStamp).getMinutes();
+            console.log(hours);
+            // send live update for each game every 25 minutes
+            cron.schedule(`38 ${hours},7 * * * `, async () => {
+              do {
+                //send message prefixed with group invite
+                const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
 
-            const liveComms = await getCommentary(match.matchID);
-            const message = [groupInvite, liveComms];
-            client.sendMessage(liveSoccer1, message.join("\n"));
-            timeDelay(150000);
-          } while (!/in progress/gi.test(comms)); //if comms test returns true
+                const liveComms = await getCommentary(match.matchID);
+                const message = [cricketGroupInvite, liveComms];
+                client.sendMessage(liveSoccer1, message.join("\n"));
+                timeDelay(1200000);
+              } while (!/in progress/gi.test(comms)); //if comms test returns true
+            });
+          });
         });
-      });
+
+      // loop through the matches and get commentary every 15 minutes
     });
 
     await cron.schedule(`15 9,11,13,15,17 * * *`, async () => {

@@ -36,7 +36,6 @@ const clientOn = async (client, arg1, arg2) => {
             "cartridges",
             "toner",
             "catridge",
-
             "ink cartridge",
             "printer cartridge",
             "CCTV",
@@ -81,7 +80,7 @@ const clientOn = async (client, arg1, arg2) => {
       } */
       if (chat.isGroup) {
         console.log(chat.name);
-        // console.log(msg.body,groupName,contact);
+        console.log(chat.id._serialised);
         //grpOwner = chat.owner.user;
 
         if (/matchid/gi.test(msgBody.replaceAll(" ", ""))) {
@@ -95,7 +94,6 @@ const clientOn = async (client, arg1, arg2) => {
             .trim()
             .replace(":", "");
           //const matchCommentary = await getCommentary(matchId); // check if message contains a req for ID
-
           msg.reply("Do stuff"); //do stuff
         }
       } else {
