@@ -73,7 +73,7 @@ connectDB().then(async () => {
     const updateFootballDb = require("./config/helperFunction/updateFootballDb");
     //get the first match of the day
 
-    await cron.schedule("0 2 * * *", async () => {
+    await cron.schedule("19 9 * * *", async () => {
       await updateFootballDB();
       const matchesToday = await footballFixturesModel.find({
         date: new Date().toISOString().slice(0, 10),
