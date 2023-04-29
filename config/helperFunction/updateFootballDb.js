@@ -122,7 +122,7 @@ const callFootballApi = async (competition) => {
           score: scores,
           fixtureID: fixtureID,
           competition: competition,
-          unixTimeStamp: result.fixture.timeStamp,
+          unixTimeStamp: result.fixture.timestamp,
         });
 
         //Save the api response to DB
@@ -153,6 +153,7 @@ const callFootballApi = async (competition) => {
               score: scores,
               fixtureID: fixtureID,
               competition: competition,
+              unixTimeStamp: result.fixture.timestamp,
             });
 
             await fixtureFound[0].save().then(() => {

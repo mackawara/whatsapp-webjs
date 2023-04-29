@@ -80,7 +80,8 @@ const clientOn = async (client, arg1, arg2) => {
         msg.reply(response);
       } */
       if (chat.isGroup) {
-        console.log(chat.name);
+        console.log(chat.name, chat.id._serialised);
+
         // console.log(msg.body,groupName,contact);
         //grpOwner = chat.owner.user;
 
