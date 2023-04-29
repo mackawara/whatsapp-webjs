@@ -34,6 +34,7 @@ connectDB().then(async () => {
   });
 
   client.initialize();
+  //client2.initialize();
 
   //messaging client resources
   const clientOn = require("./config/helperFunction/clientOn");
@@ -42,6 +43,7 @@ connectDB().then(async () => {
   clientOn(client, "authenticated");
   clientOn(client, "auth_failure");
   clientOn(client, "qr");
+  //clientOn(client2, "qr");
   client.on("ready", async () => {
     //functions abd resources
     //Helper Functions
@@ -66,30 +68,33 @@ connectDB().then(async () => {
     const liveCricket1 = process.env.LIVECRICKET1;
     //database collections
     const matchIDModel = require("./models/matchIdModel");
-    const footballFixturesModel=require("./models/footballFixtures")
+    const footballFixturesModel = require("./models/footballFixtures");
 
     //helper Functions
     const getMatchIds = require("./config/helperFunction/getMatchIds");
     const updateFootballDb = require("./config/helperFunction/updateFootballDb");
     //get the first match of the day
 
-    await cron.schedule("19 9 * * *", async () => {
-      await updateFootballDB();
+    cron.schedule("20 16 * * *", async () => {
+      //update the football dtabase every morining
+      await updateFootballDb();
       const matchesToday = await footballFixturesModel.find({
         date: new Date().toISOString().slice(0, 10),
       });
-      const startTimes = [];
+      const startingTimes = [];
+      // get the starting times from each game today
       matchesToday.forEach(async (match) => {
         startingTimes.push(match.unixTimeStamp);
       });
+      // get the first kick off
       const firstKickOff = new Date(parseInt(Math.min(...startTimes))),
         hours = firstKickOff.getHours(),
         mins = firstKickOff.getMinutes();
       // run Live updates form such a time as the first game kickoffs
-      await cron.schedule(`${mins} ${hours}-23 Mon-Fri * *`, async () => {
+      cron.schedule(`${mins},20 ${hours},16 * * *`, async () => {
         await cron.schedule("*/5 * * * *", async () => {
           // run every six minutes from 13horus to 23hrs
-          await callFootballApi(); // update the db first
+          await updateFootballDb(); // update the db first
           const groupLink = ``;
           let update = [groupLink];
           const epl = await getFixtures("epl", "In Progress");
@@ -123,26 +128,62 @@ connectDB().then(async () => {
       });
     });
 
-  //  await cron.schedule("29 2,8,14 * * *", async () => {
-  //    await getMatchIds("upcoming");
-  //    await getMatchIds("recent");
-  //    const completedMatches = await matchIDModel.find({
-  //      date: new Date().toISOString().slice(0, 10),
-  //      matchState: /complete/gi,
-  //    });
-  //    completedMatches.forEach(async (match) => {
-  //      const commentary = await getCommentary(match.matchID);
-  //      client.sendMessage(liveSoccer1, commentary);
-  //    });
-  //    const upcoming = await matchIDModel({
-  //      date: new Date().toISOString().slice(0, 10),
-  //      matchState: /upcoming|preview/gi,
-  //    });
-   //   upcoming.forEach(async (match) => {
+    //Send day`s fixtures evry 4 hours
+    cron.schedule("20 16 * * *", async () => {
+      console.log("runing");
+      // run every six minutes from 13horus to 23hrs
+      await updateFootballDb(); // update the db first
+      const groupLink = ``;
+      let update = [groupLink];
+      const epl = await getFixtures("epl", "upcoming");
+      const laliga = await getFixtures("la liga, upcoming");
+      const zpsl = await getFixtures("zpsl, upcoming");
+      const ucl = await getFixtures("uefa, upcoming");
+      const europa = await getFixtures("europa, upcoming");
+      console.log(epl, laliga, zosl, europa);
+      if (!epl == "") {
+        update.push(epl);
+      }
+      if (!laliga == "") {
+        update.push(laliga);
+      }
+      if (!zpsl == "") {
+        update.push(zpsl);
+      }
+      if (!ucl == "") {
+        update.push(ucl);
+      }
+      if (!europa == "") {
+        update.push(europa);
+      }
+      //  let message = update.filter((result) => !result == "");
+
+      if (update.length > 0) {
+        await client.sendMessage(liveSoccer1, update.join("\n"));
+      } else {
+        console.log("no upcoming matsche today");
+      }
+    });
+    //  await cron.schedule("29 2,8,14 * * *", async () => {
+    //    await getMatchIds("upcoming");
+    //    await getMatchIds("recent");
+    //    const completedMatches = await matchIDModel.find({
+    //      date: new Date().toISOString().slice(0, 10),
+    //      matchState: /complete/gi,
+    //    });
+    //    completedMatches.forEach(async (match) => {
+    //      const commentary = await getCommentary(match.matchID);
+    //      client.sendMessage(liveSoccer1, commentary);
+    //    });
+    //    const upcoming = await matchIDModel({
+    //      date: new Date().toISOString().slice(0, 10),
+    //      matchState: /upcoming|preview/gi,
+    //    });
+    //   upcoming.forEach(async (match) => {
     //    const commentary = await getCommentary(match.matchID);
     //    client.sendMessage(liveSoccer1, commentary);
     //    const startHour = new Date(parseInt(match.unixTimeStamp)).getHours();
-   //     cron.schedule(`0 ${startHour} * * *`, async () => {
+    //     cron.schedule(`0 ${startHour} * * *`, async () => {
     //      do {} while (match); // as long as match s on progress
     //    });
     //  });
