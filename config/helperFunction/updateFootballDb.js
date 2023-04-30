@@ -102,6 +102,7 @@ const callFootballApi = async (competition) => {
           result.score.penalty,
           winner
         );
+        const unixTimeStamp = result.fixture.timestamp;
 
         const penalties = result.score.penalty;
         const scoresHome = result.goals.home; //? result.goals.home : "";
@@ -153,7 +154,7 @@ const callFootballApi = async (competition) => {
               score: scores,
               fixtureID: fixtureID,
               competition: competition,
-              unixTimeStamp: result.fixture.timestamp,
+              unixTimeStamp: unixTimeStamp,
             });
 
             await fixtureFound[0].save().then(() => {
@@ -163,6 +164,7 @@ const callFootballApi = async (competition) => {
         };
 
         queryAndSave();
+        return unixTimeStamp;
       }
     });
   } catch (error) {

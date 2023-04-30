@@ -72,64 +72,78 @@ connectDB().then(async () => {
 
     //helper Functions
     const getMatchIds = require("./config/helperFunction/getMatchIds");
+    const getFixtures = require("./config/helperFunction/getFixtures");
     const updateFootballDb = require("./config/helperFunction/updateFootballDb");
     //get the first match of the day
 
-    cron.schedule("20 16 * * *", async () => {
+    cron.schedule("7 13 * * *", async () => {
       //update the football dtabase every morining
-      await updateFootballDb();
-      const matchesToday = await footballFixturesModel.find({
-        date: new Date().toISOString().slice(0, 10),
-      });
-      const startingTimes = [];
-      // get the starting times from each game today
-      matchesToday.forEach(async (match) => {
-        startingTimes.push(match.unixTimeStamp);
-      });
-      // get the first kick off
-      const firstKickOff = new Date(parseInt(Math.min(...startTimes))),
-        hours = firstKickOff.getHours(),
-        mins = firstKickOff.getMinutes();
-      // run Live updates form such a time as the first game kickoffs
-      cron.schedule(`${mins},20 ${hours},16 * * *`, async () => {
-        await cron.schedule("*/5 * * * *", async () => {
-          // run every six minutes from 13horus to 23hrs
-          await updateFootballDb(); // update the db first
-          const groupLink = ``;
-          let update = [groupLink];
-          const epl = await getFixtures("epl", "In Progress");
-          const laliga = await getFixtures("la liga", "In Progress");
-          const zpsl = await getFixtures("zpsl", "In Progress");
-          const ucl = await getFixtures("uefa", "In Progress");
-          const europa = await getFixtures("europa", "In Progress");
-          if (!epl == "") {
-            update.push(epl);
-          }
-          if (!laliga == "") {
-            update.push(laliga);
-          }
-          if (!zpsl == "") {
-            update.push(zpsl);
-          }
-          if (!ucl == "") {
-            update.push(ucl);
-          }
-          if (!europa == "") {
-            update.push(europa);
-          }
-          //  let message = update.filter((result) => !result == "");
 
-          if (update.length > 0) {
-            await client.sendMessage(liveSoccer1, update.join("\n"));
-          } else {
-            console.log("no updates");
-          }
-        });
+      const startingTimes = [];
+      await updateFootballDb().then(async (timestamp) => {
+        console.log(timestamp);
+        await footballFixturesModel
+          .find({
+            date: new Date().toISOString().slice(0, 10),
+          })
+          .exec()
+          .then((matchesToday) => {
+            console.log(matchesToday);
+            matchesToday.forEach(async (match) => {
+              startingTimes.push(match.unixTimeStamp);
+            });
+
+            const firstKickOff = new Date(parseInt(Math.min(...startTimes))),
+              hours = firstKickOff.getHours(),
+              mins = firstKickOff.getMinutes();
+            console.log(hours, mins);
+          })
+          .then(() => {
+            // run Live updates form such a time as the first game kickoffs
+            cron.schedule(`${mins},8 ${hours},13 * * *`, async () => {
+              // run every six minutes from 13horus to 23hrs
+              await updateFootballDb().then(async () => {
+                console.log(new Date());
+                const groupLink = ``;
+                let update = [groupLink];
+                const epl = await getFixtures("epl", "In Progress");
+                const laliga = await getFixtures("la liga", "In Progress");
+                const zpsl = await getFixtures("zpsl", "In Progress");
+                const ucl = await getFixtures("uefa", "In Progress");
+                const europa = await getFixtures("europa", "In Progress");
+                if (!epl == "") {
+                  update.push(epl);
+                }
+                if (!laliga == "") {
+                  update.push(laliga);
+                }
+                if (!zpsl == "") {
+                  update.push(zpsl);
+                }
+                if (!ucl == "") {
+                  update.push(ucl);
+                }
+                if (!europa == "") {
+                  update.push(europa);
+                }
+                //  let message = update.filter((result) => !result == "");
+
+                if (update.length > 0) {
+                  await client.sendMessage(liveSoccer1, update.join("\n"));
+                } else {
+                  console.log("no updates");
+                }
+              });
+            }); // update the db first
+          });
       });
+      // get the starting times from each game today
+
+      // get the first kick off
     });
 
     //Send day`s fixtures evry 4 hours
-    cron.schedule("20 16 * * *", async () => {
+    cron.schedule("3 18 * * *", async () => {
       console.log("runing");
       // run every six minutes from 13horus to 23hrs
       await updateFootballDb(); // update the db first
