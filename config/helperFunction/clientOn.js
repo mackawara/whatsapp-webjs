@@ -80,7 +80,7 @@ const clientOn = async (client, arg1, arg2) => {
       } */
       if (chat.isGroup) {
         console.log(chat.name);
-        console.log(chat.id._serialised);
+        console.log(chat.id);
         //grpOwner = chat.owner.user;
 
         if (/matchid/gi.test(msgBody.replaceAll(" ", ""))) {

@@ -65,37 +65,40 @@ connectDB().then(async () => {
     //});
     const hwangeClubCricket = process.env.HWANGECLUBDELACRICKET;
     const liveSoccer1 = process.env.LIVESOCCER1;
-    const liveCricket1 = process.env.LIVECRICKET1;
+    const liveCricket1 = "120363110873098533@g.us";
     const getMatchIds = require("./config/helperFunction/getMatchIds");
     // get the latest updates
-    let calls;
-
-    await cron.schedule("50 0 * * *", async () => {
+    let calls = 0;
+    const date = new Date(),
+      yestdate = date.setDate(date.getDate() - 1);
+    cron.schedule("15 3 * * *", async () => {
       //await getMatchIds("upcoming");
       await getMatchIds("recent", calls);
       const completedMatches = await matchIDModel.find({
-        date: new Date().toISOString().slice(0, 10),
+        date: new Date(yestdate).toISOString().slice(0, 10),
         matchState: /complete/gi,
       });
+      console.log(completedMatches);
       completedMatches.forEach(async (match) => {
-        const commentary = await getCommentary(match.matchID);
-        client.sendMessage(liveSoccer1, commentary);
+        const commentary = await getCommentary(match.matchID, calls);
+        client.sendMessage(liveCricket1, commentary);
       });
+      console.log(upcoming);
       const upcoming = await matchIDModel({
         date: new Date().toISOString().slice(0, 10),
         matchState: /upcoming|preview/gi,
       });
       upcoming.forEach(async (match) => {
         const commentary = await getCommentary(match.matchID, calls);
-        client.sendMessage(liveSoccer1, commentary);
+        client.sendMessage(liveCricket1, commentary);
       });
     });
     const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
     //find the day`s cricket matchs and save their match Ids to the DB
     console.log(new Date().toISOString().slice(0, 10));
-    cron.schedule(`0 3 * * *`, async () => {
+    cron.schedule(`30 3 * * *`, async () => {
       await getMatchIds("upcoming", calls);
-      calls = 0;
+
       //at 215am everyday get the international and Ipl matches for the day and put them in an array
       await matchIDModel
         .find({
@@ -123,8 +126,10 @@ connectDB().then(async () => {
               const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
               const commentary = await getCommentary(match.matchID, calls);
               const message = [cricketGroupInvite, commentary];
-              client.sendMessage(liveSoccer1, message.join("\n"));
-
+              client.sendMessage(liveCricket1, message.join("\n"));
+              calls > 85
+                ? client.sendMessage("263775231426", "calls going hig")
+                : console.log("waiting");
               await timeDelay(1500000);
             } while (
               !/Complete/gi.test(await getCommentary(match.matchID, calls))
@@ -135,7 +140,7 @@ connectDB().then(async () => {
       // loop through the matches and get commentary every 15 minutes
     });
 
-   /*  */
+    /*  */
     //  cron.schedule("*/6", "16-21", async () => {
     //  const ipl = await getCommentary(); //gets live commentary of games
     //client.sendMessage(liveCricket1, ipl);
