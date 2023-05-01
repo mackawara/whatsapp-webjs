@@ -1,7 +1,12 @@
 const axios = require("axios");
 
-const getCommentary = async (matchId) => {
-  
+const getCommentary = async (matchId, calls) => {
+  calls = calls + 1;
+  console.log("there have been " + calls + " call to cricbuz");
+  if (calls > 5) {
+    console.log("maximum number of calls exceeded");
+    return;
+  }
   const options = {
     method: "GET",
     url: `https://cricbuzz-cricket.p.rapidapi.com/mcenter/v1/${matchId}/comm`,
@@ -13,7 +18,7 @@ const getCommentary = async (matchId) => {
   let commentary = [];
   let matchComment = await axios.request(options).then(function (res) {
     const response = res.data;
-    
+
     // writeFile(response.data, "testFile.json");
     let matchState, matchStatus, matchDesc, seriesname, team1, team2; //  const response=readFile("/../../testFile.json")
     if (response.matchHeader) {
@@ -43,7 +48,7 @@ const getCommentary = async (matchId) => {
     inningsList = inningsList.map((innings) => {
       return `${innings.batTeamName} *${innings.score}-${innings.wickets}* ,${innings.overs} overs \n`;
     });
-    let matchDetails = `*${seriesname}, ${matchDesc}* \n${team1} vs ${team2}\n\n*Match status* \n${inningsList.join(
+    let matchDetails = `*${seriesname}, ${matchDesc}* \n${team1} vs ${team2}\n\n*Match status* ${matchState} \n${inningsList.join(
       ""
     )} *${matchStatus}*\nCurr RR: *${currRR}*, Req RRate *${reqRR}*\n \n*Commentary*`;
 
