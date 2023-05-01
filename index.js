@@ -93,8 +93,9 @@ connectDB().then(async () => {
     const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
     //find the day`s cricket matchs and save their match Ids to the DB
     console.log(new Date().toISOString().slice(0, 10));
-    cron.schedule(`35 13 * * *`, async () => {
+    cron.schedule(`0 3 * * *`, async () => {
       await getMatchIds("upcoming", calls);
+      calls = 0;
       //at 215am everyday get the international and Ipl matches for the day and put them in an array
       await matchIDModel
         .find({
@@ -121,9 +122,10 @@ connectDB().then(async () => {
               //send message prefixed with group invite
               const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
               const commentary = await getCommentary(match.matchID, calls);
-              client.sendMessage(liveSoccer1, commentary);
+              const message = [cricketGroupInvite, commentary];
+              client.sendMessage(liveSoccer1, message.join("\n"));
 
-              await timeDelay(400000);
+              await timeDelay(1500000);
             } while (
               !/Complete/gi.test(await getCommentary(match.matchID, calls))
             ); //if comms test returns true
@@ -133,58 +135,7 @@ connectDB().then(async () => {
       // loop through the matches and get commentary every 15 minutes
     });
 
-    await cron.schedule(`15 9,11,13,15,17 * * *`, async () => {
-      let randomAdvert = () =>
-        advertMessages[Math.floor(Math.random() * advertMessages.length)];
-
-      let advertMessages = require("./adverts");
-      //contacts
-      const me = process.env.ME;
-      //groups
-
-      const hwangeDealsgrp1 = "263775932942-1555492418@g.us";
-      const sellItHge4 = "263773389927-1588234038@g.us";
-      const sellIthge = "263717766191-1583426999@g.us";
-      const sellIthge2 = "263717766191-1583474819@g.us";
-      const sellIthge5 = "263717766191-1611592932@g.us";
-      const sellIthge3 = "263717766191-1584895535@g.us";
-      const sellIthge6 = "263717766191-1616870613@g.us";
-      const hwangeclassifieds = "263714496540-1579592614@g.us";
-      const hwangeCitytraders = "263774750143-1590396559@g.us";
-      const noCaptBusIdeas = "263783046858-1621225929@g.us";
-
-      const contactListForAds = [
-        hwangeDealsgrp1,
-        sellIthge,
-        sellIthge2,
-        sellItHge4,
-        hwangeCitytraders,
-        hwangeclassifieds,
-        sellIthge5,
-        sellIthge6,
-        sellIthge3,
-        noCaptBusIdeas,
-      ];
-
-      const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
-
-      for (let i = 0; i < contactListForAds.length; i++) {
-        try {
-          client
-            .sendMessage(contactListForAds[i], `${randomAdvert()}`)
-            .catch((error) => {
-              console.log(error);
-            });
-          await timeDelay(Math.floor(Math.random() * 10) * 1000); //causes a delay of anything between 1-10 secs between each message
-        } catch (error) {
-          console.log(error);
-          client.sendMessage(
-            me,
-            `failed to send automatic message to ${contactListForAds[i]}`
-          );
-        }
-      }
-    });
+   /*  */
     //  cron.schedule("*/6", "16-21", async () => {
     //  const ipl = await getCommentary(); //gets live commentary of games
     //client.sendMessage(liveCricket1, ipl);
