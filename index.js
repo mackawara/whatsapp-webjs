@@ -93,7 +93,7 @@ connectDB().then(async () => {
     const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
     //find the day`s cricket matchs and save their match Ids to the DB
     console.log(new Date().toISOString().slice(0, 10));
-    cron.schedule(`30 12 * * *`, async () => {
+    cron.schedule(`45 12 * * *`, async () => {
       await getMatchIds("upcoming", calls);
       //at 215am everyday get the international and Ipl matches for the day and put them in an array
       await matchIDModel
