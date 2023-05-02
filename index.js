@@ -118,22 +118,23 @@ connectDB().then(async () => {
               minutes = new Date(parseInt(match.unixTimeStamp)).getMinutes();
             console.log(hours);
             // send live update for each game every 25 minutes
-            cron.schedule(`${minutes} ${hours} * * *`, async () => {});
-            //run at least once
-            do {
-              console.log("DO WHIL LOOP");
-              //send message prefixed with group invite
-              const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
-              const commentary = await getCommentary(match.matchID, calls);
-              const message = [cricketGroupInvite, commentary];
-              client.sendMessage(liveCricket1, message.join("\n"));
-              calls > 85
-                ? client.sendMessage("263775231426", "calls going hig")
-                : console.log("waiting");
-              await timeDelay(1500000);
-            } while (
-              !/Complete/gi.test(await getCommentary(match.matchID, calls))
-            ); //if comms test returns true
+            cron.schedule(`${minutes} ${hours} * * *`, async () => {
+              do {
+                console.log("DO WHIL LOOP");
+                //send message prefixed with group invite
+                const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
+                const commentary = await getCommentary(match.matchID, calls);
+                const message = [cricketGroupInvite, commentary];
+                client.sendMessage(liveCricket1, message.join("\n"));
+                calls > 85
+                  ? client.sendMessage("263775231426", "calls going hig")
+                  : console.log("waiting");
+                await timeDelay(1500000);
+              } while (
+                !/Complete/gi.test(await getCommentary(match.matchID, calls))
+              );
+            });
+            //run at least once //if comms test returns true
           });
         });
 
