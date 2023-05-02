@@ -1,5 +1,7 @@
-const clientOn = async (client, arg1, arg2) => {
+const clientOn = async (client, arg1, arg2, MessageMedia) => {
+  const fs = require("fs/promises");
   const me = process.env.ME;
+  //const { MessageMedia } = require("whatsapp-web.js");
 
   if (arg1 == "auth_failure") {
     client.on("auth_failure", (msg) => {
@@ -21,7 +23,7 @@ const clientOn = async (client, arg1, arg2) => {
   }
 
   const contactModel = require("../../models/contactsModel");
-  let groupName, grpDescription;
+  // let groupName, grpDescription;
   if (arg1 == "message") {
     client.on(`message`, async (msg) => {
       const chat = await msg.getChat();
@@ -73,6 +75,7 @@ const clientOn = async (client, arg1, arg2) => {
           );
         }
       });
+      
       //queries chatGPT work in progress
       /* if (msgBody.includes("openAi")) {
         const response = await callOpenAi(msgBody);
