@@ -75,19 +75,16 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
           );
         }
       });
-      
+
       //queries chatGPT work in progress
       /* if (msgBody.includes("openAi")) {
         const response = await callOpenAi(msgBody);
         msg.reply(response);
       } */
       if (chat.isGroup) {
-        console.log(chat.name);
-        console.log(chat.id);
         //grpOwner = chat.owner.user;
 
         if (/matchid/gi.test(msgBody.replaceAll(" ", ""))) {
-          console.log("matchid receieved");
           // getCommentary()
 
           //get the math they want
@@ -129,10 +126,7 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
         user,
         `We are sorry to see you leave our group , May you indly share wy you decided to leave`
       ); */
-      client.sendMessage(
-        me,
-        `User ${notification.id.participant} just left  the group`
-      );
+      //client.sendMessage(me,`User ${notification.id.participant} just left  the group`);
     });
   } else if (arg1 == "group-join") {
     client.on("group_join", (notification) => {
@@ -141,8 +135,8 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
       console.log("join", notification);
       /*  client.sendMessage(
         notification.id.participant,
-        "welcome to ... Here are the group rules for your convenience.... \n"
-      ) */
+        `welcome to ${}}Here are the group rules for your convenience.... \n`
+      )  */
       // notification.reply("User joined.");
     });
   } else if (arg1 == "before" && arg2 == "after") {
