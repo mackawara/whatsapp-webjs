@@ -68,7 +68,7 @@ connectDB().then(async () => {
     });
     const date = new Date(),
       yestdate = date.setDate(date.getDate() - 1);
-    cron.schedule("45 8 * * *", async () => {
+    cron.schedule("30 3 * * *", async () => {
       const results = [
         `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`,
         "*Recent Matches*",
@@ -90,7 +90,7 @@ connectDB().then(async () => {
     console.log(calls);
     //find the day`s cricket matchs and save their match Ids to the DB
     //at 215am everyday get the international and Ipl matches for the day and put them in an array
-    cron.schedule(`30 8 * * *`, async () => {
+    cron.schedule(`30 2 * * *`, async () => {
       await getMatchIds("upcoming", calls);
       await timeDelay(300000);
       await matchIDModel
