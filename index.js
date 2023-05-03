@@ -8,7 +8,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      // executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -60,40 +60,39 @@ connectDB().then(async () => {
     const liveCricket1 = "120363110873098533@g.us";
     const getMatchIds = require("./config/helperFunction/getMatchIds");
     const getCommentary = require("./config/helperFunction/getCricComm");
-
+    const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
     // get the latest updates
-
     let calls = 0;
+    cron.schedule(`0 0 1,4,7 * *`, async () => {
+      await getMatchIds("upcoming", calls);
+    });
     const date = new Date(),
       yestdate = date.setDate(date.getDate() - 1);
-    // cron.schedule("15 3 * * *", async () => {
-    //await getMatchIds("upcoming");
-    /*   await getMatchIds("recent", calls);
+    cron.schedule("53 7 * * *", async () => {
+      const results = [
+        `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`,
+        "*Recent Matches*",
+      ];
+      //  await getMatchIds("recent", calls)
       const completedMatches = await matchIDModel.find({
         date: new Date(yestdate).toISOString().slice(0, 10),
-        matchState: /complete/gi,
+        //matchState: /complete/gi,
       });
-      console.log(completedMatches);
-      completedMatches.forEach(async (match) => {
-        const commentary = await getCommentary(match.matchID, calls);
-        client.sendMessage(liveCricket1, commentary);
-      });
-      console.log(upcoming);
-      const upcoming = await matchIDModel({
-        date: new Date().toISOString().slice(0, 10),
-        matchState: /upcoming|preview/gi,
-      });
-      upcoming.forEach(async (match) => {
-        const commentary = await getCommentary(match.matchID, calls);
-        client.sendMessage(liveCricket1, commentary); */
-    //  });
-    //  });
-    const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
 
+      await completedMatches.forEach(async (match) => {
+        const date = new Date(match.unixTimeStamp).toLocaleDateString();
+        const matchDetails = `${date}\n${match.seriesName}\n${match.fixture}\nMatch Status: *${match.matchState} ${match.matchStatus}*`;
+        results.push(matchDetails);
+      });
+      client.sendMessage(liveCricket1, results.join("\n\n"));
+    });
+
+    console.log(calls);
     //find the day`s cricket matchs and save their match Ids to the DB
     //at 215am everyday get the international and Ipl matches for the day and put them in an array
-    cron.schedule(`0 15 * * *`, async () => {
-      //  await getMatchIds("upcoming", calls);
+    cron.schedule(`30 8 * * *`, async () => {
+      await getMatchIds("upcoming", calls);
+      await timeDelay(300000);
       await matchIDModel
         .find({
           date: new Date().toISOString().slice(0, 10),
