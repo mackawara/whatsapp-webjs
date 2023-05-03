@@ -68,7 +68,7 @@ connectDB().then(async () => {
     });
     const date = new Date(),
       yestdate = date.setDate(date.getDate() - 1);
-    cron.schedule("36 8 * * *", async () => {
+    cron.schedule("45 8 * * *", async () => {
       const results = [
         `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`,
         "*Recent Matches*",
