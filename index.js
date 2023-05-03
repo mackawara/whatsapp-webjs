@@ -8,7 +8,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      // executablePath: "/usr/bin/chromium-browser",
+      executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -68,7 +68,7 @@ connectDB().then(async () => {
     });
     const date = new Date(),
       yestdate = date.setDate(date.getDate() - 1);
-    cron.schedule("53 7 * * *", async () => {
+    cron.schedule("36 8 * * *", async () => {
       const results = [
         `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`,
         "*Recent Matches*",
