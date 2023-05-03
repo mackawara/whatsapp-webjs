@@ -9,11 +9,14 @@ const matchIdSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  matchType:{
-    type:String,
-    required:true
-  }
-,
+  matchStatus: {
+    type: String,
+    required: true,
+  },
+  matchType: {
+    type: String,
+    required: true,
+  },
   matchID: {
     type: String,
     required: true,
