@@ -68,20 +68,31 @@ connectDB().then(async () => {
     });
     const date = new Date(),
       yestdate = date.setDate(date.getDate() - 1);
-    cron.schedule("30 3 * * *", async () => {
+    console.log(yestdate);
+    const timeConverter = require("./config/helperFunction/timeConverter");
+    //update database
+    cron.schedule(`12 2 * * *`, async () => {
+      await getMatchIds("recent", calls);
+      await getMatchIds("upcoming", calls);
+    });
+
+    //send yesterdays match results
+    cron.schedule("30 2 * * *", async () => {
       const results = [
         `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`,
-        "*Recent Matches*",
+        `Results :Matches held on *${timeConverter(parseInt(yestdate))[1]}*`,
       ];
       //  await getMatchIds("recent", calls)
       const completedMatches = await matchIDModel.find({
         date: new Date(yestdate).toISOString().slice(0, 10),
-        //matchState: /complete/gi,
+        matchState: /complete/gi,
       });
-
       await completedMatches.forEach(async (match) => {
-        const date = new Date(match.unixTimeStamp).toLocaleDateString();
-        const matchDetails = `${date}\n${match.seriesName}\n${match.fixture}\nMatch Status: *${match.matchState} ${match.matchStatus}*`;
+        console.log(match);
+        const date = new Date(
+          parseInt(match.unixTimeStamp) * 1000
+        ).toLocaleDateString();
+        const matchDetails = `${match.seriesName}\n${match.matchType} ${match.fixture}\nMatch Status: *${match.matchState} ${match.matchStatus}*`;
         results.push(matchDetails);
       });
       client.sendMessage(liveCricket1, results.join("\n\n"));
@@ -90,9 +101,7 @@ connectDB().then(async () => {
     console.log(calls);
     //find the day`s cricket matchs and save their match Ids to the DB
     //at 215am everyday get the international and Ipl matches for the day and put them in an array
-    cron.schedule(`30 2 * * *`, async () => {
-      await getMatchIds("upcoming", calls);
-      await timeDelay(300000);
+    cron.schedule(`50 14 * * *`, async () => {
       await matchIDModel
         .find({
           date: new Date().toISOString().slice(0, 10),
@@ -104,10 +113,12 @@ connectDB().then(async () => {
           console.log(matchesToday);
           matchesToday.forEach(async (match) => {
             const hours = new Date(parseInt(match.unixTimeStamp)).getHours(),
-              minutes = new Date(parseInt(match.unixTimeStamp)).getMinutes();
-            console.log(hours);
+              minutes = new Date(parseInt(match.unixTimeStamp)).getMinutes(),
+              day = new Date(parseInt(match.unixTimeStamp)).getDay(),
+              month = new Date(parseInt(match.unixTimeStamp)).getMonth() + 1;
+            console.log(`${minutes} ${hours} ${day} ${month} *`);
             // send live update for each game every 25 minutes
-            cron.schedule(`${minutes} ${hours} * * *`, async () => {
+            cron.schedule(`${minutes} ${hours} ${day} ${month} *`, async () => {
               do {
                 //send message prefixed with group invite
                 const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
