@@ -77,7 +77,7 @@ connectDB().then(async () => {
     });
 
     //send yesterdays match results
-    cron.schedule("30 2 * * *", async () => {
+    cron.schedule("30 5,9,13 * * *", async () => {
       const results = [
         `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`,
         `Results :Matches held on *${timeConverter(parseInt(yestdate))[1]}*`,
@@ -101,7 +101,7 @@ connectDB().then(async () => {
     console.log(calls);
     //find the day`s cricket matchs and save their match Ids to the DB
     //at 215am everyday get the international and Ipl matches for the day and put them in an array
-    cron.schedule(`0 13 * * *`, async () => {
+    cron.schedule(`30 2 * * *`, async () => {
       console.log("systems runnung");
       await matchIDModel
         .find({
@@ -125,13 +125,21 @@ connectDB().then(async () => {
                 const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
                 const commentary = await getCommentary(match.matchID, calls);
                 const message = [cricketGroupInvite, commentary];
-                client.sendMessage(liveCricket1, message.join("\n"));
-                calls > 85
-                  ? client.sendMessage("263775231426", "calls going hig")
-                  : console.log("waiting");
-                await timeDelay(1500000);
+                if (/not available|scorecard updates only/gi.test(commentary)) {
+                  break;
+                } else {
+                  client.sendMessage(liveCricket1, message.join("\n"));
+                  calls > 85
+                    ? client.sendMessage("263775231426", "calls going hig")
+                    : console.log("waiting");
+                  await timeDelay(1500000);
+                }
               } while (
                 !/Complete/gi.test(await getCommentary(match.matchID, calls))
+              );
+              client.sendMessage(
+                liveCricket1,
+                await getCommentary(match.matchID, calls)
               );
             });
           });
