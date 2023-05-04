@@ -101,7 +101,8 @@ connectDB().then(async () => {
     console.log(calls);
     //find the day`s cricket matchs and save their match Ids to the DB
     //at 215am everyday get the international and Ipl matches for the day and put them in an array
-    cron.schedule(`50 14 * * *`, async () => {
+    cron.schedule(`0 13 * * *`, async () => {
+      console.log("systems runnung");
       await matchIDModel
         .find({
           date: new Date().toISOString().slice(0, 10),
