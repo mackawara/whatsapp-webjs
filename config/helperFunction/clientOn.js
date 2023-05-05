@@ -30,7 +30,8 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
       const contact = await msg.getContact();
 
       const msgBody = msg.body;
-      msgBody.split(" ").forEach((word) => {
+
+      msgBody.split(" ").forEach(async (word) => {
         const keywords = {
           businessKeywords: [
             "receipt",
@@ -75,6 +76,15 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
           );
         }
       });
+      if (/openAi:/gi.test(msgBody)) {
+        console.log("open ai");
+
+        const openAiCall = require("./openai");
+        const prompt = await msgBody.replace(/openAi:/gi, "");
+
+        const response = await openAiCall(prompt);
+        msg.reply(response[0].text);
+      }
 
       //queries chatGPT work in progress
       /* if (msgBody.includes("openAi")) {
