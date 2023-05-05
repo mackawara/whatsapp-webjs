@@ -1,14 +1,17 @@
 const connectDB = require("./config/database");
 
 require("dotenv").config();
+
 // connect to mongodb before running anything on the app
 connectDB().then(async () => {
+  const openAiCall = require("./config/helperFunction/openai");
+  //console.log(await openAiCall("Definition of a portfolio in business sense"));
   const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
 
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      // executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -31,25 +34,57 @@ connectDB().then(async () => {
       ],
     },
   });
-
+  const client2 = new Client({
+    authStrategy: new LocalAuth(),
+    puppeteer: {
+      // executablePath: "/usr/bin/chromium-browser",
+      handleSIGINT: true,
+      headless: true,
+      args: [
+        "--log-level=3", // fatal only
+        "--start-maximized",
+        "--no-default-browser-check",
+        "--disable-infobars",
+        "--disable-web-security",
+        "--disable-site-isolation-trials",
+        "--no-experiments",
+        "--ignore-gpu-blacklist",
+        "--ignore-certificate-errors",
+        "--ignore-certificate-errors-spki-list",
+        "--disable-gpu",
+        "--disable-extensions",
+        "--disable-default-apps",
+        "--enable-features=NetworkService",
+        "--disable-setuid-sandbox",
+        "--no-sandbox",
+      ],
+    },
+  });
+  //client2.initialize();
   client.initialize();
 
   //messaging client resources
   const clientOn = require("./config/helperFunction/clientOn");
 
-  //client
   clientOn(client, "authenticated");
   clientOn(client, "auth_failure");
   clientOn(client, "qr");
+
+  /* clientOn(client2, "authenticated");
+  clientOn(client2, "auth_failure");
+  clientOn(client2, "qr");
+  client2.on("ready", () =>
+    client2.sendMessage("263775231426@c.us", "client 2 online")
+  ); */
   client.on("ready", async () => {
     //functions abd resources
     //Helper Functions
 
     const cron = require("node-cron");
 
-    clientOn(client, `message`);
+    clientOn(client, "message");
     clientOn(client, "group-join");
-    clientOn(client, "group-leave");
+    clientOn(client, "group-leave"); //client
 
     //decalre variables that work with client here
     //Db models
