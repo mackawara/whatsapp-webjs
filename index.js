@@ -143,7 +143,7 @@ connectDB().then(async () => {
       await matchIDModel
         .find({
           date: new Date().toISOString().slice(0, 10),
-          matchState: /upcoming/gi,
+          matchState: /In progress/gi,
           //matchType: /league|ODI|test|T20i/gi,
         })
         .exec()
