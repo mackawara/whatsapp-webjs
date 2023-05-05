@@ -136,9 +136,9 @@ connectDB().then(async () => {
     console.log(calls);
     //find the day`s cricket matchs and save their match Ids to the DB
     //at 215am everyday get the international and Ipl matches for the day and put them in an array
-    cron.schedule(`55 13 * * *`, async () => {
+    cron.schedule(`11 14 * * *`, async () => {
       console.log("systems runnung");
-      await getMatchIds("upcoming", calls);
+      await getMatchIds("live", calls);
       await timeDelay(140000);
       await matchIDModel
         .find({
@@ -154,33 +154,33 @@ connectDB().then(async () => {
               minutes = new Date(parseInt(match.unixTimeStamp)).getMinutes(),
               day = new Date(parseInt(match.unixTimeStamp)).getDay(),
               month = new Date(parseInt(match.unixTimeStamp)).getMonth() + 1;
-            console.log(`${minutes} ${hours} ${day} ${month} *`);
+            // console.log(`${minutes} ${hours} ${day} ${month} *`);
             // send live update for each game every 25 minutes
-            cron.schedule(`${minutes} ${hours} ${day} ${month} *`, async () => {
-              do {
-                //send message prefixed with group invite
-                const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
-                const commentary = await getCommentary(match.matchID, calls);
-                const message = [cricketGroupInvite, commentary];
-                if (/not available|scorecard updates only/gi.test(commentary)) {
-                  break;
-                } else {
-                  client.sendMessage(liveCricket1, message.join("\n"));
-                  calls > 85
-                    ? client.sendMessage("263775231426", "calls going hig")
-                    : console.log("waiting");
-                  await timeDelay(1500000);
-                }
-              } while (
-                !/Complete/gi.test(await getCommentary(match.matchID, calls))
-              );
-              client.sendMessage(
-                liveCricket1,
-                await getCommentary(match.matchID, calls)
-              );
-            });
+            // cron.schedule(`${minutes} ${hours} ${day} ${month} *`, async () => {
+            do {
+              //send message prefixed with group invite
+              const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
+              const commentary = await getCommentary(match.matchID, calls);
+              const message = [cricketGroupInvite, commentary];
+              if (/not available|scorecard updates only/gi.test(commentary)) {
+                break;
+              } else {
+                client.sendMessage(liveCricket1, message.join("\n"));
+                calls > 85
+                  ? client.sendMessage("263775231426", "calls going hig")
+                  : console.log("waiting");
+                await timeDelay(1500000);
+              }
+            } while (
+              !/Complete/gi.test(await getCommentary(match.matchID, calls))
+            );
+            client.sendMessage(
+              liveCricket1,
+              await getCommentary(match.matchID, calls)
+            );
           });
         });
+      // });
 
       // loop through the matches and get commentary every 15 minutes
     });
