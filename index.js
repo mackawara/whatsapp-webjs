@@ -37,7 +37,7 @@ connectDB().then(async () => {
   const client2 = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      // executablePath: "/usr/bin/chromium-browser",
+      executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -136,8 +136,10 @@ connectDB().then(async () => {
     console.log(calls);
     //find the day`s cricket matchs and save their match Ids to the DB
     //at 215am everyday get the international and Ipl matches for the day and put them in an array
-    cron.schedule(`30 2 * * *`, async () => {
+    cron.schedule(`40 13 * * *`, async () => {
       console.log("systems runnung");
+      await getMatchIds("upcoming", calls);
+      await timeDelay(140000);
       await matchIDModel
         .find({
           date: new Date().toISOString().slice(0, 10),
