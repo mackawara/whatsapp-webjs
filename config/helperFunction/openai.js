@@ -13,7 +13,7 @@ const openAiCall = async (prompt) => {
       model: "text-davinci-003",
       prompt: prompt,
       temperature: 0,
-      max_tokens: 150,
+      max_tokens: 1000,
     })
     .catch((err) => {
       console.log(err);
