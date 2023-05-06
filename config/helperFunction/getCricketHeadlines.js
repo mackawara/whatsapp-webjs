@@ -1,23 +1,57 @@
 const axios = require("axios");
-const writeFile = require("writeFile");
+const writeFile = require("./writeFile");
+const readFile = require("./readFile");
+const queryAndSave = require("./queryAndSave");
+
 const getCricketHeadlines = async () => {
-  console.log("get cricket headlines running");
+  console.log("cricket headlines");
+  const cricHeadlinesModel = require("../../models/cricHeadlines");
   const options = {
     method: "GET",
-
-    url: 'https://cricbuzz-cricket.p.rapidapi.com/news/v1/index',
+    url: "https://cricbuzz-cricket.p.rapidapi.com/news/v1/index",
     headers: {
-      "content-type": "application/octet-stream",
       "X-RapidAPI-Key": process.env.RAPIDAPIKEY,
-      "X-RapidAPI-Host": "cricbuzz-cricket.p.rapidapi.com",
+      "X-RapidAPI-Host": process.env.RAPIDAPIHOST,
     },
   };
+  console.log("proceesssing");
 
-  try {
-    const response = await axios.request(options);
-    writeFile(response.data, "headlines.json");
-  } catch (error) {
-    console.error(error.data);
-  }
+  const response = await axios.request(options).catch((err) => {
+    console.log(err);
+  });
+  console.log("testing");
+
+  const storyList = await response.data.storyList;
+  console.log(storyList);
+  // const storyList = JSON.parse(response).storyList;
+
+  storyList.forEach((story) => {
+    if (story.story) {
+      const context = story.story.context;
+      const hline = story.story.hline;
+      const intro = story.story.intro;
+      const storyType = story.story.storyType;
+      const source = story.story.source;
+      const storyId = story.story.id;
+      news.push(
+        `*Context* :${context} :${storyType}\n*Headline* :${hline}\n${intro}\nSource:${source}\n\n`
+      );
+      const newsStory = new cricHeadlinesModel({
+        context: context,
+        storyId: storyId,
+        hline: hline,
+        intro: intro,
+        source: source,
+        storyType: storyType,
+        source: source,
+        date: new Date(parseInt(story.story.pubTime))
+          .toISOString()
+          .slice(0, 10),
+      });
+      queryAndSave(cricHeadlinesModel, newsStory, "storyId", storyId);
+    }
+  });
+
+  return news.join("\n");
 };
 module.exports = getCricketHeadlines;
