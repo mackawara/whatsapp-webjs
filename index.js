@@ -3,6 +3,8 @@ const connectDB = require("./config/database");
 const getCommentary = require("./config/helperFunction/getCricComm");
 
 require("dotenv").config();
+/* const getCricketHeadlines = require("./config/helperFunction/getCricketHeadlines");
+getCricketHeadlines(); */
 // connect to mongodb before running anything on the app
 connectDB().then(async () => {
   const { Client, LocalAuth } = require("whatsapp-web.js");
@@ -10,7 +12,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      //executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -57,23 +59,23 @@ connectDB().then(async () => {
 
     const matchIDModel = require("./models/matchIdModel");
     //decalre variables that work with client here
-
     client.setDisplayName("Live Sport Scores,news, articles");
     // cron.schedule(`* * * * *`, async () => {
-    // const getCricketHeadlines = require("./config/helperFunction/getCricComm");
-    //getCricketHeadlines();
+
     //});
     const hwangeClubCricket = process.env.HWANGECLUBDELACRICKET;
     const liveSoccer1 = process.env.LIVESOCCER1;
     const liveCricket1 = "120363110873098533@g.us";
     const getMatchIds = require("./config/helperFunction/getMatchIds");
+    const getCricketHeadlines = require("./config/helperFunction/getCricketHeadlines");
+    //console.log(await getCricketHeadlines());
     // get the latest updates
     let calls = 0;
-    const date = new Date(),
-      yestdate = date.setDate(date.getDate() - 1);
+    const date = new Date().toISOString().slice(0, 10);
+    yestdate = date.setDate(date.getDate() - 1);
     cron.schedule("15 3 * * *", async () => {
-      //await getMatchIds("upcoming");
       await getMatchIds("recent", calls);
+      timeDelay(150000);
       const completedMatches = await matchIDModel.find({
         date: new Date(yestdate).toISOString().slice(0, 10),
         matchState: /complete/gi,
@@ -85,7 +87,7 @@ connectDB().then(async () => {
       });
       console.log(upcoming);
       const upcoming = await matchIDModel({
-        date: new Date().toISOString().slice(0, 10),
+        date: date,
         matchState: /upcoming|preview/gi,
       });
       upcoming.forEach(async (match) => {
@@ -96,6 +98,28 @@ connectDB().then(async () => {
     const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
     //find the day`s cricket matchs and save their match Ids to the DB
     console.log(new Date().toISOString().slice(0, 10));
+    cron.schedule(`20 20,11 * * *`, async () => {
+      const cricHeadlines = require("./models/cricHeadlines");
+      const headlines = await cricHeadlines.find({
+        date: date,
+      });
+
+      let news = [`*News Snippets*  \n`];
+      await headlines.forEach(async (story) => {
+        const context = story.context;
+        const hline = story.hline;
+        const intro = story.intro;
+        const storyType = story.storyType;
+        const source = story.source;
+        const storyId = story.id;
+        news.push(`*Context* :${context}\n*Headline* :${hline}\n${intro}\n\n`);
+      });
+
+      client
+        .sendMessage(liveCricket1, news.join("\n"))
+        .then(() => console.log("message sent"));
+      console.log("headlines");
+    });
     cron.schedule(`30 3 * * *`, async () => {
       await getMatchIds("upcoming", calls);
 
