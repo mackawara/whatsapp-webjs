@@ -57,7 +57,7 @@ const getCommentary = async (matchId, calls) => {
       response.commentaryList.forEach((comment) => {
         const overNumber = comment.overNumber ? comment.overNumber + ":" : "";
 
-        const batttingTeam = comment.batTeamName;
+        const battingTeam = comment.batTeamName;
 
         let commText = `${overNumber}${comment.commText}`;
 
@@ -70,7 +70,7 @@ const getCommentary = async (matchId, calls) => {
         commentary.push(commText);
         if (comment.overSeparator) {
           const ovrSrt = comment.overSeparator;
-          const miniScoreCard = `*End of over ${comment.overNumber}* Innings of ${batttingTeam} ${ovrSrt.score}-${ovrSrt.wickets}Batsmen :${ovrSrt.batStrikerNames[0]} ${ovrSrt.batStrikerRuns} runs off ${ovrSrt.batStrikerBalls} balls ,${ovrSrt.batNonStrikerNames[0]} ${ovrSrt.batNonStrikerRuns}runs off ${ovrSrt.batNonStrikerBalls} balls\n Bowler :${ovrSrt.bowlNames[0]} ${ovrSrt.bowlOvers} overs ${ovrSrt.bowlMaidens} Maidens ${ovrSrt.bowlRuns} runs ${ovrSrt.bowlWickets} wkts`;
+          const miniScoreCard = `*End of over ${comment.overNumber}* Innings of ${battingTeam} ${ovrSrt.score}-${ovrSrt.wickets}Batsmen :${ovrSrt.batStrikerNames[0]} ${ovrSrt.batStrikerRuns} runs off ${ovrSrt.batStrikerBalls} balls ,${ovrSrt.batNonStrikerNames[0]} ${ovrSrt.batNonStrikerRuns}runs off ${ovrSrt.batNonStrikerBalls} balls\n Bowler :${ovrSrt.bowlNames[0]} ${ovrSrt.bowlOvers} overs ${ovrSrt.bowlMaidens} Maidens ${ovrSrt.bowlRuns} runs ${ovrSrt.bowlWickets} wkts`;
           commentary.push(miniScoreCard);
         }
       });

@@ -62,9 +62,6 @@ connectDB().then(async () => {
     client.setDisplayName("Live Sport Scores,news, articles");
     // cron.schedule(`* * * * *`, async () => {
 
-    //});
-    const hwangeClubCricket = process.env.HWANGECLUBDELACRICKET;
-    const liveSoccer1 = process.env.LIVESOCCER1;
     const liveCricket1 = "120363110873098533@g.us";
     const getMatchIds = require("./config/helperFunction/getMatchIds");
     const getCricketHeadlines = require("./config/helperFunction/getCricketHeadlines");
@@ -73,6 +70,11 @@ connectDB().then(async () => {
     let calls = 0;
     const date = new Date();
     yestdate = date.setDate(date.getDate() - 1);
+    cron.schedule("15 3,11 * * *", async () => {
+      getCricketHeadlines();
+      getMatchIds("upcoming", calls);
+      getMatchIds("complete", calls);
+    });
     cron.schedule("15 3 * * *", async () => {
       await getMatchIds("recent", calls);
       timeDelay(150000);
@@ -97,14 +99,13 @@ connectDB().then(async () => {
     });
     const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
     //find the day`s cricket matchs and save their match Ids to the DB
-
     cron.schedule(
+      getCricketHeadlines();
       `30
      20,12 * * *`,
       async () => {
         const cricHeadlines = require("./models/cricHeadlines");
-        getCricketHeadlines();
-        await timeDelay(30000);
+
         const headlines = await cricHeadlines.find({
           date: new Date().toISOString().slice(0, 10),
         });
@@ -123,14 +124,12 @@ connectDB().then(async () => {
         }
       }
     );
-    cron.schedule(`30 3 * * *`, async () => {
-      await getMatchIds("upcoming", calls);
-
+    cron.schedule(`35 2 * * *`, async () => {
       //at 215am everyday get the international and Ipl matches for the day and put them in an array
       await matchIDModel
         .find({
           date: new Date().toISOString().slice(0, 10),
-          matchState: /upcoming/gi,
+
           //matchType: /league|ODI|test|T20i/gi,
         })
         .exec()
@@ -138,9 +137,7 @@ connectDB().then(async () => {
           console.log(matchesToday);
           matchesToday.forEach(async (match) => {
             console.log("upcoming matches");
-            // const commentary = await getCommentary(match.matchID);
-            //   client.sendMessage(`263775231426@c.us`, commentary);
-            // console.log(/upcoming/gi.test(match.matchState));
+
             const hours = new Date(parseInt(match.unixTimeStamp)).getHours(),
               minutes = new Date(parseInt(match.unixTimeStamp)).getMinutes();
             console.log(hours);
