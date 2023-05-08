@@ -5,6 +5,7 @@ const queryAndSave = require("./queryAndSave");
 
 const getCricketHeadlines = async () => {
   console.log("cricket headlines");
+
   const cricHeadlinesModel = require("../../models/cricHeadlines");
   const options = {
     method: "GET",
@@ -14,7 +15,6 @@ const getCricketHeadlines = async () => {
       "X-RapidAPI-Host": process.env.RAPIDAPIHOST,
     },
   };
-  console.log("proceesssing");
 
   const response = await axios.request(options).catch((err) => {
     console.log(err);
@@ -33,9 +33,7 @@ const getCricketHeadlines = async () => {
       const storyType = story.story.storyType;
       const source = story.story.source;
       const storyId = story.story.id;
-      news.push(
-        `*Context* :${context} :${storyType}\n*Headline* :${hline}\n${intro}\nSource:${source}\n\n`
-      );
+
       const newsStory = new cricHeadlinesModel({
         context: context,
         storyId: storyId,
@@ -48,10 +46,11 @@ const getCricketHeadlines = async () => {
           .toISOString()
           .slice(0, 10),
       });
+      console.log(
+        new Date(parseInt(story.story.pubTime)).toISOString().slice(0, 10)
+      );
       queryAndSave(cricHeadlinesModel, newsStory, "storyId", storyId);
     }
   });
-
-  return news.join("\n");
 };
 module.exports = getCricketHeadlines;

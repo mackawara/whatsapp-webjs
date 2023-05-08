@@ -71,7 +71,7 @@ connectDB().then(async () => {
     //console.log(await getCricketHeadlines());
     // get the latest updates
     let calls = 0;
-    const date = new Date().toISOString().slice(0, 10);
+    const date = new Date();
     yestdate = date.setDate(date.getDate() - 1);
     cron.schedule("15 3 * * *", async () => {
       await getMatchIds("recent", calls);
@@ -97,29 +97,32 @@ connectDB().then(async () => {
     });
     const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
     //find the day`s cricket matchs and save their match Ids to the DB
-    console.log(new Date().toISOString().slice(0, 10));
-    cron.schedule(`20 20,11 * * *`, async () => {
-      const cricHeadlines = require("./models/cricHeadlines");
-      const headlines = await cricHeadlines.find({
-        date: date,
-      });
+    
+    cron.schedule(
+      `30
+     20,12 * * *`,
+      async () => {
+        const cricHeadlines = require("./models/cricHeadlines");
+        getCricketHeadlines();
+        await timeDelay(30000);
+        const headlines = await cricHeadlines.find({
+          date: new Date().toISOString().slice(0, 10),
+        });
+        console.log(headlines);
+        let news = [`*News Snippets*  \n`];
+        await headlines.forEach(async (story) => {
+          const hline = story.hline;
+          const intro = story.intro;
 
-      let news = [`*News Snippets*  \n`];
-      await headlines.forEach(async (story) => {
-        const context = story.context;
-        const hline = story.hline;
-        const intro = story.intro;
-        const storyType = story.storyType;
-        const source = story.source;
-        const storyId = story.id;
-        news.push(`*Context* :${context}\n*Headline* :${hline}\n${intro}\n\n`);
-      });
-
-      client
-        .sendMessage(liveCricket1, news.join("\n"))
-        .then(() => console.log("message sent"));
-      console.log("headlines");
-    });
+          news.push(`*{context}*\n*Headline* :${hline}\n${intro}\n\n`);
+        });
+        if (news.length > 0) {
+          client
+            .sendMessage(`263775231426@c.us`, news.join("\n"))
+            .then(() => console.log("message sent"));
+        }
+      }
+    );
     cron.schedule(`30 3 * * *`, async () => {
       await getMatchIds("upcoming", calls);
 
