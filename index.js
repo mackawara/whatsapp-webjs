@@ -226,7 +226,7 @@ connectDB().then(async () => {
       });
     };
 
-    cron.schedule(`30 9,13,15,18 * * *`, async () => {
+    cron.schedule(`30 6,12,17 * * *`, async () => {
       let randomAdvert = () =>
         advertMessages[Math.floor(Math.random() * advertMessages.length)];
 
