@@ -110,7 +110,7 @@ connectDB().then(async () => {
     });
     cron.schedule(
       `0
-      11,23 * * *`,
+      9,19 * * *`,
       async () => {
         const cricHeadlines = require("./models/cricHeadlines");
 
@@ -123,7 +123,7 @@ connectDB().then(async () => {
           const hline = story.hline;
           const intro = story.intro;
 
-          news.push(`*{context}*\n*Headline* :${hline}\n${intro}\n\n`);
+          news.push(`*${context}*\n*Headline* :${hline}\n${intro}\n\n`);
         });
         if (news.length > 0) {
           client
