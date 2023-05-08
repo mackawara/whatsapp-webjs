@@ -38,9 +38,11 @@ const getMatchIds = async (type, calls) => {
                 matches.forEach(async (match) => {
                   const matchInfo = match.matchInfo;
                   const matchState = matchInfo.state;
+                  const matchStatus = matchInfo.status;
                   const seriesName = matchInfo.seriesName;
                   const matchID = matchInfo.matchId;
                   const matchFormat = matchInfo.matchFormat;
+                  console.log(matchState, matchStatus, matchInfo);
                   const date = new Date(parseInt(matchInfo.startDate))
                     .toISOString()
                     .slice(0, 10);
@@ -66,7 +68,7 @@ const getMatchIds = async (type, calls) => {
                   const result = await matchIdModel
                     .find({ matchID: matchID })
                     .exec();
-
+                  // check if match is already saved
                   if (result.length > 0) {
                     try {
                       result.forEach(async (match) => {
@@ -77,17 +79,23 @@ const getMatchIds = async (type, calls) => {
                           unixTimeStamp: matchInfo.startDate,
                           startingTime: startTime,
                           seriesName: seriesName,
-                          matchState: matchInfo.state,
+                          matchState: matchState,
                           matchType: matchInfo.matchFormat,
-                          matchStatus: matchInfo.status,
+                          matchStatus: matchStatus,
                         });
-                        match.save();
+                        await matchModel
+                          .save()
+                          .then(() => console.log("new match saved"))
+                          .catch((err) => console.log(err));
                       });
                     } catch (error) {
                       console.error(error);
                     }
                   } else {
-                    console.log("item saved already");
+                    await matchModel
+                      .save()
+                      .then(() => console.log("new match saved"))
+                      .catch((err) => console.log(err));
                   }
                 });
               } else {

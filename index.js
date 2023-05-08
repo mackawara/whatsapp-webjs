@@ -10,7 +10,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      //executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -127,9 +127,12 @@ connectDB().then(async () => {
         .then(() => console.log("message sent"));
       console.log("headlines");
     });
-    cron.schedule(`30 3 * * *`, async () => {
+    cron.schedule(`11 13 * * *`, async () => {
       await getMatchIds("upcoming", calls);
+      await getMatchIds("live", calls);
+      console.log(new Date().toISOString().slice(0, 10));
       await timeDelay(140000);
+
       await matchIDModel
         .find({
           date: new Date().toISOString().slice(0, 10),
@@ -144,6 +147,7 @@ connectDB().then(async () => {
               month = new Date(parseInt(match.unixTimeStamp)).getMonth() + 1;
             // send live update for each game every 25 minutes
             cron.schedule(`${minutes} ${hours} ${day} ${month} *`, async () => {
+              console.log(minutes, hours, day, month);
               do {
                 //send message prefixed with group invite
                 const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
