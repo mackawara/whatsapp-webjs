@@ -97,7 +97,7 @@ connectDB().then(async () => {
     });
     const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
     //find the day`s cricket matchs and save their match Ids to the DB
-    
+
     cron.schedule(
       `30
      20,12 * * *`,
@@ -118,7 +118,7 @@ connectDB().then(async () => {
         });
         if (news.length > 0) {
           client
-            .sendMessage(`263775231426@c.us`, news.join("\n"))
+            .sendMessage(liveCricket1, news.join("\n"))
             .then(() => console.log("message sent"));
         }
       }
