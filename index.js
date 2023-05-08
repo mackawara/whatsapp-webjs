@@ -10,7 +10,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      //executablePath: "/usr/bin/chromium-browser",
+      executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -127,7 +127,7 @@ connectDB().then(async () => {
         .then(() => console.log("message sent"));
       console.log("headlines");
     });
-    cron.schedule(`11 13 * * *`, async () => {
+    cron.schedule(`30 13 * * *`, async () => {
       await getMatchIds("upcoming", calls);
       await getMatchIds("live", calls);
       console.log(new Date().toISOString().slice(0, 10));
