@@ -10,7 +10,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      // executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -76,8 +76,8 @@ connectDB().then(async () => {
     const yestdate = date.setDate(date.getDate() - 1);
     const today = new Date().toISOString().slice(0, 10);
     const yesterday = new Date(yestdate).toISOString().slice(0, 10);
-    console.log(today, yesterday);
-    cron.schedule("15 3 * * *", async () => {
+
+    /* cron.schedule("15 3 * * *", async () => {
       await getMatchIds("recent", calls);
       timeDelay(150000);
       const completedMatches = await matchIDModel.find({
@@ -101,38 +101,39 @@ connectDB().then(async () => {
         const commentary = await getCommentary(match.matchID, calls);
         client.sendMessage(liveCricket1, commentary);
       });
-    });
+    }); */
 
-    console.log(calls);
     //find the day`s cricket matchs and save their match Ids to the DB
-    console.log(new Date().toISOString().slice(0, 10));
-    cron.schedule(`30 20,10 * * *`, async () => {
-      //await getCricketHeadlines();
-      //  await timeDelay(18000);
-      const cricHeadlines = require("./models/cricHeadlines");
-      const headlines = await cricHeadlines.find({
-        date: today,
-      });
-      console.log(headlines);
-      let news = [`*News Snippets*  \n`];
-      await headlines.forEach(async (story) => {
-        const context = story.context;
-        const hline = story.hline;
-        const intro = story.intro;
-        news.push(`*Context* :${context}\n*Headline* :${hline}\n${intro}\n\n`);
-      });
-
-      client
-        .sendMessage(liveCricket1, news.join("\n"))
-        .then(() => console.log("message sent"));
-      console.log("headlines");
+    cron.schedule(`45 10,22 * * *`, async () => {
+      getCricketHeadlines();
+      // getMatchIds("upcoming",calls)
     });
-    cron.schedule(`30 13 * * *`, async () => {
-      await getMatchIds("upcoming", calls);
-      await getMatchIds("live", calls);
-      console.log(new Date().toISOString().slice(0, 10));
-      await timeDelay(140000);
+    cron.schedule(
+      `0
+      11,23 * * *`,
+      async () => {
+        const cricHeadlines = require("./models/cricHeadlines");
 
+        const headlines = await cricHeadlines.find({
+          date: today,
+        });
+        console.log(headlines);
+        let news = [`*News Snippets*  \n`];
+        await headlines.forEach(async (story) => {
+          const hline = story.hline;
+          const intro = story.intro;
+
+          news.push(`*{context}*\n*Headline* :${hline}\n${intro}\n\n`);
+        });
+        if (news.length > 0) {
+          client
+            .sendMessage(liveCricket1, news.join("\n"))
+            .then(() => console.log("message sent"));
+        }
+      }
+    );
+
+    cron.schedule(`30 2 * * *`, async () => {
       await matchIDModel
         .find({
           date: new Date().toISOString().slice(0, 10),
@@ -146,56 +147,37 @@ connectDB().then(async () => {
               day = new Date(parseInt(match.unixTimeStamp)).getDay(),
               month = new Date(parseInt(match.unixTimeStamp)).getMonth() + 1;
             // send live update for each game every 25 minutes
+            client.sendMessage(
+              `263775231426@c.us`,
+              `match ${match.fixture} scheduled to run at ${hours}:${minutes}`
+            );
             cron.schedule(`${minutes} ${hours} ${day} ${month} *`, async () => {
-              console.log(minutes, hours, day, month);
-              do {
-                //send message prefixed with group invite
-                const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
-                let commentary = await getCommentary(match.matchID, calls);
-                const message = [cricketGroupInvite, commentary];
-                if (/not available/gi.test(commentary)) {
-                  break;
-                } else if (/scorecard only/gi.test(commentary)) {
-                  const index = await commentary.indexOf(/scorecard/gi);
-                  commentary = commentary.slice(0, index);
-                  client.sendMessage(liveCricket1, commentary);
-                  await timeDelay(2400000);
-                } else {
-                  client.sendMessage(liveCricket1, message.join("\n"));
-                  //updates at 25 minutes intervals
-                  await timeDelay(1500000);
-                }
-              } while (
-                !/Complete/gi.test(await getCommentary(match.matchID, calls))
-              );
+              let commentary = await getCommentary(match.matchID, calls);
+              if (!/not available/gi.test(commentary)) {
+                do {
+                  //send message prefixed with group invite
+                  const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
+                  const message = [cricketGroupInvite, commentary];
+
+                  if (/scorecard only/gi.test(commentary)) {
+                    const index = await commentary.indexOf(/scorecard/gi);
+                    commentary = commentary.slice(0, index);
+                    client.sendMessage(liveCricket1, commentary);
+                    await timeDelay(2400000);
+                  } else {
+                    client.sendMessage(liveCricket1, message.join("\n"));
+                    //updates at 25 minutes intervals
+                    await timeDelay(1500000);
+                  }
+                } while (
+                  !/Complete/gi.test(await getCommentary(match.matchID, calls))
+                );
+                client.sendMessage(liveCricket1, message.join("\n"));
+              }
             });
             //run at least once //if comms test returns true
           });
         });
-      cron.schedule(`${minutes} ${hours} ${day} ${month} *`, async () => {
-        do {
-          //send message prefixed with group invite
-          const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
-          let commentary = await getCommentary(match.matchID, calls);
-          const message = [cricketGroupInvite, commentary];
-          if (/not available/gi.test(commentary)) {
-            break;
-          } else if (/scorecard only/gi.test(commentary)) {
-            const index = await commentary.indexOf(/scorecard/gi);
-            commentary = commentary.slice(0, index);
-            client.sendMessage(liveCricket1, commentary);
-            await timeDelay(2400000);
-          } else {
-            client.sendMessage(liveCricket1, message.join("\n"));
-            //updates at 25 minutes intervals
-            await timeDelay(1500000);
-          }
-        } while (!/Complete/gi.test(await getCommentary(match.matchID, calls)));
-        client.sendMessage(
-          liveCricket1,
-          await getCommentary(match.matchID, calls)
-        );
-      });
     });
 
     //collect media adverts and send
