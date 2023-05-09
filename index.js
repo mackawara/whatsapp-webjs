@@ -104,18 +104,18 @@ connectDB().then(async () => {
     }); */
 
     //find the day`s cricket matchs and save their match Ids to the DB
-    cron.schedule(`45 10,22 * * *`, async () => {
+    cron.schedule(`45 9,21 * * *`, async () => {
       getCricketHeadlines();
       // getMatchIds("upcoming",calls)
     });
     cron.schedule(
       `0
-      9,19 * * *`,
+      10,22 * * *`,
       async () => {
         const cricHeadlines = require("./models/cricHeadlines");
 
         const headlines = await cricHeadlines.find({
-          date: today,
+          date: new Date().toISOString().slice(0, 10),
         });
         console.log(headlines);
         let news = [`*News Snippets*  \n`];
@@ -133,7 +133,8 @@ connectDB().then(async () => {
       }
     );
 
-    cron.schedule(`30 2 * * *`, async () => {
+    cron.schedule(`30 13 * * * `, async () => {
+      console.log("cron running");
       await matchIDModel
         .find({
           date: new Date().toISOString().slice(0, 10),
@@ -146,14 +147,16 @@ connectDB().then(async () => {
               minutes = new Date(parseInt(match.unixTimeStamp)).getMinutes(),
               day = new Date(parseInt(match.unixTimeStamp)).getDay(),
               month = new Date(parseInt(match.unixTimeStamp)).getMonth() + 1;
+            console.log(minutes, hours, day, month);
             // send live update for each game every 25 minutes
             client.sendMessage(
               `263775231426@c.us`,
               `match ${match.fixture} scheduled to run at ${hours}:${minutes}`
             );
-            cron.schedule(`${minutes} ${hours} ${day} ${month} *`, async () => {
+            cron.schedule(`${minutes} ${hours} * * *`, async () => {
               let commentary = await getCommentary(match.matchID, calls);
               if (!/not available/gi.test(commentary)) {
+                client.sendMessage(`${match.fixture} not available`);
                 do {
                   //send message prefixed with group invite
                   const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
@@ -226,7 +229,7 @@ connectDB().then(async () => {
       });
     };
 
-    cron.schedule(`30 6,12,17 * * *`, async () => {
+    cron.schedule(`30 6,14,17 * * *`, async () => {
       let randomAdvert = () =>
         advertMessages[Math.floor(Math.random() * advertMessages.length)];
 
