@@ -133,7 +133,7 @@ connectDB().then(async () => {
       }
     );
 
-    cron.schedule(`16 16 * * * `, async () => {
+    cron.schedule(`28 16 * * * `, async () => {
       console.log("cron running");
       await matchIDModel
         .find({
@@ -153,7 +153,7 @@ connectDB().then(async () => {
               `263775231426@c.us`,
               `match ${match.fixture} scheduled to run at ${hours}:${minutes}`
             );
-            cron.schedule(`${minutes},20 ${hours} * * *`, async () => {
+            cron.schedule(`30 ${hours} * * *`, async () => {
               let commentary = await getCommentary(match.matchID, calls);
               if (!/not available/gi.test(commentary)) {
                 client.sendMessage(`${match.fixture} not available`);
