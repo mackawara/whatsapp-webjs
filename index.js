@@ -133,7 +133,7 @@ connectDB().then(async () => {
       }
     );
 
-    cron.schedule(`28 16 * * * `, async () => {
+    cron.schedule(`36 14 * * * `, async () => {
       console.log("cron running");
       await matchIDModel
         .find({
