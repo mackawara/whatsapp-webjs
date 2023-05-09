@@ -133,7 +133,7 @@ connectDB().then(async () => {
       }
     );
 
-    cron.schedule(`30 13 * * * `, async () => {
+    cron.schedule(`12 16 * * * `, async () => {
       console.log("cron running");
       await matchIDModel
         .find({
@@ -157,6 +157,7 @@ connectDB().then(async () => {
               let commentary = await getCommentary(match.matchID, calls);
               if (!/not available/gi.test(commentary)) {
                 client.sendMessage(`${match.fixture} not available`);
+              } else {
                 do {
                   //send message prefixed with group invite
                   const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
