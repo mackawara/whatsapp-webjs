@@ -140,7 +140,7 @@ connectDB().then(async () => {
       }
     });
 
-    cron.schedule(`33 11 * * * `, async () => {
+    cron.schedule(`50 14 * * * `, async () => {
       console.log("cron running");
       await matchIDModel
         .find({
@@ -160,7 +160,7 @@ connectDB().then(async () => {
               `263775231426@c.us`,
               `match ${match.fixture} scheduled to run at ${hours}:${minutes}`
             );
-            cron.schedule(`${minutes} ${hours} * * *`, async () => {
+            cron.schedule(`51 14 * * *`, async () => {
               console.log("secondary running");
               let commentary = await getCommentary(match.matchID, calls);
               if (/not available/gi.test(commentary)) {
@@ -174,7 +174,6 @@ connectDB().then(async () => {
                   console.log("do while loop");
                   //send message prefixed with group invite
                   const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
-                  const message = [cricketGroupInvite, commentary];
 
                   if (/scorecard only/gi.test(commentary)) {
                     const index = await commentary.indexOf(/scorecard/gi);
@@ -182,6 +181,8 @@ connectDB().then(async () => {
                     client.sendMessage(liveCricket1, commentary);
                     await timeDelay(2400000);
                   } else {
+                    const update = await getCommentary(match.matchID, calls);
+                    const message = [cricketGroupInvite, update];
                     client.sendMessage(liveCricket1, message.join("\n"));
                     //updates at 25 minutes intervals
                     await timeDelay(1500000);
