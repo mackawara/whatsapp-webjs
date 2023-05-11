@@ -1,5 +1,21 @@
 const advertMessages = [
-  "What is your excuse? Still using a Hard Disk Drive (HDD) In 2023??\nAre your files not worth anything to you??\nSSDs are cheaper 3x faster and more durable.Call us and get yours *starting from $35* (including free intallaton of OS and migration of files)",
+  `*Introducing the SSD: The Hard Drive's Cooler, Faster, More Efficient Cousin*\n
+  Hard drives are so last year. They're slow, they're loud, and they take up a lot of space. If you're still using a hard drive, you're missing out on all the benefits of SSDs.
+  
+  SSDs are faster than hard drives by a mile. They can boot up your computer in seconds, load applications in a fraction of the time, and make your games run smoother than ever before.
+  
+  SSDs are also quieter than hard drives. They don't have any moving parts, so they don't make any noise when you're using them.
+  
+  And SSDs are more efficient than hard drives. They use less power, so they can help you save money on your energy bill.
+  
+  So if you're looking for a faster, quieter, and more efficient way to store your data, it's time to switch to an SSD.
+  
+  Here are some more reasons why you should switch to an SSD:
+  
+  SSDs are more durable than hard drives. They don't have any moving parts, so they're less likely to break.
+  SSDs are more resistant to shock and vibration. This makes them a good choice for laptops and other portable devices.
+  SSDs are more secure than hard drives. They use encryption to protect your data from unauthorized access.
+  Get yourself an SSD , starting from $35-00 , Call/whatsapp 0775231426. Visit our our shop , \nFirst shop, TM shops ( upstairs from TM)`,
   "*Toner powder,\nRefill ink,\nToner cartridge reset chip,\nImaging drum,\nMagnetic Drum*\nAll available at Venta Tech, Shop1 TM mall( Shops upstairs from TM), entrance is between between Post office and TM (behind new Banc ABC)",
   "*$6 32GB $8 64GB* Original Kingston data traveller flash drive \n Call/Whatsapp 0775231426/0812821641",
   "*Toner cartridges,Ink Cartridges, Master and ink for heavy duty copiers* , \n Venta tech are the premier suppliers of all printer consumables. *Contact us*  for all major brands of printers, HP , Kyocera, Nashua, Lexmark, Canon , Samsung i.e. *Also available* refill toner powder,cartridges, master & ink for copiers are available. Call or whatsapp *0775231426* or visit our shop at TM Pick n Pay Mall ( Shops above TM *Entrance between TM and Post office*) ",
