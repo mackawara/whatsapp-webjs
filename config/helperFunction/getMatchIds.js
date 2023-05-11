@@ -1,6 +1,6 @@
 const axios = require("axios");
 const timeConverter = require("./timeConverter");
-const matchIdModel = require("../../models/matchIdModel");
+const matchIdmodel = require("../../models/matchIdModel");
 const queryAndSave = require("./queryAndSave");
 const getMatchIds = async (type, calls) => {
   calls = calls + 1;
@@ -25,7 +25,7 @@ const getMatchIds = async (type, calls) => {
         const matchesAll = response.data; //JSON.parse(dummyresult); // array of all matches split by typpe
         const International = /International/gi;
         const League = /League/gi;
-        matchesAll.typeMatches.forEach(async (match) => {
+        matchesAll.typeMatches.forEach((match) => {
           if (
             International.test(match.matchType) ||
             League.test(match.matchType)
@@ -35,14 +35,12 @@ const getMatchIds = async (type, calls) => {
             matchArr.forEach((match) => {
               if (match.seriesAdWrapper) {
                 const matches = match.seriesAdWrapper.matches;
-                matches.forEach(async (match) => {
+                matches.forEach((match) => {
+                  const matchState = match.state;
                   const matchInfo = match.matchInfo;
-                  const matchState = matchInfo.state;
-                  const matchStatus = matchInfo.status;
                   const seriesName = matchInfo.seriesName;
                   const matchID = matchInfo.matchId;
                   const matchFormat = matchInfo.matchFormat;
-                  console.log(matchState, matchStatus, matchInfo);
                   const date = new Date(parseInt(matchInfo.startDate))
                     .toISOString()
                     .slice(0, 10);
@@ -54,49 +52,17 @@ const getMatchIds = async (type, calls) => {
 
                   const item = `${matchFormat} match:${team1} vs ${team2} \nStarting time: ${Date} \nMatchID : ${matchID}`;
 
-                  const matchModel = new matchIdModel({
+                  const matchModel = new matchIdmodel({
                     fixture: `${team1} vs ${team2}`,
                     date: date,
                     matchID: matchID,
                     unixTimeStamp: matchInfo.startDate,
                     startingTime: startTime,
                     seriesName: seriesName,
-                    matchState: matchState,
+                    matchState: matchInfo.state,
                     matchType: matchInfo.matchFormat,
-                    matchStatus: matchInfo.status,
                   });
-                  const result = await matchIdModel
-                    .find({ matchID: matchID })
-                    .exec();
-                  // check if match is already saved
-                  if (result.length > 0) {
-                    try {
-                      result.forEach(async (match) => {
-                        await match.overwrite({
-                          fixture: `${team1} vs ${team2}`,
-                          date: date,
-                          matchID: matchID,
-                          unixTimeStamp: matchInfo.startDate,
-                          startingTime: startTime,
-                          seriesName: seriesName,
-                          matchState: matchState,
-                          matchType: matchInfo.matchFormat,
-                          matchStatus: matchStatus,
-                        });
-                        await matchModel
-                          .save()
-                          .then(() => console.log("new match saved"))
-                          .catch((err) => console.log(err));
-                      });
-                    } catch (error) {
-                      console.error(error);
-                    }
-                  } else {
-                    await matchModel
-                      .save()
-                      .then(() => console.log("new match saved"))
-                      .catch((err) => console.log(err));
-                  }
+                  queryAndSave(matchIdmodel, matchModel, "matchID", matchID); // checks if there is existing
                 });
               } else {
                 console.log("NO MATCHES FOUND");
