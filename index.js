@@ -68,6 +68,7 @@ connectDB().then(async () => {
     const liveSoccer1 = process.env.LIVESOCCER1;
     const liveCricket1 = "120363110873098533@g.us";
     const getMatchIds = require("./config/helperFunction/getMatchIds");
+    const getCommentary = require("./config/helperFunction/getCricComm");
     const getCricketHeadlines = require("./config/helperFunction/getCricketHeadlines");
     //console.log(await getCricketHeadlines());
     // get the latest updates
@@ -104,36 +105,42 @@ connectDB().then(async () => {
     }); */
 
     //find the day`s cricket matchs and save their match Ids to the DB
-    cron.schedule(`45 9,21 * * *`, async () => {
-      getCricketHeadlines();
-      // getMatchIds("upcoming",calls)
+    cron.schedule(`30 11 * * *`, async () => {
+      getMatchIds("upcoming", calls);
     });
-    cron.schedule(
-      `0
-      10,22 * * *`,
-      async () => {
-        const cricHeadlines = require("./models/cricHeadlines");
+    cron.schedule(`30 11,15,22 * * *`, async () => {
+      getCricketHeadlines();
+    });
 
-        const headlines = await cricHeadlines.find({
-          date: new Date().toISOString().slice(0, 10),
-        });
-        console.log(headlines);
-        let news = [`*News Snippets*  \n`];
-        await headlines.forEach(async (story) => {
-          const hline = story.hline;
-          const intro = story.intro;
+    cron.schedule(`33 11,15,22 * * *`, async () => {
+      const cricHeadlines = require("./models/cricHeadlines");
+      console.log("headlines");
 
-          news.push(`*${context}*\n*Headline* :${hline}\n${intro}\n\n`);
-        });
-        if (news.length > 0) {
-          client
-            .sendMessage(liveCricket1, news.join("\n"))
-            .then(() => console.log("message sent"));
-        }
+      const headlines = await cricHeadlines.find({});
+      console.log(headlines);
+      const compareTimestamps = (a, b) => {
+        return b.unixTimeStamp - a.unixTimeStamp;
+      };
+      headlines.sort(compareTimestamps).slice(0, 6);
+      console.log(headlines);
+      let news = [`*News Snippets*  \n`];
+      await headlines.forEach(async (story) => {
+        const hline = story.hline;
+        const intro = story.intro;
+        const context = story.context;
+
+        news.push(`*${context}*\n*Headline* :${hline}\n${intro}\n\n`);
+      });
+      if (news.length > 2) {
+        client
+          .sendMessage(liveCricket1, news.join("\n"))
+          .then(() => console.log("message sent"));
+      } else {
+        client.sendMessage(`263775231426@c.us`, "news is blank");
       }
-    );
+    });
 
-    cron.schedule(`36 14 * * * `, async () => {
+    cron.schedule(`33 11 * * * `, async () => {
       console.log("cron running");
       await matchIDModel
         .find({
@@ -153,12 +160,18 @@ connectDB().then(async () => {
               `263775231426@c.us`,
               `match ${match.fixture} scheduled to run at ${hours}:${minutes}`
             );
-            cron.schedule(`39 ${hours} * * *`, async () => {
+            cron.schedule(`${minutes} ${hours} * * *`, async () => {
+              console.log("secondary running");
               let commentary = await getCommentary(match.matchID, calls);
-              if (!/not available/gi.test(commentary)) {
-                client.sendMessage(`${match.fixture} not available`);
+              if (/not available/gi.test(commentary)) {
+                console.log(commentary);
+                client.sendMessage(
+                  `263775231426@c.us`,
+                  `${match.fixture} not available`
+                );
               } else {
                 do {
+                  console.log("do while loop");
                   //send message prefixed with group invite
                   const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
                   const message = [cricketGroupInvite, commentary];
@@ -174,7 +187,9 @@ connectDB().then(async () => {
                     await timeDelay(1500000);
                   }
                 } while (
-                  !/Complete/gi.test(await getCommentary(match.matchID, calls))
+                  !/Complete|No result|scorecard only/gi.test(
+                    await getCommentary(match.matchID, calls)
+                  )
                 );
                 client.sendMessage(liveCricket1, message.join("\n"));
               }
@@ -231,7 +246,7 @@ connectDB().then(async () => {
     };
 
     cron.schedule(`30 6,14,17 * * *`, async () => {
-      let randomAdvert = () =>
+      let randomAdvert =
         advertMessages[Math.floor(Math.random() * advertMessages.length)];
 
       let advertMessages = require("./adverts");
