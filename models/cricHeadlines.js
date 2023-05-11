@@ -26,6 +26,10 @@ const cricketHeadlinesSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  unixTimeStamp: {
+    type: String,
+    required: true,
+  },
 });
 
 const headlinesModel = mongoose.model("cricheadlines", cricketHeadlinesSchema);
