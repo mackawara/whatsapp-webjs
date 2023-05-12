@@ -76,10 +76,7 @@ connectDB().then(async () => {
     const yestdate = date.setDate(date.getDate() - 1);
     const today = new Date().toISOString().slice(0, 10);
     const yesterday = new Date(yestdate).toISOString().slice(0, 10);
-    cron.schedule(
-      `17 6,23 * * *`,
-      async () => await getMatchIds("recent", calls)
-    );
+
     /* 
     cron.schedule("40 10,23 * * *", async () => {
       const results = [];
@@ -112,10 +109,10 @@ connectDB().then(async () => {
 */
     //find the day`s cricket matchs and save their match Ids to the DB
 
-    cron.schedule(`30 11,15,22 * * *`, async () => {
+    cron.schedule(`30 5,11,18 * * *`, async () => {
       getCricketHeadlines();
     });
-    cron.schedule(`33 11,15,22 * * *`, async () => {
+    cron.schedule(`33 6,11,18 * * *`, async () => {
       const cricHeadlines = require("./models/cricHeadlines");
       console.log("headlines");
 
@@ -144,8 +141,9 @@ connectDB().then(async () => {
     });
     cron.schedule(`0 2 * * *`, async () => {
       getMatchIds("upcoming", calls);
+      getMatchIds("recent", calls);
     });
-    cron.schedule(`2 2 * * * `, async () => {
+    cron.schedule(`4 2 * * * `, async () => {
       console.log("cron running");
       await matchIDModel
         .find({
@@ -157,18 +155,20 @@ connectDB().then(async () => {
           matchesToday.forEach(async (match) => {
             const hours = new Date(parseInt(match.unixTimeStamp)).getHours(),
               minutes = new Date(parseInt(match.unixTimeStamp)).getMinutes(),
-              dateS = new Date(parseInt(match.unixTimeStamp)).getDate(),
-              month = new Date(parseInt(match.unixTimeStamp)).getMonth() + 1;
-            console.log(minutes, hours, dateS, month);
+              startDate = new Date(parseInt(match.unixTimeStamp)).getDate(),
+              month = new Date(parseInt(match.unixTimeStamp)).getMonth() + 1,
+              endDate = new Date(parseInt(match.endDateUnix)).getDate();
+
+            console.log(minutes, hours, startDate - endDate, month);
             // send live update for each game every 25 minutes
             client.sendMessage(
               `263775231426@c.us`,
               `match ${match.fixture} scheduled to run at ${hours + 2}:${
                 minutes + 2
-              }`
+              } everyday between ${startDate} and ${endDate}`
             );
             cron.schedule(
-              `${minutes} ${hours} ${dateS} ${month} *`,
+              `${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
                 let commentary = await getCommentary(match.matchID, calls);
@@ -184,25 +184,24 @@ connectDB().then(async () => {
                     //send message prefixed with group invite
                     const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
 
-                    if (/scorecard only/gi.test(commentary)) {
+                    /*  if (/scorecard only/gi.test(commentary)) {
                       const index = await commentary.indexOf(/scorecard/gi);
                       commentary = commentary.slice(0, index);
                       client.sendMessage(liveCricket1, commentary);
                       await timeDelay(2400000);
-                    } else {
-                      const update = await getCommentary(match.matchID, calls);
-                      const message = [cricketGroupInvite, update];
-                      client.sendMessage(liveCricket1, message.join("\n"));
-                      //updates at 25 minutes intervals
-                      await timeDelay(1500000);
-                    }
+                    } else { */
+                    const update = await getCommentary(match.matchID, calls);
+                    const message = [cricketGroupInvite, update];
+                    client.sendMessage(`263775231426@c.us`, message.join("\n"));
+                    //updates at 25 minutes intervals
+                    await timeDelay(1500000);
                   } while (
                     !/Complete|No result|scorecard only/gi.test(
                       await getCommentary(match.matchID, calls)
                     )
                   );
                   client.sendMessage(
-                    liveCricket1,
+                    `263775231426@c.us`,
                     await getCommentary(match.matchID, calls)
                   );
                 }
