@@ -192,7 +192,7 @@ connectDB().then(async () => {
                     } else { */
                     const update = await getCommentary(match.matchID, calls);
                     const message = [cricketGroupInvite, update];
-                    client.sendMessage(`263775231426@c.us`, message.join("\n"));
+                    client.sendMessage(liveCricket1, message.join("\n"));
                     //updates at 25 minutes intervals
                     await timeDelay(1500000);
                   } while (
@@ -201,7 +201,7 @@ connectDB().then(async () => {
                     )
                   );
                   client.sendMessage(
-                    `263775231426@c.us`,
+                    liveCricket1,
                     await getCommentary(match.matchID, calls)
                   );
                 }
