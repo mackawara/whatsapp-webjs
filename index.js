@@ -1,15 +1,17 @@
-const connectDB = require("./config/database");
-
 require("dotenv").config();
+const connectDB = require("./config/database");
+const getScoreCards = require("./config/helperFunction/getScoreCard");
 
 // connect to mongodb before running anything on the app
 connectDB().then(async () => {
+  const score = await getScoreCards(66414);
+  //console.log(score)
   const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
 
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      // executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
