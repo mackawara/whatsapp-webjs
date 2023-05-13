@@ -54,7 +54,7 @@ connectDB().then(async () => {
     clientOn(client, "message");
     clientOn(client, "group-join");
     clientOn(client, "group-leave"); //client
-    client.setDisplayName("Live Scores,news, articles");
+    client.setDisplayName("Your plug for live sport updates");
 
     //Db models
     const matchIDModel = require("./models/matchIdModel");
@@ -66,6 +66,7 @@ connectDB().then(async () => {
     const getMatchIds = require("./config/helperFunction/getMatchIds");
     const getCommentary = require("./config/helperFunction/getCricComm");
     const getCricketHeadlines = require("./config/helperFunction/getCricketHeadlines");
+    const me = `263775231426@c.us`;
     //console.log(await getCricketHeadlines());
     // get the latest updates
     let calls = 0;
@@ -106,7 +107,7 @@ connectDB().then(async () => {
 */
     //find the day`s cricket matchs and save their match Ids to the DB
 
-    cron.schedule(`30 5,11,18 * * *`, async () => {
+    cron.schedule(`30 6,11,18 * * *`, async () => {
       getCricketHeadlines();
     });
     cron.schedule(`33 6,11,18 * * *`, async () => {
@@ -118,7 +119,7 @@ connectDB().then(async () => {
       const compareTimestamps = (a, b) => {
         return b.unixTimeStamp - a.unixTimeStamp;
       };
-      headlines = headlines.sort(compareTimestamps).slice(0, 8);
+      headlines = headlines.sort(compareTimestamps).slice(0, 6);
 
       let news = [`*News Snippets*  \n`];
       await headlines.forEach(async (story) => {
@@ -136,11 +137,13 @@ connectDB().then(async () => {
         client.sendMessage(`263775231426@c.us`, "news is blank");
       }
     });
+    //update the database
     cron.schedule(`0 2 * * *`, async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
-    cron.schedule(`4 2 * * * `, async () => {
+    // Live updates
+    cron.schedule(`32 2, * * * `, async () => {
       console.log("cron running");
       await matchIDModel
         .find({
@@ -236,7 +239,7 @@ connectDB().then(async () => {
     const directoryPath = path.join(__dirname, "assets");
     //passsing directoryPath and callback function
     //read fromm assets folder and send
-    const sendAdMedia = (group) => {
+    const sendAdMedia = async (group) => {
       //creates anarray from the files in assets folder
       fs.readdir(directoryPath, function (err, mediaAdverts) {
         console.log(mediaAdverts);
@@ -255,12 +258,13 @@ connectDB().then(async () => {
         );
       });
     };
-
-    cron.schedule(`45 9,14,17 * * *`, async () => {
+    // runs scheduled updates
+    cron.schedule(`30 9,14,17 * * *`, async () => {
+      console.log("adnow running");
+      let advertMessages = require("./adverts");
       let randomAdvert =
         advertMessages[Math.floor(Math.random() * advertMessages.length)];
-
-      let advertMessages = require("./adverts");
+      console.log(randomAdvert);
       //contacts
       const me = process.env.ME;
       //groups
