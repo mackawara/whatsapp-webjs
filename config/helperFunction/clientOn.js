@@ -1,5 +1,7 @@
-const clientOn = async (client, arg1, arg2) => {
+const clientOn = async (client, arg1, arg2, MessageMedia) => {
+  const fs = require("fs/promises");
   const me = process.env.ME;
+  //const { MessageMedia } = require("whatsapp-web.js");
 
   if (arg1 == "auth_failure") {
     client.on("auth_failure", (msg) => {
@@ -21,14 +23,15 @@ const clientOn = async (client, arg1, arg2) => {
   }
 
   const contactModel = require("../../models/contactsModel");
-  let groupName, grpDescription;
+  // let groupName, grpDescription;
   if (arg1 == "message") {
     client.on(`message`, async (msg) => {
       const chat = await msg.getChat();
       const contact = await msg.getContact();
 
       const msgBody = msg.body;
-      msgBody.split(" ").forEach((word) => {
+
+      msgBody.split(" ").forEach(async (word) => {
         const keywords = {
           businessKeywords: [
             "receipt",
@@ -73,19 +76,25 @@ const clientOn = async (client, arg1, arg2) => {
           );
         }
       });
+      if (/openAi:/gi.test(msgBody)) {
+        console.log("open ai");
+
+        const openAiCall = require("./openai");
+        const prompt = await msgBody.replace(/openAi:/gi, "");
+
+        const response = await openAiCall(prompt);
+        msg.reply(response[0].text);
+      }
+
       //queries chatGPT work in progress
       /* if (msgBody.includes("openAi")) {
         const response = await callOpenAi(msgBody);
         msg.reply(response);
       } */
       if (chat.isGroup) {
-        console.log(chat.name);
-        console.log(chat.id._serialized);
-      //  console.log(chat.getInviteCode())
         //grpOwner = chat.owner.user;
 
         if (/matchid/gi.test(msgBody.replaceAll(" ", ""))) {
-          console.log("matchid receieved");
           // getCommentary()
 
           //get the math they want
@@ -127,10 +136,7 @@ const clientOn = async (client, arg1, arg2) => {
         user,
         `We are sorry to see you leave our group , May you indly share wy you decided to leave`
       ); */
-      client.sendMessage(
-        me,
-        `User ${notification.id.participant} just left  the group`
-      );
+      //client.sendMessage(me,`User ${notification.id.participant} just left  the group`);
     });
   } else if (arg1 == "group-join") {
     client.on("group_join", (notification) => {
@@ -139,8 +145,8 @@ const clientOn = async (client, arg1, arg2) => {
       console.log("join", notification);
       /*  client.sendMessage(
         notification.id.participant,
-        "welcome to ... Here are the group rules for your convenience.... \n"
-      ) */
+        `welcome to ${}}Here are the group rules for your convenience.... \n`
+      )  */
       // notification.reply("User joined.");
     });
   } else if (arg1 == "before" && arg2 == "after") {

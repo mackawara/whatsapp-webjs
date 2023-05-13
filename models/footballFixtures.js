@@ -1,35 +1,22 @@
 const mongoose = require("mongoose");
 
-const matchIdSchema = new mongoose.Schema({
+const fixtureSchema = new mongoose.Schema({
   date: {
     type: String,
-    required: false,
+    required: true,
   },
-  matchState: {
+  venue: {
+    type: String,
+  },
+  leagueId: {
     type: String,
     required: true,
   },
-  /* matchStatus: {
-    type: String,
-    required: ,
-  }, */
-  matchType: {
+  home: {
     type: String,
     required: true,
   },
-  matchID: {
-    type: String,
-    required: true,
-  },
-  startingTime: {
-    type: String,
-    required: true,
-  },
-  seriesName: {
-    type: String,
-    required: true,
-  },
-  unixTimeStamp: {
+  away: {
     type: String,
     required: true,
   },
@@ -37,12 +24,33 @@ const matchIdSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  endDateUnix: {
+  competition: {
+    type: String,
+    required: true,
+  },
+
+  matchStatus: {
+    type: String,
+    required: true,
+  },
+  round: {
+    type: String,
+    required: true,
+  },
+  score: {
+    type: String,
+    required: true,
+  },
+  fixtureID: {
+    type: String,
+    required: true,
+  },
+  time: {
     type: String,
     required: true,
   },
 });
 
-const matchIdModel = mongoose.model("matchId", matchIdSchema);
+const fixtureModel = mongoose.model("fixture", fixtureSchema);
 
-module.exports = matchIdModel;
+module.exports = fixtureModel;

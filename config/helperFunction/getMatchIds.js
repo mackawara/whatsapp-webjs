@@ -2,6 +2,7 @@ const axios = require("axios");
 const timeConverter = require("./timeConverter");
 const matchIdmodel = require("../../models/matchIdModel");
 const queryAndSave = require("./queryAndSave");
+const writeFile = require("./writeFile");
 const getMatchIds = async (type, calls) => {
   calls = calls + 1;
   console.log("there have been " + calls + " call to cricbuz");
@@ -21,6 +22,7 @@ const getMatchIds = async (type, calls) => {
   axios
     .request(options)
     .then(function (response) {
+      writeFile(response.data, "./matchIds.json");
       if (response.data.typeMatches) {
         const matchesAll = response.data; //JSON.parse(dummyresult); // array of all matches split by typpe
         const International = /International/gi;
@@ -44,6 +46,7 @@ const getMatchIds = async (type, calls) => {
                   const date = new Date(parseInt(matchInfo.startDate))
                     .toISOString()
                     .slice(0, 10);
+                  const endDateUnix = matchInfo.endDate;
                   const startTime = timeConverter(
                     parseInt(matchInfo.startDate)
                   )[0];
@@ -57,6 +60,7 @@ const getMatchIds = async (type, calls) => {
                     date: date,
                     matchID: matchID,
                     unixTimeStamp: matchInfo.startDate,
+                    endDateUnix: endDateUnix,
                     startingTime: startTime,
                     seriesName: seriesName,
                     matchState: matchInfo.state,

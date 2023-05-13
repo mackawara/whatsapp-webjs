@@ -42,6 +42,7 @@ const getCricketHeadlines = async () => {
         source: source,
         storyType: storyType,
         source: source,
+        unixTimeStamp: story.story.pubTime,
         date: new Date(parseInt(story.story.pubTime))
           .toISOString()
           .slice(0, 10),
