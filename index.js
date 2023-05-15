@@ -9,7 +9,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      // executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -69,6 +69,7 @@ connectDB().then(async () => {
     const getMatchIds = require("./config/helperFunction/getMatchIds");
     const getCommentary = require("./config/helperFunction/getCricComm");
     const getCricketHeadlines = require("./config/helperFunction/getCricketHeadlines");
+    const checkMatchInfo = require("./config/helperFunction/checkMatchInfo");
     //console.log(await getCricketHeadlines());
     // get the latest updates
     let calls = 0;
@@ -121,7 +122,7 @@ connectDB().then(async () => {
       const compareTimestamps = (a, b) => {
         return b.unixTimeStamp - a.unixTimeStamp;
       };
-      headlines = headlines.sort(compareTimestamps).slice(0, 8);
+      headlines = headlines.sort(compareTimestamps).slice(0, 6);
 
       let news = [`*News Snippets*  \n`];
       await headlines.forEach(async (story) => {
@@ -171,6 +172,7 @@ connectDB().then(async () => {
               `${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
+                let matchStatus = await checkMatchInfo(match.matchID);
                 let commentary = await getCommentary(match.matchID, calls);
                 if (/not available/gi.test(commentary)) {
                   console.log(commentary);
@@ -194,12 +196,9 @@ connectDB().then(async () => {
                     const message = [cricketGroupInvite, update];
                     client.sendMessage(liveCricket1, message.join("\n"));
                     //updates at 25 minutes intervals
-                    await timeDelay(1500000);
-                  } while (
-                    !/Complete|No result|scorecard only/gi.test(
-                      await getCommentary(match.matchID, calls)
-                    )
-                  );
+                    await timeDelay(1800000);
+                  } while (!matchStatus.complete);
+
                   client.sendMessage(
                     liveCricket1,
                     await getCommentary(match.matchID, calls)
