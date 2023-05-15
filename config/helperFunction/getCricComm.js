@@ -62,7 +62,7 @@ const getCommentary = async (matchId, calls) => {
         let commText = `${overNumber}${comment.commText}`;
 
         let boldValue;
-        const bold = /(B[0-9]\$|B1[0-9]\$)/;
+        const bold = /(B[0-9]\$|B1[0-9]\$)/g;
         if (comment.commentaryFormats.bold) {
           boldValue = comment.commentaryFormats.bold.formatValue[0];
           commText = commText.replace(bold, `*${boldValue}*`);
@@ -76,7 +76,7 @@ const getCommentary = async (matchId, calls) => {
       });
     }
 
-    commentary = commentary.slice("0", "9").map((comment) => {
+    commentary = commentary.slice("0", "12").map((comment) => {
       return comment + "\n";
     });
     return commentary.join("\n");
