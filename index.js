@@ -9,7 +9,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      // executablePath: "/usr/bin/chromium-browser",
+      executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -144,7 +144,8 @@ connectDB().then(async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
-    cron.schedule(`4 2 * * * `, async () => {
+
+    cron.schedule(`3 2 * * * `, async () => {
       console.log("cron running");
       await matchIDModel
         .find({
@@ -152,7 +153,7 @@ connectDB().then(async () => {
         })
         .exec()
         .then((matchesToday) => {
-          console.log(matchesToday);
+          console.log("matches on toady" + matchesToday[0].matchID);
           matchesToday.forEach(async (match) => {
             const hours = new Date(parseInt(match.unixTimeStamp)).getHours(),
               minutes = new Date(parseInt(match.unixTimeStamp)).getMinutes(),
@@ -168,12 +169,15 @@ connectDB().then(async () => {
                 minutes + 2
               } everyday between ${startDate} and ${endDate}`
             );
+
             cron.schedule(
               `${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
-                let matchStatus = await checkMatchInfo(match.matchID);
+
                 let commentary = await getCommentary(match.matchID, calls);
+                const complete = await checkMatchInfo(match.matchID);
+                console.log(complete.complete);
                 if (/not available/gi.test(commentary)) {
                   console.log(commentary);
                   client.sendMessage(
@@ -186,18 +190,12 @@ connectDB().then(async () => {
                     //send message prefixed with group invite
                     const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
 
-                    /*  if (/scorecard only/gi.test(commentary)) {
-                      const index = await commentary.indexOf(/scorecard/gi);
-                      commentary = commentary.slice(0, index);
-                      client.sendMessage(liveCricket1, commentary);
-                      await timeDelay(2400000);
-                    } else { */
                     const update = await getCommentary(match.matchID, calls);
                     const message = [cricketGroupInvite, update];
                     client.sendMessage(liveCricket1, message.join("\n"));
                     //updates at 25 minutes intervals
                     await timeDelay(1800000);
-                  } while (!matchStatus.complete);
+                  } while (!complete.complete);
 
                   client.sendMessage(
                     liveCricket1,
