@@ -1,10 +1,10 @@
 require("dotenv").config();
 const connectDB = require("./config/database");
-const getScoreCards = require("./config/helperFunction/getScoreCard");
+const getScoreCard = require("./config/helperFunction/getScoreCard");
 
 // connect to mongodb before running anything on the app
 connectDB().then(async () => {
-  const score = await getScoreCards(66414);
+  const score = await getScoreCard(66414);
   //console.log(score)
   const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
 
@@ -71,6 +71,8 @@ connectDB().then(async () => {
     const me = `263775231426@c.us`;
     //console.log(await getCricketHeadlines());
     // get the latest updates
+
+    client.sendMessage(me, score.Innings1Batting);
     let calls = 0;
     const date = new Date();
     const yestdate = date.setDate(date.getDate() - 1);
@@ -145,7 +147,7 @@ connectDB().then(async () => {
       getMatchIds("recent", calls);
     });
     // Live updates
-    cron.schedule(`32 2, * * * `, async () => {
+    cron.schedule(`32 2 * * * `, async () => {
       console.log("cron running");
       await matchIDModel
         .find({
