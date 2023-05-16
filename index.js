@@ -9,7 +9,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      //executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -145,6 +145,7 @@ connectDB().then(async () => {
       getMatchIds("recent", calls);
     });
 
+   
     cron.schedule(`3 2 * * * `, async () => {
       console.log("cron running");
       await matchIDModel
@@ -192,15 +193,12 @@ connectDB().then(async () => {
 
                     const update = await getCommentary(match.matchID, calls);
                     const message = [cricketGroupInvite, update];
-                    client.sendMessage(liveCricket1, message.join("\n"));
+                    client.sendMessage(`263775231426@c.us`, message.join("\n"));
                     //updates at 25 minutes intervals
                     await timeDelay(1800000);
-                  } while (!complete.complete);
+                  } while (!/Match status Complete/gi.test(commentary));
 
-                  client.sendMessage(
-                    liveCricket1,
-                    await getCommentary(match.matchID, calls)
-                  );
+                  client.sendMessage(liveCricket1, commentary);
                 }
               }
             );
@@ -257,10 +255,10 @@ connectDB().then(async () => {
     };
 
     cron.schedule(`45 9,14,17 * * *`, async () => {
+      let advertMessages = require("./adverts");
       let randomAdvert =
         advertMessages[Math.floor(Math.random() * advertMessages.length)];
 
-      let advertMessages = require("./adverts");
       //contacts
       const me = process.env.ME;
       //groups
