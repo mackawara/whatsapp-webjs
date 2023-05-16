@@ -13,7 +13,7 @@ const checkMatchInfo = async (matchId) => {
   const response = await axios.request(options).catch((error) => {
     console.error(error);
   });
-  console.log(response);
-  return response.matchInfo;
+  //console.log(response.data.matchInfo);
+  return response.data.matchInfo;
 };
 module.exports = checkMatchInfo;
