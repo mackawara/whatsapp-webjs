@@ -22,7 +22,7 @@ const getMatchIds = async (type, calls) => {
   axios
     .request(options)
     .then(function (response) {
-      writeFile(response.data, "./matchIds.json");
+     
       if (response.data.typeMatches) {
         const matchesAll = response.data; //JSON.parse(dummyresult); // array of all matches split by typpe
         const International = /International/gi;
