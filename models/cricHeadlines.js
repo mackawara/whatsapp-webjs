@@ -1,20 +1,28 @@
 const mongoose = require("mongoose");
 
-const matchIdSchema = new mongoose.Schema({
-  date: {
+const cricketHeadlinesSchema = new mongoose.Schema({
+  context: {
     type: String,
     required: false,
   },
+  storyId: {
+    type: String,
+    required: true,
+  },
 
-  matchID: {
+  hline: {
     type: String,
     required: true,
   },
-  startingTime: {
+  intro: {
     type: String,
     required: true,
   },
-  seriesName: {
+  source: {
+    type: String,
+    required: true,
+  },
+  date: {
     type: String,
     required: true,
   },
@@ -22,12 +30,8 @@ const matchIdSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  fixture: {
-    type: String,
-    required: true,
-  },
 });
 
-const matchIdModel = mongoose.model("matchId", matchIdSchema);
+const headlinesModel = mongoose.model("cricheadlines", cricketHeadlinesSchema);
 
-module.exports = matchIdModel;
+module.exports = headlinesModel;

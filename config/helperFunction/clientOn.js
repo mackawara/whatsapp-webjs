@@ -1,9 +1,8 @@
-const me = process.env.ME;
-const getCommentary = require("../getCommentary");
-const callOpenAi = require("../openai");
-const keywords = require("../../keywords");
+const clientOn = async (client, arg1, arg2, MessageMedia) => {
+  const fs = require("fs/promises");
+  const me = process.env.ME;
+  //const { MessageMedia } = require("whatsapp-web.js");
 
-const clientOn = async (client, arg1, arg2) => {
   if (arg1 == "auth_failure") {
     client.on("auth_failure", (msg) => {
       // Fired if session restore was unsuccessful
@@ -24,37 +23,78 @@ const clientOn = async (client, arg1, arg2) => {
   }
 
   const contactModel = require("../../models/contactsModel");
-  let groupName, grpDescription;
+  // let groupName, grpDescription;
   if (arg1 == "message") {
     client.on(`message`, async (msg) => {
       const chat = await msg.getChat();
       const contact = await msg.getContact();
-      const contactVName = contact.verifiedName;
-      const contactNumber = contact.number;
-      const serialisedNumber = contact.id._serialised;
+
       const msgBody = msg.body;
-      msgBody.split(" ").forEach((word) => {
+
+      msgBody.split(" ").forEach(async (word) => {
+        const keywords = {
+          businessKeywords: [
+            "receipt",
+            "invoice books",
+            "cartridges",
+            "toner",
+            "catridge",
+            "ink cartridge",
+            "printer cartridge",
+            "CCTV",
+            "camera",
+            "internet",
+            "Hp cartridge",
+            "kyocera",
+            "computer repairs",
+            "photo shoot",
+            "hard drives",
+            "RAM",
+            "laptops",
+            "computer",
+            "cricket",
+          ],
+          usdKeyword: [
+            `for eco`,
+            `for ecocash`,
+            `USD available`,
+            `for zipit`,
+            `US for`,
+            `for bank transfer`,
+            `US for`,
+            `usd available`,
+            `ìnternal transfer`,
+          ],
+        };
+
         if (keywords.businessKeywords.includes(word)) {
+          console.log(msg);
           //do stuff
           client.sendMessage(
             me,
-            `Business keyword alert:\n ${msgBody} from ${contact}`
+            `Business keyword alert:\n ${msg.body} from ${msg.getContact()}`
           );
         }
       });
+      if (/openAi:/gi.test(msgBody)) {
+        console.log("open ai");
+
+        const openAiCall = require("./openai");
+        const prompt = await msgBody.replace(/openAi:/gi, "");
+
+        const response = await openAiCall(prompt);
+        msg.reply(response[0].text);
+      }
+
       //queries chatGPT work in progress
-      if (msgBody.includes("openAi")) {
+      /* if (msgBody.includes("openAi")) {
         const response = await callOpenAi(msgBody);
         msg.reply(response);
-      }
+      } */
       if (chat.isGroup) {
-        (groupName = chat.name), (grpDescription = chat.description);
-        console.log(chat.name, chat.id._serialized);
-        // console.log(msg.body,groupName,contact);
         //grpOwner = chat.owner.user;
 
         if (/matchid/gi.test(msgBody.replaceAll(" ", ""))) {
-          console.log("matchid receieved");
           // getCommentary()
 
           //get the math they want
@@ -63,9 +103,8 @@ const clientOn = async (client, arg1, arg2) => {
             .slice("8")
             .trim()
             .replace(":", "");
-          const matchCommentary = await getCommentary(matchId); // check if message contains a req for ID
-
-          msg.reply(matchCommentary); //do stuff
+          //const matchCommentary = await getCommentary(matchId); // check if message contains a req for ID
+          msg.reply("Do stuff"); //do stuff
         }
       } else {
         let from = msg.from;
@@ -92,12 +131,12 @@ const clientOn = async (client, arg1, arg2) => {
     client.on("group_leave", (notification) => {
       console.log(notification);
       // User has left or been kicked from the group.
-      const user = notification.id.participant;
+
       /* client.sendMessage(
         user,
         `We are sorry to see you leave our group , May you indly share wy you decided to leave`
       ); */
-      client.sendMessage(me, `User ${user} just left  the group`);
+      //client.sendMessage(me,`User ${notification.id.participant} just left  the group`);
     });
   } else if (arg1 == "group-join") {
     client.on("group_join", (notification) => {
@@ -106,8 +145,8 @@ const clientOn = async (client, arg1, arg2) => {
       console.log("join", notification);
       /*  client.sendMessage(
         notification.id.participant,
-        "welcome to ... Here are the group rules for your convenience.... \n"
-      ) */
+        `welcome to ${}}Here are the group rules for your convenience.... \n`
+      )  */
       // notification.reply("User joined.");
     });
   } else if (arg1 == "before" && arg2 == "after") {

@@ -1,10 +1,12 @@
 const axios = require("axios");
-const fs = require("fs");
-const queryDbNSave = require("./helperFunction/queryDbNSave");
-const writeFile = require("./helperFunction/writeFile");
-const readFile = require("./helperFunction/readFile");
-const getCommentary = async (matchId) => {
-  let latestComm, message;
+
+const getCommentary = async (matchId, calls) => {
+  calls = calls + 1;
+  console.log("there have been " + calls + " call to cricbuz");
+  if (calls > 5) {
+    console.log("maximum number of calls exceeded");
+    return;
+  }
   const options = {
     method: "GET",
     url: `https://cricbuzz-cricket.p.rapidapi.com/mcenter/v1/${matchId}/comm`,
@@ -16,7 +18,7 @@ const getCommentary = async (matchId) => {
   let commentary = [];
   let matchComment = await axios.request(options).then(function (res) {
     const response = res.data;
-    console.log(res.data);
+
     // writeFile(response.data, "testFile.json");
     let matchState, matchStatus, matchDesc, seriesname, team1, team2; //  const response=readFile("/../../testFile.json")
     if (response.matchHeader) {
@@ -46,7 +48,7 @@ const getCommentary = async (matchId) => {
     inningsList = inningsList.map((innings) => {
       return `${innings.batTeamName} *${innings.score}-${innings.wickets}* ,${innings.overs} overs \n`;
     });
-    let matchDetails = `*${seriesname}, ${matchDesc}* \n${team1} vs ${team2}\n\n*Match status* \n${inningsList.join(
+    let matchDetails = `*${seriesname}, ${matchDesc}* \n${team1} vs ${team2}\n\n*Match status* ${matchState} \n${inningsList.join(
       ""
     )} *${matchStatus}*\nCurr RR: *${currRR}*, Req RRate *${reqRR}*\n \n*Commentary*`;
 
@@ -55,27 +57,26 @@ const getCommentary = async (matchId) => {
       response.commentaryList.forEach((comment) => {
         const overNumber = comment.overNumber ? comment.overNumber + ":" : "";
 
-        const batttingTeam = comment.batTeamName;
+        const battingTeam = comment.batTeamName;
 
         let commText = `${overNumber}${comment.commText}`;
 
         let boldValue;
-        const bold = /(B0\$|B1\$)/;
+        const bold = /(B[0-9]\$|B1[0-9]\$)/g;
         if (comment.commentaryFormats.bold) {
           boldValue = comment.commentaryFormats.bold.formatValue[0];
           commText = commText.replace(bold, `*${boldValue}*`);
+          commentary.push(commText);
         }
-        commentary.push(commText);
         if (comment.overSeparator) {
           const ovrSrt = comment.overSeparator;
-          const miniScoreCard = `*End of over ${comment.overNumber}* Innings of ${batttingTeam} ${ovrSrt.score}-${ovrSrt.wickets}Batsmen :${ovrSrt.batStrikerNames[0]} ${ovrSrt.batStrikerRuns} runs off ${ovrSrt.batStrikerBalls} balls ,${ovrSrt.batNonStrikerNames[0]} ${ovrSrt.batNonStrikerRuns}runs off ${ovrSrt.batNonStrikerBalls} balls\n Bowler :${ovrSrt.bowlNames[0]} ${ovrSrt.bowlOvers} overs ${ovrSrt.bowlMaidens} Maidens ${ovrSrt.bowlRuns} runs ${ovrSrt.bowlWickets} wkts`;
+          const miniScoreCard = `*End of over ${comment.overNumber}* ${battingTeam} ${ovrSrt.score}-${ovrSrt.wickets}\nBatsmen : *${ovrSrt.batStrikerNames[0]}* ${ovrSrt.batStrikerRuns} runs off ${ovrSrt.batStrikerBalls} balls\n*${ovrSrt.batNonStrikerNames[0]}* ${ovrSrt.batNonStrikerRuns}runs off ${ovrSrt.batNonStrikerBalls} balls\nBowler : *${ovrSrt.bowlNames[0]}* ${ovrSrt.bowlOvers} overs ${ovrSrt.bowlMaidens} Maidens ${ovrSrt.bowlRuns} runs ${ovrSrt.bowlWickets} wkts`;
           commentary.push(miniScoreCard);
         }
       });
-    } else {
     }
 
-    commentary = commentary.slice("0", "8").map((comment) => {
+    commentary = commentary.slice("0", "12").map((comment) => {
       return comment + "\n";
     });
     return commentary.join("\n");

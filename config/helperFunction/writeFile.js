@@ -1,5 +1,5 @@
 const fs = require("fs");
-module.exports = writeFile = async (data, path) => {
+const writeFile = async (data, path) => {
   try {
     fs.writeFile(path, JSON.stringify(data), (err) => {
       console.log("successfully saved");
@@ -8,3 +8,4 @@ module.exports = writeFile = async (data, path) => {
     console.log(err);
   }
 };
+module.exports = writeFile;

@@ -1,45 +1,11 @@
+const connectDB = require("./config/database");
+
 require("dotenv").config();
 
-const keywordAlert = require("./keywordsAlert");
-
-//Helper Functions
-const cronScheduler = require("./config/helperFunction/dailyCronScheduler");
-const readFile = require("./config/helperFunction/readFile");
-const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
-
-const uploadImage = require("./middleware/uploadImage");
-const cloudinary = require("./middleware/cloudinary");
-
-const todayDate = new Date().toISOString().slice(0, 10);
-//Db models
-const matchIDModel = require("./models/cricketMatchIds");
-const contactModel = require("./models/contactsModel");
-
-// APi calls functions
-//football API
-const callFootballApi = require("./config/helperFunction/callFootballApi");
-const getCommentary = require("./config/getCommentary");
-
-//CIRCKET SCORES
-const getMatchIds = require("./config/getMatchIds");
-
-//database quieries
-const getFixtures = require("./config/helperFunction/getFixtures");
 // connect to mongodb before running anything on the app
-
-const connectDB = require("./config/database");
-const { Client, LocalAuth, MessageMedia, id } = require("whatsapp-web.js");
-
-//contacts
-const tate = process.env.TATENDA;
-const me = process.env.ME;
-//groups
-const hwangeClubCricket = process.env.HWANGECLUBDELACRICKET;
-const liveSoccer1 = process.env.LIVESOCCER1;
-const liveCricket1 = process.env.LIVECRICKET1;
-const hwangeDealsgrp1 = process.env.HWANGEDEALSGRP1;
-
 connectDB().then(async () => {
+  const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
+
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
@@ -47,234 +13,300 @@ connectDB().then(async () => {
       handleSIGINT: true,
       headless: true,
       args: [
+        "--log-level=3", // fatal only
+        "--start-maximized",
+        "--no-default-browser-check",
+        "--disable-infobars",
+        "--disable-web-security",
+        "--disable-site-isolation-trials",
+        "--no-experiments",
+        "--ignore-gpu-blacklist",
+        "--ignore-certificate-errors",
+        "--ignore-certificate-errors-spki-list",
+        "--disable-gpu",
+        "--disable-extensions",
+        "--disable-default-apps",
+        "--enable-features=NetworkService",
+        "--disable-setuid-sandbox",
         "--no-sandbox",
-        "--disable-dev-shm-usage",
-        "--disabled-setupid-sandbox",
-        "--use-gl=egl",
       ],
     },
   });
+
+  //client2.initialize();
   client.initialize();
   
 
   //messaging client resources
   const clientOn = require("./config/helperFunction/clientOn");
-  clientOn(client, `message`);
-  clientOn(client, "group-join");
-  clientOn(client, "group-leave");
   clientOn(client, "authenticated");
   clientOn(client, "auth_failure");
   clientOn(client, "qr");
 
-  let randomAdvert = () =>
-    advertMessages[Math.floor(Math.random() * advertMessages.length)];
-
-  let advertMessages = require("./adverts");
-  //client
-
-  console.log("test");
-  const contactListForAds = [hwangeDealsgrp1];
-  async function sendAdverts() {
-    const contact = "263775231426@c.us"; //contactListForAds[index];
-    for (let i = 0; i < contactListForAds.length; i++) {
-      try {
-        client
-          .sendMessage(contactListForAds[i], `${randomAdvert()}`)
-          .catch((error) => {
-            console.log(error);
-          });
-        await timeDelay(5000);
-      } catch (error) {
-        console.log(error);
-        client.sendMessage(
-          me,
-          `failed to send automatic message to ${contactListForAds[i]}`
-        );
-      }
-    }
-  }
-
   client.on("ready", async () => {
-    let daysMatchIDs = [];
-    let matchIdMessage = [];
-    //Call cricbuzz api and save stating times andnmatchids to the Db
-    let firstkickOff;
-    await cronScheduler("*/5", "14", async () => {
-      await getMatchIds("upcoming", "League");
-      await getMatchIds("upcoming", "International");
-      // await getMatchIds("upcoming", "Domestic");
-      let startTimes = [];
-      //find the day`s cricket matchs and save their match Ids to the DB
-      const cricketMatchesToday = await matchIDModel
+    console.log("Client is ready!");
+    //functions abd resources
+    //Helper Functions
+    const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
+    const cron = require("node-cron");
+
+    //client events and functions
+    //decalre variables that work with client here
+    clientOn(client, "message");
+    clientOn(client, "group-join");
+    clientOn(client, "group-leave"); //client
+    client.setDisplayName("Live Scores,news, articles");
+
+    //Db models
+    const matchIDModel = require("./models/matchIdModel");
+    //decalre variables that work with client here
+    client.setDisplayName("Live Sport Scores,news, articles");
+    // cron.schedule(`* * * * *`, async () => {
+
+    //});
+    const hwangeClubCricket = process.env.HWANGECLUBDELACRICKET;
+    const liveSoccer1 = process.env.LIVESOCCER1;
+    const liveCricket1 = "120363110873098533@g.us";
+    const getMatchIds = require("./config/helperFunction/getMatchIds");
+    const getCommentary = require("./config/helperFunction/getCricComm");
+    const getCricketHeadlines = require("./config/helperFunction/getCricketHeadlines");
+    const checkMatchInfo = require("./config/helperFunction/checkMatchInfo");
+    //console.log(await getCricketHeadlines());
+    // get the latest updates
+    let calls = 0;
+    const date = new Date();
+    const yestdate = date.setDate(date.getDate() - 1);
+    const today = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(yestdate).toISOString().slice(0, 10);
+
+    /* 
+    cron.schedule("40 10,23 * * *", async () => {
+      const results = [];
+      const getScorecard = require("./config/helperFunction/getScorecard");
+      const completedMatches = await matchIDModel.find({
+        date: new Date(yestdate).toISOString().slice(0, 10),
+        matchState: /complete/gi,
+      });
+      await completedMatches.forEach(async (match) => {
+        console.log(match);
+        const date = new Date(
+          parseInt(match.unixTimeStamp) * 1000
+        ).toLocaleDateString();
+        // const matchDetails = `${match.seriesName}\n${match.matchType} ${match.fixture}\nMatch Status: *${match.matchState}*`;
+        //  results.push(matchDetails);
+        const scorecard = await getScorecard(match.matchID);
+        console.log(scorecard);
+      }); 
+
+      //GET UPCOMING MATCHES AND SHARE THEM
+      const upcoming = await matchIDModel({
+        date: date,
+        matchState: /upcoming|preview/gi,
+      });
+      upcoming.forEach(async (match) => {
+        const commentary = await getCommentary(match.matchID, calls);
+        client.sendMessage(liveCricket1, commentary);
+      });
+    });
+*/
+    //find the day`s cricket matchs and save their match Ids to the DB
+
+    cron.schedule(`30 5,11,18 * * *`, async () => {
+      getCricketHeadlines();
+    });
+    cron.schedule(`33 6,11,18 * * *`, async () => {
+      const cricHeadlines = require("./models/cricHeadlines");
+      console.log("headlines");
+
+      let headlines = await cricHeadlines.find({});
+
+      const compareTimestamps = (a, b) => {
+        return b.unixTimeStamp - a.unixTimeStamp;
+      };
+      headlines = headlines.sort(compareTimestamps).slice(0, 6);
+
+      let news = [`*News Snippets*  \n`];
+      await headlines.forEach(async (story) => {
+        const hline = story.hline;
+        const intro = story.intro;
+        const context = story.context;
+
+        news.push(`*${context}*\n*Headline* :${hline}\n${intro}\n\n`);
+      });
+      if (news.length > 2) {
+        client
+          .sendMessage(liveCricket1, news.join("\n"))
+          .then(() => console.log("message sent"));
+      } else {
+        client.sendMessage(`263775231426@c.us`, "news is blank");
+      }
+    });
+    cron.schedule(`0 2 * * *`, async () => {
+      getMatchIds("upcoming", calls);
+      getMatchIds("recent", calls);
+    });
+
+    cron.schedule(`3 2 * * * `, async () => {
+      console.log("cron running");
+      await matchIDModel
         .find({
           date: new Date().toISOString().slice(0, 10),
         })
-        .exec();
+        .exec()
+        .then((matchesToday) => {
+          console.log("matches on toady" + matchesToday[0].matchID);
+          matchesToday.forEach(async (match) => {
+            const hours = new Date(parseInt(match.unixTimeStamp)).getHours(),
+              minutes = new Date(parseInt(match.unixTimeStamp)).getMinutes(),
+              startDate = new Date(parseInt(match.unixTimeStamp)).getDate(),
+              month = new Date(parseInt(match.unixTimeStamp)).getMonth() + 1,
+              endDate = new Date(parseInt(match.endDateUnix)).getDate();
 
-      cricketMatchesToday.forEach(async (match) => {
-        const getHrsMins = require("./config/helperFunction/getHrsMins");
-        let minutes = getHrsMins(match.unixTimeStamp)[0];
-        let hours = getHrsMins(match.unixTimeStamp)[1];
-        await cronScheduler("*/5", "14", () => {
-          if (!/match finished/gi.test(getCommentary(match.matchID))) {
-            cronScheduler("*/6", `14`, () => {
-              //("*", `${hours + 4}-23`, () => {
-              client.sendMessage(liveCricket1, getCommentary(match.matchID));
-            });
-          } else {
-            cronScheduler("*/6", `*`, () => {
-              client.sendMessage(liveCricket1, getCommentary(match.matchID));
-            });
-          }
+            console.log(minutes, hours, startDate - endDate, month);
+            // send live update for each game every 25 minutes
+            client.sendMessage(
+              `263775231426@c.us`,
+              `match ${match.fixture} scheduled to run at ${hours + 2}:${
+                minutes + 2
+              } everyday between ${startDate} and ${endDate}`
+            );
+
+            cron.schedule(
+              `${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
+              async () => {
+                console.log("secondary running");
+
+                let commentary = await getCommentary(match.matchID, calls);
+                const complete = await checkMatchInfo(match.matchID);
+                console.log(complete.complete);
+                if (/not available/gi.test(commentary)) {
+                  console.log(commentary);
+                  client.sendMessage(
+                    `263775231426@c.us`,
+                    `${match.fixture} not available`
+                  );
+                } else {
+                  do {
+                    console.log("do while loop");
+                    //send message prefixed with group invite
+                    const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
+
+                    const update = await getCommentary(match.matchID, calls);
+                    const message = [cricketGroupInvite, update];
+                    client.sendMessage(`263775231426@c.us`, message.join("\n"));
+                    //updates at 25 minutes intervals
+                    await timeDelay(1800000);
+                  } while (!/Match status Complete/gi.test(commentary));
+
+                  client.sendMessage(liveCricket1, commentary);
+                }
+              }
+            );
+
+            //run at least once //if comms test returns true
+          });
         });
-      });
     });
 
-    // send Finished match updates
-    cronScheduler("*/10", "13", async () => {
-      await callFootballApi();
-      let update = [];
-      const epl = await getFixtures("epl", "Not Started");
-      const laliga = await getFixtures("la liga", "Not Started");
-      const zpsl = await getFixtures("zpsl", "Not Started");
-      const ucl = await getFixtures("uefa", "Not Started");
-      const europa = await getFixtures("europa", "Not Started");
-      // get fixtures retuns an empty string if it does nt find fixturs that meet the criteria
-      await update.push(epl, laliga, zpsl, ucl, europa);
-
-      const upcoming = update.filter((league) => !league == "").join("\n");
-      upcoming.length > 0
-        ? client.sendMessage(liveSoccer1, upcoming)
-        : console.log("Upcoming not started =" + upcoming);
-    });
-    cronScheduler("0", "*/1", async () => {
-      await callFootballApi();
-      let results = [];
-      const epl = await getFixtures("epl", "Match Finished");
-      const laliga = await getFixtures("la liga", "Match Finished");
-      const zpsl = await getFixtures("zpsl", "Match Finished");
-      const ucl = await getFixtures("uefa", "Match Finished");
-      const europa = await getFixtures("europa", "Match Finished");
-      // get fixtures retuns an empty string if it does nt find fixturs that meet the criteria
-      results.push(epl, laliga, zpsl, ucl, europa);
-
-      const finishedMatches = results
-        .filter((league) => !league == "")
-        .join("\n");
-      finishedMatches.length > 0
-        ? client.sendMessage(liveSoccer1, finishedMatches)
-        : console.log("Finished matches =" + finishedMatches);
-    });
-    //every six minutes
-    cronScheduler("*/6", "13-23", async () => {
-      await callFootballApi();
-      let update = [];
-      const epl = await getFixtures("epl", "In Progress");
-      const laliga = await getFixtures("la liga", "In Progress");
-      const zpsl = await getFixtures("zpsl", "In Progress");
-      const ucl = await getFixtures("uefa", "In Progress");
-      const europa = await getFixtures("europa", "In Progress");
-      if (!epl == "") {
-        update.push(epl);
-      }
-      if (!laliga == "") {
-        update.push(laliga);
-      }
-      if (!zpsl == "") {
-        update.push(zpsl);
-      }
-      if (!ucl == "") {
-        update.push(ucl);
-      }
-      if (!europa == "") {
-        update.push(europa);
-      }
-      let message = update.filter((result) => !result == "");
-
-      if (update.length > 0) {
-        await client.sendMessage(
-          me,
-          `*Live Soccer updates from EPL, ZPSL, Seire A,La Liga,UEFA champions League*`
+    //collect media adverts and send
+    //const mediaModel = require("./models/media");
+    client.on("message", async (msg) => {
+      if (msg.hasMedia && msg.from == "263775231426@c.us") {
+        const fs = require("fs/promises");
+        const media = await msg.downloadMedia();
+        const uniqueName = new Date().valueOf().toString().slice("5");
+        await fs.writeFile(
+          `assets/image${uniqueName}.jpeg`,
+          media.data,
+          "base64",
+          function (err) {
+            if (err) {
+              console.log(err);
+            }
+          }
         );
-        await client.sendMessage(liveSoccer1, update.join("\n"));
-        await client.sendMessage(
-          liveSoccer1,
-          `Join our facebook group for more exciting soccer new pics etc https://www.facebook.com/groups/623021429278159/`
-        );
-      } else {
-        console.log("no updates");
       }
     });
-    cronScheduler("5", "5,7,9,11,13,16", async () => {
-      sendAdverts();
-    });
-    //  cronScheduler("*/6", "16-21", async () => {
-    //  const ipl = await getCommentary(); //gets live commentary of games
-    //client.sendMessage(liveCricket1, ipl);
-    //});
 
-    console.log("Client is ready!");
-  });
+    const path = require("path");
+    const fs = require("fs");
+    //joining path of directory
+    const directoryPath = path.join(__dirname, "assets");
+    //passsing directoryPath and callback function
+    //read fromm assets folder and send
+    const sendAdMedia = (group) => {
+      //creates anarray from the files in assets folder
+      fs.readdir(directoryPath, function (err, mediaAdverts) {
+        console.log(mediaAdverts);
+        //handling error
+        if (err) {
+          return console.log("Unable to scan directory: " + err);
+        }
+        let randomMediaAdvert =
+          mediaAdverts[Math.floor(Math.random() * mediaAdverts.length)];
+        //listing all files using forEach
+        console.log(randomMediaAdvert);
 
-  // client.sendMessage(me,uclFixtures)
-  function toTime(UNIX_timestamp) {
-    const a = new Date(UNIX_timestamp * 1000);
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const year = a.getFullYear();
-    const month = months[a.getMonth()];
-    const date = a.getDate();
-    const hour = a.getHours();
-    const min = a.getMinutes();
-    const sec = a.getSeconds();
-    const time =
-      date + " " + month + " " + year + " " + hour + ":" + min + ":" + sec;
-    return time;
-  }
-
-  const messages = require("./messages");
-  //const getmatch = await getCommentary("66173");
-
-  client.on(`message`, async (message) => {
-    const messageContents = message.body;
-    const author = message.from.replace("@c.us", "");
-    const receiver = message.to.replace("@c.us", "").replace("263", "0");
-    const keywords = require("./keywords");
-    const usdKeywords = keywords.usdKeyword;
-    const businessKeywords = keywords.businessKeywords;
-
-    usdKeywords.filter((keyword) => {
-      if (
-        message.body.includes(keyword) &&
-        !message.body.includes(`message created by chatBot`)
-      ) {
         client.sendMessage(
-          me,
-          `${toTime(message.timestamp)}  at ${
-            message.from
-          } group :message from :${message.author
-            .replace("@c.us", "")
-            .replace("263", "0")}, ${message.notifyName} ${
-            message.body
-          } *message created by chatBot*`
+          group,
+          MessageMedia.fromFilePath(`./assets/${randomMediaAdvert}`)
         );
+      });
+    };
+
+    cron.schedule(`45 9,14,17 * * *`, async () => {
+      let advertMessages = require("./adverts");
+      let randomAdvert =
+        advertMessages[Math.floor(Math.random() * advertMessages.length)];
+
+      //contacts
+      const me = process.env.ME;
+      //groups
+      const hwangeClubCricket = process.env.HWANGECLUBDELACRICKET;
+      const liveSoccer1 = process.env.LIVESOCCER1;
+      const liveCricket1 = process.env.LIVECRICKET1;
+      const hwangeDealsgrp1 = "263775932942-1555492418@g.us";
+      const sellItHge4 = "263773389927-1588234038@g.us";
+      const sellIthge = "263717766191-1583426999@g.us";
+      const sellIthge2 = "263717766191-1583474819@g.us";
+      const sellIthge5 = "263717766191-1611592932@g.us";
+      const sellIthge3 = "263717766191-1584895535@g.us";
+      const sellIthge6 = "263717766191-1616870613@g.us";
+      const hwangeclassifieds = "263714496540-1579592614@g.us";
+      const hwangeCitytraders = "263774750143-1590396559@g.us";
+      const noCaptBusIdeas = "263783046858-1621225929@g.us";
+
+      const contactListForAds = [
+        hwangeDealsgrp1,
+        sellIthge,
+        sellIthge2,
+        sellItHge4,
+        hwangeCitytraders,
+        hwangeclassifieds,
+        sellIthge5,
+        sellIthge6,
+        sellIthge3,
+        noCaptBusIdeas,
+      ];
+
+      for (let i = 0; i < contactListForAds.length; i++) {
+        try {
+          sendAdMedia(contactListForAds[i]);
+          client
+            .sendMessage(contactListForAds[i], `${randomAdvert}`)
+            .catch((error) => {
+              console.log(error);
+            });
+          await timeDelay(Math.floor(Math.random() * 10) * 1000); //causes a delay of anything between 1-10 secs between each message
+        } catch (error) {
+          console.log(error);
+          client.sendMessage(
+            me,
+            `failed to send automatic message to ${contactListForAds[i]}`
+          );
+        }
       }
     });
-
-    let businessAlert = new keywordAlert(businessKeywords, client, message, me);
-    businessAlert.keywordRun(message.body);
   });
 
   client.on("disconnected", (reason) => {
