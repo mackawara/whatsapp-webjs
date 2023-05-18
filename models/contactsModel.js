@@ -21,6 +21,13 @@ const contactsSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  isSubscribed: {
+    type: String,
+    required: true,
+  },
+  tokens: {
+    type: Number,
+  },
 });
 
 const contactsModel = mongoose.model("contacts", contactsSchema);

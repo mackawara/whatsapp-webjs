@@ -1,6 +1,9 @@
+const contactsModel = require("../../models/contactsModel");
+
 const clientOn = async (client, arg1, arg2, MessageMedia) => {
   const fs = require("fs/promises");
   const me = process.env.ME;
+  const contactModel=require("../../models/contactsModel")
   //const { MessageMedia } = require("whatsapp-web.js");
 
   if (arg1 == "auth_failure") {
@@ -77,6 +80,9 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
         }
       });
       if (/openAi:/gi.test(msgBody)) {
+        contactsModel.find({
+          
+        })
         console.log("open ai");
 
         const openAiCall = require("./openai");
