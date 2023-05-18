@@ -9,7 +9,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      // executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -176,7 +176,7 @@ connectDB().then(async () => {
                 console.log("secondary running");
 
                 let commentary = await getCommentary(match.matchID, calls);
-                const complete = await checkMatchInfo(match.matchID);
+
                 console.log(complete.complete);
                 if (/not available/gi.test(commentary)) {
                   console.log(commentary);
@@ -185,17 +185,22 @@ connectDB().then(async () => {
                     `${match.fixture} not available`
                   );
                 } else {
-                  do {
+                  let matchStatus = await checkMatchInfo(match.matchID);
+                  while (!(await matchStatus.complete) == true) {
                     console.log("do while loop");
                     //send message prefixed with group invite
                     const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
 
                     const update = await getCommentary(match.matchID, calls);
                     const message = [cricketGroupInvite, update];
-                    client.sendMessage(`263775231426@c.us`, message.join("\n"));
+                    client.sendMessage(liveCricket1, message.join("\n"));
+                    const complete = await checkMatchInfo(match.matchID);
+                    /* if (complete.complete) {
+                      break;
+                    } */
                     //updates at 25 minutes intervals
                     await timeDelay(1800000);
-                  } while (!/Match status Complete/gi.test(commentary));
+                  }
 
                   client.sendMessage(liveCricket1, commentary);
                 }
