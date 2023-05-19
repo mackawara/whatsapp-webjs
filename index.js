@@ -110,10 +110,10 @@ connectDB().then(async () => {
 */
     //find the day`s cricket matchs and save their match Ids to the DB
 
-    cron.schedule(`30 5,11,18 * * *`, async () => {
+    cron.schedule(`45 5,11,18 * * *`, async () => {
       getCricketHeadlines();
     });
-    cron.schedule(`33 6,11,18 * * *`, async () => {
+    cron.schedule(`48 6,11,18 * * *`, async () => {
       const cricHeadlines = require("./models/cricHeadlines");
       console.log("headlines");
 
@@ -145,7 +145,7 @@ connectDB().then(async () => {
       getMatchIds("recent", calls);
     });
 
-    cron.schedule(`3 12 * * * `, async () => {
+    cron.schedule(`36 11 * * * `, async () => {
       console.log("cron running");
       await matchIDModel
         .find({
