@@ -9,7 +9,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-       executablePath: "/usr/bin/chromium-browser",
+      executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -145,7 +145,7 @@ connectDB().then(async () => {
       getMatchIds("recent", calls);
     });
 
-    cron.schedule(`3 2 * * * `, async () => {
+    cron.schedule(`3 12 * * * `, async () => {
       console.log("cron running");
       await matchIDModel
         .find({
@@ -248,6 +248,7 @@ connectDB().then(async () => {
         }
         let randomMediaAdvert =
           mediaAdverts[Math.floor(Math.random() * mediaAdverts.length)];
+        console.log(randomMediaAdvert);
         //listing all files using forEach
         console.log(randomMediaAdvert);
 
