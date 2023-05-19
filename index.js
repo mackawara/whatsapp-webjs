@@ -9,7 +9,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      //executablePath: "/usr/bin/chromium-browser",
+      executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -192,7 +192,7 @@ connectDB().then(async () => {
                     } else { */
                     const update = await getCommentary(match.matchID, calls);
                     const message = [cricketGroupInvite, update];
-                    client.sendMessage(`263775231426@c.us`, message.join("\n"));
+                    client.sendMessage(liveCricket1, message.join("\n"));
                     //updates at 25 minutes intervals
                     await timeDelay(1500000);
                   } while (
