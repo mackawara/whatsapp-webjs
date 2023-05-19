@@ -18,6 +18,12 @@ const openAiCall = async (prompt) => {
     .catch((err) => {
       console.log(err);
     });
-  return response.data.choices;
+    if (response.data){
+
+      return response.data.choices;
+    }
+    else{ 
+      console.log(response.Error)
+      return `error your query could dot be processed}
 };
 module.exports = openAiCall;
