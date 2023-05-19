@@ -145,7 +145,7 @@ connectDB().then(async () => {
       getMatchIds("recent", calls);
     });
 
-    cron.schedule(`49,59 2,0 * * * `, async () => {
+    cron.schedule(`49,51 2,0 * * * `, async () => {
       console.log("cron running");
       await matchIDModel
         .find({
@@ -171,7 +171,7 @@ connectDB().then(async () => {
             ); */
 
             cron.schedule(
-              `31 ${minutes},49 ${hours},0 ${startDate}-${endDate} ${month} *`,
+              `31 ${minutes},52 ${hours},0 ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
 
