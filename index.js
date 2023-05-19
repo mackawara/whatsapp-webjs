@@ -9,7 +9,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      //executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -140,12 +140,12 @@ connectDB().then(async () => {
         client.sendMessage(`263775231426@c.us`, "news is blank");
       }
     });
-    cron.schedule(`0 2 * * *`, async () => {
+    cron.schedule(`1 2 * * *`, async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
 
-    cron.schedule(`36 11 * * * `, async () => {
+    cron.schedule(`49,59 2,0 * * * `, async () => {
       console.log("cron running");
       await matchIDModel
         .find({
@@ -163,38 +163,34 @@ connectDB().then(async () => {
 
             console.log(minutes, hours, startDate - endDate, month);
             // send live update for each game every 25 minutes
-            client.sendMessage(
+            /*    client.sendMessage(
               `263775231426@c.us`,
               `match ${match.fixture} scheduled to run at ${hours + 2}:${
                 minutes + 2
               } everyday between ${startDate} and ${endDate}`
-            );
+            ); */
 
             cron.schedule(
-              `${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
+              `31 ${minutes},49 ${hours},0 ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
 
                 let commentary = await getCommentary(match.matchID, calls);
-
-                console.log(complete.complete);
-                if (/not available/gi.test(commentary)) {
-                  console.log(commentary);
-                  client.sendMessage(
-                    `263775231426@c.us`,
-                    `${match.fixture} not available`
-                  );
-                } else {
+                console.log(commentary);
+                //console.log(complete.complete);
+                if (!/not available/gi.test(commentary)) {
                   let matchStatus = await checkMatchInfo(match.matchID);
-                  while (!(await matchStatus.complete) == true) {
+                  console.log(matchStatus.complete);
+                  while (matchStatus.complete == true) {
                     console.log("do while loop");
                     //send message prefixed with group invite
                     const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
 
                     const update = await getCommentary(match.matchID, calls);
+                    console.log(update);
                     const message = [cricketGroupInvite, update];
-                    client.sendMessage(liveCricket1, message.join("\n"));
-                    const complete = await checkMatchInfo(match.matchID);
+                    client.sendMessage(`263775231426@c.us`, `Test`); // message.join("\n"));
+                    //const complete = await checkMatchInfo(match.matchID);
                     /* if (complete.complete) {
                       break;
                     } */
@@ -203,6 +199,8 @@ connectDB().then(async () => {
                   }
 
                   client.sendMessage(liveCricket1, commentary);
+                } else {
+                  console.log("not availan");
                 }
               }
             );

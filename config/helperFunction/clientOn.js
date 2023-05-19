@@ -76,16 +76,7 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
           );
         }
       });
-      if (/openAi:/gi.test(msgBody)) {
-        console.log("open ai");
-
-        const openAiCall = require("./openai");
-        const prompt = await msgBody.replace(/openAi:/gi, "");
-
-        const response = await openAiCall(prompt);
-        msg.reply(response[0].text);
-      }
-
+/* a  3 2 */
       //queries chatGPT work in progress
       /* if (msgBody.includes("openAi")) {
         const response = await callOpenAi(msgBody);
