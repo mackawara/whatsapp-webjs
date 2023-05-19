@@ -9,7 +9,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      //executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -143,7 +143,7 @@ connectDB().then(async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
-    cron.schedule(`4 2 * * * `, async () => {
+    cron.schedule(`21,6 2,1 * * * `, async () => {
       console.log("cron running");
       await matchIDModel
         .find({
@@ -168,7 +168,7 @@ connectDB().then(async () => {
               } everyday between ${startDate} and ${endDate}`
             );
             cron.schedule(
-              `${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
+              `30 ${minutes},21 ${hours},1 ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
                 let commentary = await getCommentary(match.matchID, calls);
