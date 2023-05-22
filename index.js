@@ -1,5 +1,9 @@
 const connectDB = require("./config/database");
-
+let test = 3;
+do {
+  test = test + 1;
+  console.log(test);
+} while (test < 10);
 require("dotenv").config();
 
 // connect to mongodb before running anything on the app
@@ -54,7 +58,6 @@ connectDB().then(async () => {
     clientOn(client, "message");
     clientOn(client, "group-join");
     clientOn(client, "group-leave"); //client
-    client.setDisplayName("Live Scores,news, articles");
 
     //Db models
     const matchIDModel = require("./models/matchIdModel");
@@ -65,6 +68,7 @@ connectDB().then(async () => {
     //});
     const hwangeClubCricket = process.env.HWANGECLUBDELACRICKET;
     const liveSoccer1 = process.env.LIVESOCCER1;
+    const me = `263775231426@c.us`;
     const liveCricket1 = "120363110873098533@g.us";
     const getMatchIds = require("./config/helperFunction/getMatchIds");
     const getCommentary = require("./config/helperFunction/getCricComm");
@@ -143,7 +147,10 @@ connectDB().then(async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
-    cron.schedule(`21,6 2,1 * * * `, async () => {
+    cron.schedule(`32,27 2,7 * * * `, async () => {
+      //   getMatchIds("upcoming", calls);
+      // getMatchIds("recent", calls);
+      client.sendMessage(me, "test");
       console.log("cron running");
       await matchIDModel
         .find({
@@ -168,43 +175,39 @@ connectDB().then(async () => {
               } everyday between ${startDate} and ${endDate}`
             );
             cron.schedule(
-              `30 ${minutes},21 ${hours},1 ${startDate}-${endDate} ${month} *`,
+              ` ${minutes},28 ${hours},7 ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
-                let commentary = await getCommentary(match.matchID, calls);
-                if (/not available/gi.test(commentary)) {
-                  console.log(commentary);
-                  client.sendMessage(
-                    `263775231426@c.us`,
-                    `${match.fixture} not available`
-                  );
-                } else {
-                  do {
-                    console.log("do while loop");
-                    //send message prefixed with group invite
-                    const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
+                const breakCondition =
+                  /Match state.(stumps|complete),Not Available try another Match ID/gi;
+                const continueCondition = /Match state.(lunch|tea|dinner)/gi;
+                let commentary = "";
 
-                    /*  if (/scorecard only/gi.test(commentary)) {
-                      const index = await commentary.indexOf(/scorecard/gi);
-                      commentary = commentary.slice(0, index);
-                      client.sendMessage(liveCricket1, commentary);
-                      await timeDelay(2400000);
-                    } else { */
-                    const update = await getCommentary(match.matchID, calls);
-                    const message = [cricketGroupInvite, update];
+                do {
+                  commentary = await getCommentary(match.matchID);
+                  console.log(commentary);
+                  //send message prefixed with group invite
+                  const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
+                  const update = await getCommentary(59694, calls);
+                  const message = [cricketGroupInvite, update];
+                  if (continueCondition.test(update)) {
+                    console.log("continue condition");
+                    await timeDelay(900000);
+                    continue;
+                  } else if (breakCondition.test(update)) {
+                    console.log("break condition");
                     client.sendMessage(liveCricket1, message.join("\n"));
-                    //updates at 25 minutes intervals
-                    await timeDelay(1500000);
-                  } while (
-                    !/Complete|No result|scorecard only/gi.test(
-                      await getCommentary(match.matchID, calls)
-                    )
-                  );
-                  client.sendMessage(
-                    `263775231426@c.us`,
-                    await getCommentary(match.matchID, calls)
-                  );
-                }
+                    break;
+                  } else {
+                    client.sendMessage(liveCricket1, message.join("\n"));
+                    await timeDelay(1800000);
+                  }
+                  //updates at 25 minutes intervals
+                } while (!breakCondition.test(commentary(match.matchID)));
+                client.sendMessage(
+                  `263775231426@c.us`,
+                  await getCommentary(match.matchID, calls)
+                );
               }
             );
 
