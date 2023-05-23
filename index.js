@@ -112,7 +112,8 @@ connectDB().then(async () => {
     });
 */
     //find the day`s cricket matchs and save their match Ids to the DB
-
+    getMatchIds("upcoming");
+    //getMatchIds("recent");
     cron.schedule(`30 5,11,18 * * *`, async () => {
       getCricketHeadlines();
     });
@@ -147,7 +148,7 @@ connectDB().then(async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
-    cron.schedule(`32,27 2,7 * * * `, async () => {
+    cron.schedule(`32,30 2,6 * * * `, async () => {
       //   getMatchIds("upcoming", calls);
       // getMatchIds("recent", calls);
       client.sendMessage(me, "test");
@@ -175,7 +176,7 @@ connectDB().then(async () => {
               } everyday between ${startDate} and ${endDate}`
             );
             cron.schedule(
-              ` ${minutes},28 ${hours},7 ${startDate}-${endDate} ${month} *`,
+              ` ${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
                 const breakCondition =
