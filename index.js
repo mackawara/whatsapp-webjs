@@ -148,7 +148,7 @@ connectDB().then(async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
-    cron.schedule(`50 2,8 * * * `, async () => {
+    cron.schedule(`39 2,9 * * * `, async () => {
       //   getMatchIds("upcoming", calls);
       // getMatchIds("recent", calls);
       client.sendMessage(me, "test");
@@ -176,7 +176,7 @@ connectDB().then(async () => {
               } everyday between ${startDate} and ${endDate}`
             );
             cron.schedule(
-              ` ${minutes},54 ${hours},8 ${startDate}-${endDate} ${month} *`,
+              ` ${minutes},40 ${hours},9 ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
                 const breakCondition = /Match state preview/gi;
@@ -185,8 +185,10 @@ connectDB().then(async () => {
 
                 do {
                   //send message prefixed with group invite
+                  console.log(commentary);
                   const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
                   const update = await getCommentary(match.matchID, calls);
+                  commentary = update;
                   const message = [cricketGroupInvite, update];
                   if (continueCondition.test(update)) {
                     console.log("continue condition");
@@ -194,7 +196,7 @@ connectDB().then(async () => {
                     continue;
                   } else if (breakCondition.test(update)) {
                     console.log("break condition");
-                   // client.sendMessage(liveCricket1, message.join("\n"));
+                    // client.sendMessage(liveCricket1, message.join("\n"));
                     break;
                   } else {
                     console.log("update in progress");
@@ -202,7 +204,7 @@ connectDB().then(async () => {
                     await timeDelay(1800000);
                   }
                   //updates at 25 minutes intervals
-                } while (!breakCondition.test(commentary(match.matchID)));
+                } while (!breakCondition.test(commentary));
                 client.sendMessage(
                   `263775231426@c.us`,
                   await getCommentary(match.matchID, calls)
