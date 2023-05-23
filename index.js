@@ -148,7 +148,7 @@ connectDB().then(async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
-    cron.schedule(`39 2,9 * * * `, async () => {
+    cron.schedule(`0 2,10 * * * `, async () => {
       //   getMatchIds("upcoming", calls);
       // getMatchIds("recent", calls);
       client.sendMessage(me, "test");
@@ -176,7 +176,7 @@ connectDB().then(async () => {
               } everyday between ${startDate} and ${endDate}`
             );
             cron.schedule(
-              ` ${minutes},40 ${hours},9 ${startDate}-${endDate} ${month} *`,
+              ` ${minutes},5 ${hours},10 ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
                 const breakCondition = /Match state preview/gi;
@@ -204,7 +204,7 @@ connectDB().then(async () => {
                     await timeDelay(1800000);
                   }
                   //updates at 25 minutes intervals
-                } while (!breakCondition.test(commentary));
+                } while (true);
                 client.sendMessage(
                   `263775231426@c.us`,
                   await getCommentary(match.matchID, calls)
