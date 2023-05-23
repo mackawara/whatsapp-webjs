@@ -148,7 +148,7 @@ connectDB().then(async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
-    cron.schedule(`38 2,7 * * * `, async () => {
+    cron.schedule(`40 2,8 * * * `, async () => {
       //   getMatchIds("upcoming", calls);
       // getMatchIds("recent", calls);
       client.sendMessage(me, "test");
@@ -176,7 +176,7 @@ connectDB().then(async () => {
               } everyday between ${startDate} and ${endDate}`
             );
             cron.schedule(
-              ` ${minutes},39 ${hours},7 ${startDate}-${endDate} ${month} *`,
+              ` ${minutes},45 ${hours},8 ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
                 const breakCondition =
@@ -185,8 +185,6 @@ connectDB().then(async () => {
                 let commentary = "";
 
                 do {
-                  commentary = await getCommentary(match.matchID);
-                  console.log(commentary);
                   //send message prefixed with group invite
                   const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
                   const update = await getCommentary(match.matchID, calls);
@@ -200,6 +198,7 @@ connectDB().then(async () => {
                     client.sendMessage(liveCricket1, message.join("\n"));
                     break;
                   } else {
+                    console.log("update in progress");
                     client.sendMessage(liveCricket1, message.join("\n"));
                     await timeDelay(1800000);
                   }
