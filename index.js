@@ -148,7 +148,7 @@ connectDB().then(async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
-    cron.schedule(`40 2,8 * * * `, async () => {
+    cron.schedule(`50 2,8 * * * `, async () => {
       //   getMatchIds("upcoming", calls);
       // getMatchIds("recent", calls);
       client.sendMessage(me, "test");
@@ -176,11 +176,10 @@ connectDB().then(async () => {
               } everyday between ${startDate} and ${endDate}`
             );
             cron.schedule(
-              ` ${minutes},45 ${hours},8 ${startDate}-${endDate} ${month} *`,
+              ` ${minutes},54 ${hours},8 ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
-                const breakCondition =
-                  /Match state.(stumps|complete|preview),Not Available try another Match ID/gi;
+                const breakCondition = /Match state preview/gi;
                 const continueCondition = /Match state.(lunch|tea|dinner)/gi;
                 let commentary = "";
 
@@ -195,7 +194,7 @@ connectDB().then(async () => {
                     continue;
                   } else if (breakCondition.test(update)) {
                     console.log("break condition");
-                    client.sendMessage(liveCricket1, message.join("\n"));
+                   // client.sendMessage(liveCricket1, message.join("\n"));
                     break;
                   } else {
                     console.log("update in progress");
