@@ -183,7 +183,7 @@ connectDB().then(async () => {
               } everyday between ${startDate} and ${endDate}`
             );
             cron.schedule(
-              ` ${minutes},25 ${hours} ${startDate}-${endDate} ${month} *`,
+              ` ${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
                 const breakCondition = /Match state Complete/gi;
