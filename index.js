@@ -1,10 +1,17 @@
 const connectDB = require("./config/database");
-let test = 3;
-do {
+let test = /test|match.(oditest)/gi;
+const testwods = ["tes", "match odi", "match test", "match odi test"];
+testwods.forEach((word) => {
+  if (test.test(word)) {
+    console.log(word + " matched");
+  } else {
+    console.log(`${word} did not match`);
+  }
+});
+/* do {
   test = test + 1;
   console.log(test);
-} while (test < 10);
-require("dotenv").config();
+} while (test < 10) */ require("dotenv").config();
 
 // connect to mongodb before running anything on the app
 connectDB().then(async () => {
@@ -148,7 +155,7 @@ connectDB().then(async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
-    cron.schedule(`0 2,10 * * * `, async () => {
+    cron.schedule(`57 2,13 * * * `, async () => {
       //   getMatchIds("upcoming", calls);
       // getMatchIds("recent", calls);
       client.sendMessage(me, "test");
@@ -176,10 +183,10 @@ connectDB().then(async () => {
               } everyday between ${startDate} and ${endDate}`
             );
             cron.schedule(
-              ` ${minutes},5 ${hours},10 ${startDate}-${endDate} ${month} *`,
+              ` ${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
-                const breakCondition = /Match state preview/gi;
+                const breakCondition = /Match state Complete/gi;
                 const continueCondition = /Match state.(lunch|tea|dinner)/gi;
                 let commentary = "";
 
