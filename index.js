@@ -155,7 +155,7 @@ connectDB().then(async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
-    cron.schedule(`10 2,14 * * * `, async () => {
+    cron.schedule(`18 2,14 * * * `, async () => {
       //   getMatchIds("upcoming", calls);
       // getMatchIds("recent", calls);
       client.sendMessage(me, "test");
@@ -183,7 +183,7 @@ connectDB().then(async () => {
               } everyday between ${startDate} and ${endDate}`
             );
             cron.schedule(
-              ` ${minutes},15 ${hours} ${startDate}-${endDate} ${month} *`,
+              ` ${minutes},25 ${hours} ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
                 const breakCondition = /Match state Complete/gi;
