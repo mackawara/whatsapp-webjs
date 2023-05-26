@@ -1,17 +1,6 @@
 const connectDB = require("./config/database");
-let test = /test|match.(oditest)/gi;
-const testwods = ["tes", "match odi", "match test", "match odi test"];
-testwods.forEach((word) => {
-  if (test.test(word)) {
-    console.log(word + " matched");
-  } else {
-    console.log(`${word} did not match`);
-  }
-});
-/* do {
-  test = test + 1;
-  console.log(test);
-} while (test < 10) */ require("dotenv").config();
+
+require("dotenv").config();
 
 // connect to mongodb before running anything on the app
 connectDB().then(async () => {
@@ -20,7 +9,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      // executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -82,11 +71,15 @@ connectDB().then(async () => {
     const getCricketHeadlines = require("./config/helperFunction/getCricketHeadlines");
     //console.log(await getCricketHeadlines());
     // get the latest updates
-    let calls = 0;
-    const date = new Date();
-    const yestdate = date.setDate(date.getDate() - 1);
+
+    const nowToday = new Date();
+    const tomorrow = new Date(nowToday.getTime() + 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    const yesterday = new Date(nowToday.getTime() - 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
     const today = new Date().toISOString().slice(0, 10);
-    const yesterday = new Date(yestdate).toISOString().slice(0, 10);
 
     /* 
     cron.schedule("40 10,23 * * *", async () => {
@@ -119,8 +112,9 @@ connectDB().then(async () => {
     });
 */
     //find the day`s cricket matchs and save their match Ids to the DB
-    getMatchIds("upcoming");
+
     //getMatchIds("recent");
+    let fixturesToday, fixturesTommorow;
     cron.schedule(`30 5,11,18 * * *`, async () => {
       getCricketHeadlines();
     });
@@ -152,17 +146,45 @@ connectDB().then(async () => {
       }
     });
     cron.schedule(`0 2 * * *`, async () => {
-      getMatchIds("upcoming", calls);
-      getMatchIds("recent", calls);
+      getMatchIds("upcoming");
+      getMatchIds("recent");
     });
-    cron.schedule(`18 2,14 * * * `, async () => {
-      //   getMatchIds("upcoming", calls);
+    cron.schedule(`15 2 * * *`, async () => {
+      const fixtureTodayMessage = [`*Selected Cricket Fixtures Today*\n\n`];
+      fixturesToday = await matchIDModel
+        .find({
+          date: today,
+        })
+        .exec();
+
+      fixturesToday.forEach((fixture) =>
+        fixtureTodayMessage.push(
+          `*${fixture.seriesName}*\n${fixture.fixture}\n${fixture.startingTime}\n`
+        )
+      );
+      client.sendMessage(`263775231426@c.us`, fixtureTodayMessage.join(","));
+      const fixtureTommorowMessage = ["*Selected Cricket Fixtures Tommorow*\n"];
+      fixturesTommorow = await matchIDModel
+        .find({
+          date: tomorrow,
+        })
+        .exec();
+      fixturesTommorow.forEach((fixture) => {
+        const date = new Date(parseInt(fixture.unixTimeStamp) * 1000);
+        dateTime = date.toLocaleTimeString();
+        fixtureTommorowMessage.push(
+          `*${fixture.seriesName}*\n${fixture.fixture}\n${time}\n\n`
+        );
+      });
+      client.sendMessage(`263775231426@c.us`, fixtureTommorowMessage.join(","));
+    });
+
+    cron.schedule(`32 2 * * *`, async () => {
       // getMatchIds("recent", calls);
-      client.sendMessage(me, "test");
-      console.log("cron running");
+      const fixtures = [`*Selected Fixtures today*\n\n`];
       await matchIDModel
         .find({
-          date: new Date().toISOString().slice(0, 10),
+          date: today,
         })
         .exec()
         .then((matchesToday) => {
@@ -176,17 +198,16 @@ connectDB().then(async () => {
 
             console.log(minutes, hours, startDate - endDate, month);
             // send live update for each game every 25 minutes
-            client.sendMessage(
-              `263775231426@c.us`,
-              `match ${match.fixture} scheduled to run at ${hours + 2}:${
-                minutes + 2
-              } everyday between ${startDate} and ${endDate}`
+            fixtures.push(
+              `*${match.seriesName}\n${match.fixture}\n${match.startingTime}\n\n`
             );
+
             cron.schedule(
               ` ${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
               async () => {
                 console.log("secondary running");
-                const breakCondition = /Match state Complete/gi;
+                const complete = /Match state Complete/gi;
+                const stumps = /Match state stumps/gi;
                 const continueCondition = /Match state.(lunch|tea|dinner)/gi;
                 let commentary = "";
 
@@ -194,14 +215,14 @@ connectDB().then(async () => {
                   //send message prefixed with group invite
                   console.log(commentary);
                   const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
-                  const update = await getCommentary(match.matchID, calls);
+                  const update = await getCommentary(match.matchID);
                   commentary = update;
                   const message = [cricketGroupInvite, update];
                   if (continueCondition.test(update)) {
                     console.log("continue condition");
                     await timeDelay(900000);
                     continue;
-                  } else if (breakCondition.test(update)) {
+                  } else if (complete.test(update) || stumps.test(update)) {
                     console.log("break condition");
                     // client.sendMessage(liveCricket1, message.join("\n"));
                     break;
@@ -213,8 +234,8 @@ connectDB().then(async () => {
                   //updates at 25 minutes intervals
                 } while (true);
                 client.sendMessage(
-                  `263775231426@c.us`,
-                  await getCommentary(match.matchID, calls)
+                  liveCricket1,
+                  await getCommentary(match.matchID)
                 );
               }
             );
@@ -222,6 +243,8 @@ connectDB().then(async () => {
             //run at least once //if comms test returns true
           });
         });
+
+      client.sendMessage(liveCricket1, fixtures.join(","));
     });
 
     //collect media adverts and send
