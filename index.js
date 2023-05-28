@@ -9,7 +9,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      // executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -293,11 +293,12 @@ connectDB().then(async () => {
       });
     };
 
-    cron.schedule(`45 9,14,17 * * *`, async () => {
+    cron.schedule(`32 9,14,19 * * *`, async () => {
+      console.log("cron running");
+      let advertMessages = require("./adverts");
       let randomAdvert =
         advertMessages[Math.floor(Math.random() * advertMessages.length)];
 
-      let advertMessages = require("./adverts");
       //contacts
       const me = process.env.ME;
       //groups
@@ -330,6 +331,7 @@ connectDB().then(async () => {
 
       for (let i = 0; i < contactListForAds.length; i++) {
         try {
+          console.log("test " + i);
           sendAdMedia(contactListForAds[i]);
           client
             .sendMessage(contactListForAds[i], `${randomAdvert}`)
