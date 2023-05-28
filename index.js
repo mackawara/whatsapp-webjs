@@ -179,12 +179,12 @@ connectDB().then(async () => {
       client.sendMessage(`263775231426@c.us`, fixtureTommorowMessage.join(","));
     });
 
-    cron.schedule(`32 2 * * *`, async () => {
+    cron.schedule(`38 2,19 * * *`, async () => {
       // getMatchIds("recent", calls);
       const fixtures = [`*Selected Fixtures today*\n\n`];
       await matchIDModel
         .find({
-          date: today,
+          date: tomorrow,
         })
         .exec()
         .then((matchesToday) => {
