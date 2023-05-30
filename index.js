@@ -9,7 +9,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      // executablePath: "/usr/bin/chromium-browser",
+      executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -145,46 +145,18 @@ connectDB().then(async () => {
         client.sendMessage(`263775231426@c.us`, "news is blank");
       }
     });
+    getMatchIds("upcoming");
     cron.schedule(`0 2 * * *`, async () => {
-      getMatchIds("upcoming");
       getMatchIds("recent");
     });
-    cron.schedule(`15 2 * * *`, async () => {
-      const fixtureTodayMessage = [`*Selected Cricket Fixtures Today*\n\n`];
-      fixturesToday = await matchIDModel
-        .find({
-          date: today,
-        })
-        .exec();
 
-      fixturesToday.forEach((fixture) =>
-        fixtureTodayMessage.push(
-          `*${fixture.seriesName}*\n${fixture.fixture}\n${fixture.startingTime}\n`
-        )
-      );
-      client.sendMessage(`263775231426@c.us`, fixtureTodayMessage.join(","));
-      const fixtureTommorowMessage = ["*Selected Cricket Fixtures Tommorow*\n"];
-      fixturesTommorow = await matchIDModel
-        .find({
-          date: tomorrow,
-        })
-        .exec();
-      fixturesTommorow.forEach((fixture) => {
-        const date = new Date(parseInt(fixture.unixTimeStamp) * 1000);
-        dateTime = date.toLocaleTimeString();
-        fixtureTommorowMessage.push(
-          `*${fixture.seriesName}*\n${fixture.fixture}\n${time}\n\n`
-        );
-      });
-      client.sendMessage(`263775231426@c.us`, fixtureTommorowMessage.join(","));
-    });
-
-    cron.schedule(`38 2,19 * * *`, async () => {
+    cron.schedule(`32 6 * * *`, async () => {
       // getMatchIds("recent", calls);
-      const fixtures = [`*Selected Fixtures today*\n\n`];
+      console.log(today);
+      const fixtures = [`*Featured Fixtures today*\n\n`];
       await matchIDModel
         .find({
-          date: tomorrow,
+          date: today,
         })
         .exec()
         .then((matchesToday) => {
@@ -199,7 +171,7 @@ connectDB().then(async () => {
             console.log(minutes, hours, startDate - endDate, month);
             // send live update for each game every 25 minutes
             fixtures.push(
-              `*${match.seriesName}\n${match.fixture}\n${match.startingTime}\n\n`
+              `*${match.seriesName}*\n${match.fixture}\n${match.startingTime}\n\n`
             );
 
             cron.schedule(

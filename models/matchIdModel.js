@@ -37,6 +37,10 @@ const matchIdSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  endDateUnix: {
+    type: String,
+    required: true,
+  },
 });
 
 const matchIdModel = mongoose.model("matchId", matchIdSchema);
