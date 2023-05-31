@@ -9,7 +9,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-     // executablePath: "/usr/bin/chromium-browser",
+      executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -35,7 +35,6 @@ connectDB().then(async () => {
 
   //client2.initialize();
   client.initialize();
-  
 
   //messaging client resources
   const clientOn = require("./config/helperFunction/clientOn");
@@ -58,7 +57,7 @@ connectDB().then(async () => {
     client.setDisplayName("Live Scores,news, articles");
 
     //Db models
-    const matchIDModel = require("./models/matchIdModel");
+
     //decalre variables that work with client here
     client.setDisplayName("AI is here to stay");
     // cron.schedule(`* * * * *`, async () => {
@@ -70,13 +69,11 @@ connectDB().then(async () => {
     const today = new Date().toISOString().slice(0, 10);
     const yesterday = new Date(yestdate).toISOString().slice(0, 10);
 
-    
-   
     //collect media adverts and send
     //const mediaModel = require("./models/media");
-   
-  client.on("disconnected", (reason) => {
-    console.log("Client was logged out", reason);
+
+    client.on("disconnected", (reason) => {
+      console.log("Client was logged out", reason);
+    });
   });
-});
 });
