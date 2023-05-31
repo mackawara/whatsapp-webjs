@@ -145,7 +145,7 @@ connectDB().then(async () => {
         client.sendMessage(`263775231426@c.us`, "news is blank");
       }
     });
-    getMatchIds("upcoming");
+    //  getMatchIds("upcoming");
     cron.schedule(`0 2 * * *`, async () => {
       getMatchIds("recent");
     });
