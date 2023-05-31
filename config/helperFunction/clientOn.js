@@ -1,9 +1,10 @@
 const contactsModel = require("../../models/contactsModel");
-
+let messages = [];
+const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
 const clientOn = async (client, arg1, arg2, MessageMedia) => {
   const fs = require("fs/promises");
   const me = process.env.ME;
-  const contactModel=require("../../models/contactsModel")
+  const contactModel = require("../../models/contactsModel");
   //const { MessageMedia } = require("whatsapp-web.js");
 
   if (arg1 == "auth_failure") {
@@ -25,7 +26,6 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
     });
   }
 
-  const contactModel = require("../../models/contactsModel");
   // let groupName, grpDescription;
   if (arg1 == "message") {
     client.on(`message`, async (msg) => {
@@ -34,62 +34,32 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
 
       const msgBody = msg.body;
 
-      msgBody.split(" ").forEach(async (word) => {
-        const keywords = {
-          businessKeywords: [
-            "receipt",
-            "invoice books",
-            "cartridges",
-            "toner",
-            "catridge",
-            "ink cartridge",
-            "printer cartridge",
-            "CCTV",
-            "camera",
-            "internet",
-            "Hp cartridge",
-            "kyocera",
-            "computer repairs",
-            "photo shoot",
-            "hard drives",
-            "RAM",
-            "laptops",
-            "computer",
-            "cricket",
-          ],
-          usdKeyword: [
-            `for eco`,
-            `for ecocash`,
-            `USD available`,
-            `for zipit`,
-            `US for`,
-            `for bank transfer`,
-            `US for`,
-            `usd available`,
-            `ìnternal transfer`,
-          ],
-        };
-
-        if (keywords.businessKeywords.includes(word)) {
-          console.log(msg);
-          //do stuff
-          client.sendMessage(
-            me,
-            `Business keyword alert:\n ${msg.body} from ${msg.getContact()}`
-          );
-        }
-      });
       if (/openAi:/gi.test(msgBody)) {
-        contactsModel.find({
-          
-        })
-        console.log("open ai");
+        msgBody.split(" ").forEach(async (word) => {
+          const keywords = {
+            flags: ["porn", "xxx"],
+          };
 
+          if (keywords.flags.includes(word)) {
+            console.log(msg);
+            //do stuff
+            msg.reply(
+              `flagged words detected in your request please refrain from requesting adult content or cntent that promotes violence. If you believe you have been wrngly flagged please submit your text to us by prefixing you text with wrong flag`
+            );
+            return;
+          }
+        });
         const openAiCall = require("./openai");
         const prompt = await msgBody.replace(/openAi:/gi, "");
+        //const timeStamp=new Date()
+        const chatID = msg.from;
+        let response = await openAiCall(prompt, chatID);
+        //response = response[0].text;
 
-        const response = await openAiCall(prompt);
-        msg.reply(response[0].text);
+        const signOff = `\n\n\n*Thank you* for using this *trial version* brought to you buy Venta Tech. In this improved version you can chat to our Ai as you would to a person. Send all feedback/suggestions to 0775231426`;
+        msg.reply(response + signOff);
+        await timeDelay(3600000);
+        // messages=[]
       }
 
       //queries chatGPT work in progress
@@ -97,75 +67,9 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
         const response = await callOpenAi(msgBody);
         msg.reply(response);
       } */
-      if (chat.isGroup) {
-        //grpOwner = chat.owner.user;
-
-        if (/matchid/gi.test(msgBody.replaceAll(" ", ""))) {
-          // getCommentary()
-
-          //get the math they want
-          const matchId = msgBody
-            .replace(/\s/g, "")
-            .slice("8")
-            .trim()
-            .replace(":", "");
-          //const matchCommentary = await getCommentary(matchId); // check if message contains a req for ID
-          msg.reply("Do stuff"); //do stuff
-        }
-      } else {
-        let from = msg.from;
-
-        let senderNotifyName = await contact.pushname;
-
-        if (!contactModel.find({ number: from })) {
-          const newContact = new contactModel({
-            notifyName: senderNotifyName,
-            number: from,
-            serialisedNumber: contact.id._serialised,
-            isBlocked: contact.isBlocked,
-          });
-          newContact.save().then(() => console.log("saved"));
-        }
-
-        chat.sendSeen();
-        // msg.reply("hi thank you");
-      }
     });
   }
   //run when group is left
-  else if (arg1 == "group-leave") {
-    client.on("group_leave", (notification) => {
-      console.log(notification);
-      // User has left or been kicked from the group.
-
-      /* client.sendMessage(
-        user,
-        `We are sorry to see you leave our group , May you indly share wy you decided to leave`
-      ); */
-      //client.sendMessage(me,`User ${notification.id.participant} just left  the group`);
-    });
-  } else if (arg1 == "group-join") {
-    client.on("group_join", (notification) => {
-      console.log(notification);
-      // User has joined or been added to the group.
-      console.log("join", notification);
-      /*  client.sendMessage(
-        notification.id.participant,
-        `welcome to ${}}Here are the group rules for your convenience.... \n`
-      )  */
-      // notification.reply("User joined.");
-    });
-  } else if (arg1 == "before" && arg2 == "after") {
-    client.on("message_revoke_everyone", async (after, before) => {
-      // Fired whenever a message is deleted by anyone (including you)
-      console.log(after); // message after it was deleted.
-      if (before) {
-        console.log(before); // message before it was deleted.
-      } else {
-        client.sendMessage(me, `this message was deleted${before.body}`);
-      }
-    });
-  }
 };
 
 module.exports = clientOn;
