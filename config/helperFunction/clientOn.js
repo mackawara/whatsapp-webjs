@@ -82,8 +82,10 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
         const openAiCall = require("./openai");
         const prompt = await msgBody.replace(/openAi:/gi, "");
 
-        const response = await openAiCall(prompt);
-        msg.reply(response[0].text);
+        let response = await openAiCall(prompt);
+        response = response[0].text;
+        const signOff = `\n\n\n*Thank you* for using this *trial version* brough to you buy Venta Tech, send all feedback/suggestions to 0775231426`;
+        msg.reply(response + signOff);
       }
 
       //queries chatGPT work in progress

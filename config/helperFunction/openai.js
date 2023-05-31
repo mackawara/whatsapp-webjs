@@ -12,11 +12,13 @@ const openAiCall = async (prompt) => {
     .createCompletion({
       model: "text-davinci-003",
       prompt: prompt,
-      temperature: 0,
-      max_tokens: 1000,
+      temperature: 0.3,
+      max_tokens: 150,
+      frequency_penalty: 0.0,
+      presence_penalty: 0.0,
     })
     .catch((err) => {
-      console.log(err);
+      console.log(err.response);
     });
   return response.data.choices;
 };
