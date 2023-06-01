@@ -4,6 +4,7 @@ let chats = {};
 const openAiCall = async (prompt, chatID) => {
   console.log(chats);
   if (!chats[chatID]) {
+    console.log("no previous found");
     Object.assign(chats, {
       [chatID]: {
         messages: [{ role: "user", content: prompt }],
@@ -11,6 +12,7 @@ const openAiCall = async (prompt, chatID) => {
     });
     console.log(chats);
   } else {
+    console.log("found existing chat");
     chats[chatID].messages.push({ role: "user", content: prompt });
   }
   console.log("openai called");
@@ -39,9 +41,10 @@ const openAiCall = async (prompt, chatID) => {
   if (response.data) {
     console.log("no errors");
     console.log(response.data.choices[0]["message"]);
-    console.log(chats[chatID]["messages"]);
-    chats[chatID].messages.push(response.data.choices[0]["message"]);
-    console.log(chats);
+
+    chats[chatID].messages.push(response.data.choices[0]["message"]); //add system response to messages
+    chats[chatID].messages.splice(0, chats[chatID].messages.length - 4); //trim messages and remain wit newest ones only
+    console.log(chats[chatID].messages.length);
     return response.data.choices[0]["message"]["content"];
   } else {
     return error.message;
