@@ -1,6 +1,6 @@
 //openai
 
-let chats = {};
+let chats = require("../../chats");
 const openAiCall = async (prompt, chatID) => {
   console.log(chats);
   if (!chats[chatID]) {
@@ -30,21 +30,23 @@ const openAiCall = async (prompt, chatID) => {
       model: "gpt-3.5-turbo",
       messages: chats[chatID]["messages"],
       temperature: 0.3,
-      max_tokens: 150,
+      max_tokens: 200,
       frequency_penalty: 0.0,
       presence_penalty: 0.0,
     })
     .catch((err) => {
       console.log("Error recorded " + err.response.data.error);
-      error = err.response.data.error;
+      error = err.response;
     });
-  if (response.data) {
+  if ("data" in response) {
     console.log("no errors");
     console.log(response.data.choices[0]["message"]);
-
     chats[chatID].messages.push(response.data.choices[0]["message"]); //add system response to messages
     chats[chatID].messages.splice(0, chats[chatID].messages.length - 4); //trim messages and remain wit newest ones only
     console.log(chats[chatID].messages.length);
+    setTimeout(() => {
+      chats[chatID].messages = [];
+    }, 900000); // messages are forgotten after 30mins
     return response.data.choices[0]["message"]["content"];
   } else {
     return error.message;
