@@ -1,7 +1,5 @@
 const connectDB = require("./config/database");
-
 require("dotenv").config();
-
 // connect to mongodb before running anything on the app
 connectDB().then(async () => {
   const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
@@ -9,7 +7,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      executablePath: process.env.EXECPATH,
       handleSIGINT: true,
       headless: true,
       args: [
@@ -48,18 +46,15 @@ connectDB().then(async () => {
     //functions abd resources
     //Helper Functions
     const cron = require("node-cron");
-
     //client events and functions
     //decalre variables that work with client here
     clientOn(client, "message");
     clientOn(client, "group-join");
     clientOn(client, "group-leave"); //client
     client.setDisplayName("Live Scores,news, articles");
-
     //Db models
-
     //decalre variables that work with client here
-    client.setDisplayName("AI is here to stay");
+    client.setDisplayName("AI Assistant");
     // cron.schedule(`* * * * *`, async () => {
 
     // get the latest updates
