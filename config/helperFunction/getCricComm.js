@@ -20,14 +20,21 @@ const getCommentary = async (matchId, calls) => {
     const response = res.data;
 
     // writeFile(response.data, "testFile.json");
-    let matchState, matchStatus, matchDesc, seriesname, team1, team2; //  const response=readFile("/../../testFile.json")
+    let matchState,
+      matchStatus,
+      matchDesc,
+      seriesname,
+      team1,
+      team2,
+      isMatchNotCovered; //  const response=readFile("/../../testFile.json")
     if (response.matchHeader) {
       (matchStatus = response.matchHeader.status),
         (matchState = response.matchHeader.state),
         (matchDesc = response.matchHeader.matchDescription),
         (seriesname = response.matchHeader.seriesDesc),
         (team1 = response.matchHeader.team1.name),
-        (team2 = response.matchHeader.team2.name);
+        (team2 = response.matchHeader.team2.name),
+        (isMatchNoCovered = response.matchHeader.isMatchnotCovered);
     } else {
       (matchStatus = "Not Available try another match ID"),
         (matchState = "Not Available");
@@ -48,7 +55,7 @@ const getCommentary = async (matchId, calls) => {
     inningsList = inningsList.map((innings) => {
       return `${innings.batTeamName} *${innings.score}-${innings.wickets}* ,${innings.overs} overs \n`;
     });
-    let matchDetails = `*${seriesname}, ${matchDesc}* \n${team1} vs ${team2}\n\n*Match status* ${matchState} \n${inningsList.join(
+    let matchDetails = `*${seriesname}, ${matchDesc}* \n${team1} vs ${team2}\n\nMatch state ${matchState} \n${inningsList.join(
       ""
     )} *${matchStatus}*\nCurr RR: *${currRR}*, Req RRate *${reqRR}*\n \n*Commentary*`;
 
@@ -62,7 +69,7 @@ const getCommentary = async (matchId, calls) => {
         let commText = `${overNumber}${comment.commText}`;
 
         let boldValue;
-        const bold = /(B[0-9]\$|B1[0-9]\$)/g;
+        const bold = /(B[0-9]\$|B1[0-9]\$)/gi;
         if (comment.commentaryFormats.bold) {
           boldValue = comment.commentaryFormats.bold.formatValue[0];
           commText = commText.replace(bold, `*${boldValue}*`);
@@ -75,11 +82,14 @@ const getCommentary = async (matchId, calls) => {
         }
       });
     }
-
-    commentary = commentary.slice("0", "12").map((comment) => {
-      return comment + "\n";
-    });
-    return commentary.join("\n");
+    if (isMatchNotCovered) {
+      return matchDetails;
+    } else {
+      commentary = commentary.slice("0", "9").map((comment) => {
+        return comment + "\n";
+      });
+      return commentary.join("\n");
+    }
   });
   /*  .catch(function (error) {
       console.error(error);
