@@ -5,13 +5,13 @@ const getScoreCard = require("./config/helperFunction/getScoreCard");
 // connect to mongodb before running anything on the app
 connectDB().then(async () => {
   // const score = await getScoreCard(66414);
-  //console.log(score)
+  //console.log(score);
   const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
 
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      // executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -61,7 +61,7 @@ connectDB().then(async () => {
     //Db models
     const matchIDModel = require("./models/matchIdModel");
     //decalre variables that work with client here
-    client.setDisplayName("Live Sport Scores,news, articles");
+    client.setDisplayName("We are cricket");
     // cron.schedule(`* * * * *`, async () => {
 
     const liveCricket1 = "120363110873098533@g.us";
@@ -109,11 +109,28 @@ connectDB().then(async () => {
     });
 */
     //find the day`s cricket matchs and save their match Ids to the DB
+    //Send cricket Headlines
 
-    cron.schedule(`30 6,11,18 * * *`, async () => {
-      getCricketHeadlines();
+    cron.schedule(`54 10 * * *`, async () => {
+      client.sendMessage(
+        me,
+        `*Selected scorecards from yesterday\`s matches....*`
+      );
+      const matchesYesterday = await matchIDModel
+        .find({ date: yesterday })
+        .exec();
+      matchesYesterday.forEach(async (match) => {
+        const message = [`*${match.seriesName}*\n*${match.fixture}*\n`];
+        const scorecard = await getScoreCard(match.matchID);
+        message.push(scorecard);
+        client.sendMessage(me, message.join(","));
+        timeDelay(5000);
+      });
     });
-    cron.schedule(`33 6,11,18 * * *`, async () => {
+
+    cron.schedule(`30 9,15,18 * * *`, async () => {
+      getCricketHeadlines();
+      await timeDelay(60000);
       const cricHeadlines = require("./models/cricHeadlines");
       console.log("headlines");
 
@@ -141,18 +158,18 @@ connectDB().then(async () => {
       }
     });
     //update the database
-    cron.schedule(`12 8 * * *`, async () => {
+    cron.schedule(`5 4 * * *`, async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
     // Live updates
-    cron.schedule(`17 8 * * *`, async () => {
+    cron.schedule(`15 4 * * *`, async () => {
       // getMatchIds("recent", calls);
       console.log(today);
-      const fixtures = [`*Upcoming Fixtures *\n\n`];
+      const fixtures = [`*Selected Upcoming Fixtures *\n\n`];
       await matchIDModel
         .find({
-          // date: today,
+          date: today,
         })
         .exec()
         .then((matchesToday) => {

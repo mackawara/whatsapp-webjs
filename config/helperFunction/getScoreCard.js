@@ -10,7 +10,7 @@ const sortObjectKeys = (obj, keyName) => {
 const getScorecard = async (matchId) => {
   const axios = require("axios");
 
-  const writeFile = require("./writeFile");
+  //3const writeFile = require("./writeFile");
 
   const options = {
     method: "GET",
@@ -28,12 +28,14 @@ const getScorecard = async (matchId) => {
       // const scoreCards = await readFile("/../../scorecard.json");
       //const scoreCard = JSON.parse(scoreCards).scoreCard;
       const scoreCard = await res.data.scoreCard;
+      const matchHeader = await res.data.matchHeader;
 
+      scoreObject["status"] = `*Match Status: ${matchHeader.status}*`;
       scoreCard.forEach(async (score) => {
-        const innings = `Innings${score.inningsId}`;
+        const innings = `Innings ${score.inningsId}`;
         const lineItems = [];
         const teamName = score.batTeamDetails.batTeamName;
-        const teamScore = `*${innings} ${teamName} ${score.scoreDetails.runs}-${score.scoreDetails.wickets} in ${score.scoreDetails.overs} overs*\n`;
+        const teamScore = `\n\n*${innings}:${teamName} ${score.scoreDetails.runs}-${score.scoreDetails.wickets} in ${score.scoreDetails.overs} overs*\n`;
         const batting = [];
         const bowling = [];
         lineItems.push(teamScore);
@@ -43,7 +45,7 @@ const getScorecard = async (matchId) => {
 
         let bowlersData = score.bowlTeamDetails.bowlersData;
         bowlersData = sortObjectKeys(bowlersData);
-
+        batting.push(teamScore);
         // console.log(Object.keys(batsManData));
         for (let batter in batsManData) {
           const batName = batsManData[batter]["batName"];
@@ -57,13 +59,14 @@ const getScorecard = async (matchId) => {
         }
         scoreObject[`${innings}Batting`] = batting.join("\n");
         lineItems.push(`\n*Innings ${innings} Bowling Analysis*`);
+        bowling.push(`\n\n*${innings} Bowling Analysis*\n`);
         for (let bowler in bowlersData) {
           const bowlerName = bowlersData[bowler]["bowlName"];
           const overs = bowlersData[bowler]["overs"];
           const runs = bowlersData[bowler]["runs"];
           const wickets = bowlersData[bowler]["wickets"];
           const economy = bowlersData[bowler]["economy"];
-          const bowlingScorecard = `*${bowlerName}*\n *Overs*:${overs} *Wkts*:${wickets} *Runs*:${runs} *RPO*:${economy} \n`;
+          const bowlingScorecard = `*${bowlerName}:*\n   *Ov*:${overs} *Wkt*:${wickets} *R*:${runs} *RPO*:${economy} \n`;
           bowling.push(bowlingScorecard);
         }
         scoreObject[`${innings}Bowling`] = bowling.join("\n");
@@ -75,6 +78,15 @@ const getScorecard = async (matchId) => {
       console.error(error);
     });
   console.log(scoreCardObject);
-  return scoreCardObject;
+  const message = [];
+  const keys = Object.keys(scoreCardObject);
+  console.log(keys);
+  keys.forEach((key) => {
+    message.push(scoreCardObject[key]);
+  });
+  console.log(message);
+  const scorecardArray = Array.from(keys);
+  console.log(scorecardArray);
+  return message.join(",");
 };
 module.exports = getScorecard;
