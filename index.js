@@ -11,7 +11,7 @@ connectDB().then(async () => {
   const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-      // executablePath: "/usr/bin/chromium-browser",
+      executablePath: "/usr/bin/chromium-browser",
       handleSIGINT: true,
       headless: true,
       args: [
@@ -113,7 +113,7 @@ connectDB().then(async () => {
 
     cron.schedule(`54 10 * * *`, async () => {
       client.sendMessage(
-        me,
+        liveCricket1,
         `*Selected scorecards from yesterday\`s matches....*`
       );
       const matchesYesterday = await matchIDModel
@@ -123,7 +123,7 @@ connectDB().then(async () => {
         const message = [`*${match.seriesName}*\n*${match.fixture}*\n`];
         const scorecard = await getScoreCard(match.matchID);
         message.push(scorecard);
-        client.sendMessage(me, message.join(","));
+        client.sendMessage(liveCricket1, message.join(","));
         timeDelay(5000);
       });
     });
