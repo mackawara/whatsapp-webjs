@@ -158,14 +158,14 @@ connectDB().then(async () => {
       }
     });
     //update the database
-    cron.schedule(`5 4 * * *`, async () => {
+    cron.schedule(`0 5 * * *`, async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
     // Live updates
-    cron.schedule(`15 4 * * *`, async () => {
+    console.log(today);
+    cron.schedule(`15 6 * * *`, async () => {
       // getMatchIds("recent", calls);
-      console.log(today);
       const fixtures = [`*Selected Upcoming Fixtures *\n\n`];
       await matchIDModel
         .find({
