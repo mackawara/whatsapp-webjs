@@ -25,7 +25,7 @@ const getMatchIds = async (type, calls) => {
         const matchesAll = response.data; //JSON.parse(dummyresult); // array of all matches split by typpe
         const international = /International/gi;
         const domestic = /Domestic/gi;
-        const league = /International|League/gi;
+        const league = /league/gi;
         matchesAll.typeMatches.forEach((match) => {
           if (international.test(match.matchType)) {
             console.log(match.matchType + " matches found");
@@ -36,6 +36,7 @@ const getMatchIds = async (type, calls) => {
                 matches.forEach((match) => {
                   const matchState = match.state;
                   const matchInfo = match.matchInfo;
+                  const endDateUnix = matchInfo.endDate;
                   const seriesName = matchInfo.seriesName;
                   const matchID = matchInfo.matchId;
                   const matchFormat = matchInfo.matchFormat;
@@ -55,6 +56,7 @@ const getMatchIds = async (type, calls) => {
                     date: date,
                     matchID: matchID,
                     unixTimeStamp: matchInfo.startDate,
+                    endDateUnix: endDateUnix,
                     startingTime: startTime,
                     seriesName: seriesName,
                     matchState: matchInfo.state,
@@ -76,6 +78,7 @@ const getMatchIds = async (type, calls) => {
                 matches.forEach((match) => {
                   const matchState = match.state;
                   const matchInfo = match.matchInfo;
+                  const endDateUnix = matchInfo.endDate;
                   const seriesName = matchInfo.seriesName;
                   const matchID = matchInfo.matchId;
                   const matchFormat = matchInfo.matchFormat;
@@ -95,6 +98,7 @@ const getMatchIds = async (type, calls) => {
                     date: date,
                     matchID: matchID,
                     unixTimeStamp: matchInfo.startDate,
+                    endDateUnix: endDateUnix,
                     startingTime: startTime,
                     seriesName: seriesName,
                     matchState: matchInfo.state,
@@ -118,6 +122,7 @@ const getMatchIds = async (type, calls) => {
                 matches.forEach((match) => {
                   const matchState = match.state;
                   const matchInfo = match.matchInfo;
+                  const endDateUnix = matchInfo.endDate;
                   const seriesName = matchInfo.seriesName;
                   const matchID = matchInfo.matchId;
                   const matchFormat = matchInfo.matchFormat;
@@ -137,6 +142,7 @@ const getMatchIds = async (type, calls) => {
                     date: date,
                     matchID: matchID,
                     unixTimeStamp: matchInfo.startDate,
+                    endDateUnix: endDateUnix,
                     startingTime: startTime,
                     seriesName: seriesName,
                     matchState: matchInfo.state,
