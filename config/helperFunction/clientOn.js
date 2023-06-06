@@ -59,12 +59,11 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
           .find({ serialisedNumber: chatID })
           .exec();
 
+        let serialisedNumber, notifyName, number;
+        serialisedNumber = contact.id._serialized;
+        notifyName = contact.pushname;
+        number = contact.number;
         if (contacts.length < 1) {
-          let serialisedNumber, notifyName, number;
-          serialisedNumber = contact.id._serialized;
-          notifyName = contact.pushname;
-          number = contact.number;
-
           const newContact = new contactsModel({
             date: new Date().toISOString().slice(0, 10),
             isBlocked: false,
@@ -73,16 +72,38 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
             serialisedNumber: serialisedNumber,
             isSubscribed: false,
             tokens: 0,
+            warnings: 0,
             calls: 0,
           });
           await newContact.save();
         }
 
-        let response = await openAiCall(prompt, chatID);
+        let response = await openAiCall(prompt, chatID, client);
         // response = response[0].text;
 
-        const signOff = `\n\n\n*Thank you* for using this *trial version* brought to you buy Venta Tech. In this improved version you can chat to our Ai as you would to a person. Send all feedback/suggestions to 0775231426`;
-        msg.reply(response + signOff);
+        const signOff = `\n\n\n*Thank you ${notifyName}* for using this *trial version* brought to you buy Venta Tech. In this improved version you can chat to our Ai as you would to a person. Send all feedback/suggestions to 0775231426`;
+        if (
+          response ==
+          "*Error!* too many requests made , please try later. You cannot make mutiple requests at the same time"
+        ) {
+          //const offender=new
+          console.log("contact is in serious breach");
+          const offender = await client.getContactById(serialisedNumber);
+          console.log(offender);
+          await offender.block();
+          contacts[0].isBlocked
+            ? await offender
+                .block()
+                .then(async () =>
+                  client.sendMessage(
+                    `263775231426@c.us`,
+                    `contact ${chatID} has been blocked for infractions`
+                  )
+                )
+            : msg.reply(response + signOff);
+        } else {
+          msg.reply(response + signOff);
+        }
 
         // messages=[]
       }
