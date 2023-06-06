@@ -90,7 +90,7 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
           console.log("contact is in serious breach");
           const offender = await client.getContactById(serialisedNumber);
           console.log(offender);
-          await offender.block();
+          /* await offender.block();
           contacts[0].isBlocked
             ? await offender
                 .block()
@@ -100,7 +100,7 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
                     `contact ${chatID} has been blocked for infractions`
                   )
                 )
-            : msg.reply(response + signOff);
+            : */ msg.reply(response + signOff);
         } else {
           msg.reply(response + signOff);
         }
