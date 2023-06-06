@@ -9,7 +9,7 @@ const queryAndSave = async function (model, item, queryString, itemId) {
 
   if (result.length < 1) {
     try {
-      item.save().then(() => console.log("new fixture saved"));
+      item.save().then(() => console.log("new entry saved"));
     } catch (error) {
       console.error(error);
     }

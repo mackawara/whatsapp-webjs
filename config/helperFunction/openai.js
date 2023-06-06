@@ -12,7 +12,7 @@ const openAiCall = async (prompt, chatID) => {
     .find({ serialisedNumber: chatID })
     .exec();
   const contact = contacts[0];
-  console.log(contacts[0]);
+  
   //check if there is an existing chat from that number and create if not
 
   if (!chats[chatID]) {
@@ -64,6 +64,7 @@ const openAiCall = async (prompt, chatID) => {
     }, 180000); // messages are forgotten after 30mins
     contact.tokens =
       parseInt(contact.tokens) + response.data.usage.total_tokens;
+    contact.calls = parseInt(contact.calls) + 1;
     contact.save();
     return response.data.choices[0]["message"]["content"];
   } else {

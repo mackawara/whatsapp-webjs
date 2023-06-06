@@ -73,6 +73,7 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
             serialisedNumber: serialisedNumber,
             isSubscribed: false,
             tokens: 0,
+            calls: 0,
           });
           await newContact.save();
         }
