@@ -5,10 +5,11 @@ const contactsSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  isBloceked: {
+  isBlocked: {
     type: String,
     required: true,
   },
+  calls: { type: Number, required: true },
   number: {
     type: String,
     required: true,
@@ -27,6 +28,7 @@ const contactsSchema = new mongoose.Schema({
   },
   tokens: {
     type: Number,
+    required: false,
   },
 });
 
