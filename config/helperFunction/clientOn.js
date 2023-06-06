@@ -1,10 +1,11 @@
 const contactsModel = require("../../models/contactsModel");
+const queryAndSave = require("./queryAndSave");
 let messages = [];
 const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
 const clientOn = async (client, arg1, arg2, MessageMedia) => {
   const fs = require("fs/promises");
   const me = process.env.ME;
-  const contactModel = require("../../models/contactsModel");
+  const contactsModel = require("../../models/contactsModel");
   //const { MessageMedia } = require("whatsapp-web.js");
 
   if (arg1 == "auth_failure") {
@@ -32,9 +33,10 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
       const chat = await msg.getChat();
       const contact = await msg.getContact();
 
+      // console.log(chat);
       const msgBody = msg.body;
 
-      if (/openAi:/gi.test(msgBody)) {
+      if (/openAi:/gi.test(msgBody) && !chat.isGroup) {
         msgBody.split(" ").forEach(async (word) => {
           const keywords = {
             flags: ["porn", "xxx"],
@@ -53,12 +55,34 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
         const prompt = await msgBody.replace(/openAi:/gi, "");
         //const timeStamp=new Date()
         const chatID = msg.from;
+        const contacts = await contactsModel
+          .find({ serialisedNumber: chatID })
+          .exec();
+
+        if (contacts.length < 1) {
+          let serialisedNumber, notifyName, number;
+          serialisedNumber = contact.id._serialized;
+          notifyName = contact.pushname;
+          number = contact.number;
+
+          const newContact = new contactsModel({
+            date: new Date().toISOString().slice(0, 10),
+            isBlocked: false,
+            number: number,
+            notifyName: notifyName,
+            serialisedNumber: serialisedNumber,
+            isSubscribed: false,
+            tokens: 0,
+          });
+          await newContact.save();
+        }
+
         let response = await openAiCall(prompt, chatID);
-        //response = response[0].text;
+        // response = response[0].text;
 
         const signOff = `\n\n\n*Thank you* for using this *trial version* brought to you buy Venta Tech. In this improved version you can chat to our Ai as you would to a person. Send all feedback/suggestions to 0775231426`;
         msg.reply(response + signOff);
-        await timeDelay(3600000);
+
         // messages=[]
       }
 
