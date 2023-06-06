@@ -1,8 +1,20 @@
 //openai
+const queryAndSave = require("./queryAndSave");
+const contactsModel = require("../../models/contactsModel.js");
+// keep track of token usage per day,best save in DB
+// block brute forcers
+//block rogue numbers
+// check if existing number locally if not check on db
 
 let chats = require("../../chats");
 const openAiCall = async (prompt, chatID) => {
-  console.log(chats);
+  const contacts = await contactsModel
+    .find({ serialisedNumber: chatID })
+    .exec();
+  const contact = contacts[0];
+  console.log(contacts[0]);
+  //check if there is an existing chat from that number and create if not
+
   if (!chats[chatID]) {
     console.log("no previous found");
     Object.assign(chats, {
@@ -15,8 +27,7 @@ const openAiCall = async (prompt, chatID) => {
     console.log("found existing chat");
     chats[chatID].messages.push({ role: "user", content: prompt });
   }
-  console.log("openai called");
-  console.log(chats[chatID]["messages"]);
+
   const { Configuration, OpenAIApi } = require("openai");
   const configuration = new Configuration({
     organization: process.env.OPENAI_ORGANISATION_KEY,
@@ -30,7 +41,7 @@ const openAiCall = async (prompt, chatID) => {
       model: "gpt-3.5-turbo",
       messages: chats[chatID]["messages"],
       temperature: 0.3,
-      max_tokens: 200,
+      max_tokens: 250,
       frequency_penalty: 0.0,
       presence_penalty: 0.0,
     })
@@ -38,6 +49,7 @@ const openAiCall = async (prompt, chatID) => {
       console.log("Error recorded " + err.response.data.error);
       error = err.response;
     });
+  console.log(response.data);
   if ("data" in response) {
     console.log("no errors");
     console.log(response.data.choices[0]["message"]);
@@ -45,8 +57,14 @@ const openAiCall = async (prompt, chatID) => {
     chats[chatID].messages.splice(0, chats[chatID].messages.length - 4); //trim messages and remain wit newest ones only
     console.log(chats[chatID].messages.length);
     setTimeout(() => {
-      chats[chatID].messages = [];
-    }, 900000); // messages are forgotten after 30mins
+      chats[chatID]["calls"] = 0;
+    }, 1000);
+    setTimeout(() => {
+      chats[chatID]["message"] = [];
+    }, 180000); // messages are forgotten after 30mins
+    contact.tokens =
+      parseInt(contact.tokens) + response.data.usage.total_tokens;
+    contact.save();
     return response.data.choices[0]["message"]["content"];
   } else {
     return error.message;
