@@ -14,6 +14,10 @@ const contactsSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  warnings: {
+    type: Number,
+    required: true,
+  },
   notifyName: {
     type: String,
     required: true,
