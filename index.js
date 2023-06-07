@@ -112,20 +112,22 @@ connectDB().then(async () => {
     //Send cricket Headlines
 
     cron.schedule(`54 10 * * *`, async () => {
-      client.sendMessage(
-        liveCricket1,
-        `*Selected scorecards from yesterday\`s matches....*`
-      );
       const matchesYesterday = await matchIDModel
         .find({ date: yesterday })
         .exec();
-      matchesYesterday.forEach(async (match) => {
-        const message = [`*${match.seriesName}*\n*${match.fixture}*\n`];
-        const scorecard = await getScoreCard(match.matchID);
-        message.push(scorecard);
-        client.sendMessage(liveCricket1, message.join(","));
-        timeDelay(5000);
-      });
+      if (matchesYesterday.length > 0) {
+        client.sendMessage(
+          liveCricket1,
+          `*Selected scorecards from yesterday\`s matches....*`
+        );
+        matchesYesterday.forEach(async (match) => {
+          const message = [`*${match.seriesName}*\n*${match.fixture}*\n`];
+          const scorecard = await getScoreCard(match.matchID);
+          message.push(scorecard);
+          client.sendMessage(liveCricket1, message.join(","));
+          timeDelay(5000);
+        });
+      }
     });
 
     cron.schedule(`30 9,15,18 * * *`, async () => {
@@ -164,7 +166,7 @@ connectDB().then(async () => {
     });
     // Live updates
     console.log(today);
-    cron.schedule(`15 6 * * *`, async () => {
+    cron.schedule(`25 5 * * *`, async () => {
       // getMatchIds("recent", calls);
       const fixtures = [`*Selected Upcoming Fixtures *\n\n`];
       await matchIDModel
@@ -172,64 +174,73 @@ connectDB().then(async () => {
           date: today,
         })
         .exec()
+
         .then((matchesToday) => {
           console.log(matchesToday);
-          matchesToday.forEach(async (match) => {
-            const hours = new Date(parseInt(match.unixTimeStamp)).getHours(),
-              minutes = new Date(parseInt(match.unixTimeStamp)).getMinutes(),
-              startDate = new Date(parseInt(match.unixTimeStamp)).getDate(),
-              month = new Date(parseInt(match.unixTimeStamp)).getMonth() + 1,
-              endDate = new Date(parseInt(match.endDateUnix)).getDate();
+          matchesToday > 0
+            ? matchesToday.forEach(async (match) => {
+                const hours = new Date(
+                    parseInt(match.unixTimeStamp)
+                  ).getHours(),
+                  minutes = new Date(
+                    parseInt(match.unixTimeStamp)
+                  ).getMinutes(),
+                  startDate = new Date(parseInt(match.unixTimeStamp)).getDate(),
+                  month =
+                    new Date(parseInt(match.unixTimeStamp)).getMonth() + 1,
+                  endDate = new Date(parseInt(match.endDateUnix)).getDate();
 
-            console.log(minutes, hours, startDate, endDate, month);
-            // send live update for each game every 25 minutes
-            fixtures.push(
-              `*${match.date}*\n*${match.seriesName}*\n${match.fixture}\n${match.startingTime}\n\n`
-            );
-
-            cron.schedule(
-              ` ${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
-              async () => {
-                console.log("secondary running");
-                const complete = /Match state Complete/gi;
-                const stumps = /Match state stumps/gi;
-                const continueCondition = /Match state.(lunch|tea|dinner)/gi;
-                let commentary = "";
-
-                do {
-                  //send message prefixed with group invite
-                  console.log(commentary);
-                  const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
-                  const update = await getCommentary(match.matchID);
-                  commentary = update;
-                  const message = [cricketGroupInvite, update];
-                  if (continueCondition.test(update)) {
-                    console.log("continue condition");
-                    await timeDelay(900000);
-                    continue;
-                  } else if (complete.test(update) || stumps.test(update)) {
-                    console.log("break condition");
-                    // client.sendMessage(liveCricket1, message.join("\n"));
-                    break;
-                  } else {
-                    console.log("update in progress");
-                    client.sendMessage(liveCricket1, message.join("\n"));
-                    await timeDelay(1800000);
-                  }
-                  //updates at 25 minutes intervals
-                } while (true);
-                client.sendMessage(
-                  liveCricket1,
-                  await getCommentary(match.matchID)
+                console.log(minutes, hours, startDate, endDate, month);
+                // send live update for each game every 25 minutes
+                fixtures.push(
+                  `*${match.date}*\n*${match.seriesName}*\n${match.fixture}\n${match.startingTime}\n\n`
                 );
-              }
-            );
 
-            //run at least once //if comms test returns true
-          });
+                cron.schedule(
+                  ` ${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
+                  async () => {
+                    console.log("secondary running");
+                    const complete = /Match state Complete/gi;
+                    const stumps = /Match state stumps/gi;
+                    const continueCondition =
+                      /Match state.(lunch|tea|dinner)/gi;
+                    let commentary = "";
+
+                    do {
+                      //send message prefixed with group invite
+                      console.log(commentary);
+                      const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
+                      const update = await getCommentary(match.matchID);
+                      commentary = update;
+                      const message = [cricketGroupInvite, update];
+                      if (continueCondition.test(update)) {
+                        console.log("continue condition");
+                        await timeDelay(900000);
+                        continue;
+                      } else if (complete.test(update) || stumps.test(update)) {
+                        console.log("break condition");
+                        // client.sendMessage(liveCricket1, message.join("\n"));
+                        break;
+                      } else {
+                        console.log("update in progress");
+                        client.sendMessage(liveCricket1, message.join("\n"));
+                        await timeDelay(1800000);
+                      }
+                      //updates at 25 minutes intervals
+                    } while (true);
+                    client.sendMessage(
+                      liveCricket1,
+                      await getCommentary(match.matchID)
+                    );
+                  }
+                );
+
+                //run at least once //if comms test returns true
+              })
+            : console.log("no matches today");
         });
 
-      client.sendMessage(liveCricket1, fixtures.join(","));
+      client.sendMessage(me, fixtures.join(","));
     });
 
     //collect media adverts and send
