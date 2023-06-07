@@ -51,10 +51,11 @@ connectDB().then(async () => {
     clientOn(client, "message");
     clientOn(client, "group-join");
     clientOn(client, "group-leave"); //client
-    client.setDisplayName("Live Scores,news, articles");
+
     //Db models
     //decalre variables that work with client here
-    client.setDisplayName("AI Assistant");
+    client.setDisplayName("AskMe, the all knowing assistant");
+
     // cron.schedule(`* * * * *`, async () => {
 
     // get the latest updates
