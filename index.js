@@ -111,7 +111,7 @@ connectDB().then(async () => {
     //find the day`s cricket matchs and save their match Ids to the DB
     //Send cricket Headlines
     //WTC
-    cron.schedule(`30/30 10-19 7-11 * *`, async () => {
+    cron.schedule(`*/30 11-19 7-11 * *`, async () => {
       const commentary = await getCommentary(65805);
       client.sendMessage(liveCricket1, commentary);
     });
