@@ -32,11 +32,12 @@ const clientOn = async (client, arg1, arg2, MessageMedia) => {
     client.on(`message`, async (msg) => {
       const chat = await msg.getChat();
       const contact = await msg.getContact();
+      // const message=await
 
       // console.log(chat);
       const msgBody = msg.body;
 
-      if (!chat.isGroup) {
+      if (!chat.isGroup && !message.isStatus) {
         msgBody.split(" ").forEach(async (word) => {
           const keywords = {
             flags: ["porn", "xxx"],
