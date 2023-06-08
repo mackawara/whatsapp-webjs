@@ -113,7 +113,7 @@ connectDB().then(async () => {
     //find the day`s cricket matchs and save their match Ids to the DB
     //Send cricket Headlines
     //WTC
-    cron.schedule(`0 13 8-11 * *`, async () => {
+    cron.schedule(`50 15 8-11 * *`, async () => {
       let commentary;
       const complete = /Match state Complete/gi;
       const stumps = /Match state stumps/gi;
@@ -136,7 +136,7 @@ connectDB().then(async () => {
         } else {
           console.log("update in progress");
           const scorecard = await getScoreCard(match.matchID);
-          await message.push(scorecard);
+          message.push(scorecard);
           client.sendMessage(liveCricket1, message.join("\n"));
           await timeDelay(1800000);
         }
