@@ -113,7 +113,7 @@ connectDB().then(async () => {
     //find the day`s cricket matchs and save their match Ids to the DB
     //Send cricket Headlines
     //WTC
-    cron.schedule(`30 9 7-11 * *`, async () => {
+    cron.schedule(`0 10 7-11 * *`, async () => {
       let commentary;
       const complete = /Match state Complete/gi;
       const stumps = /Match state stumps/gi;
@@ -121,7 +121,7 @@ connectDB().then(async () => {
       do {
         //send message prefixed with group invite
         console.log(commentary);
-        const cricketGroupInvite = `https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
+        const cricketGroupInvite = `*For on the dot Live cricket updates Join our group* : https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
         const update = await getCommentary(65805);
 
         const message = [cricketGroupInvite, update];
@@ -135,6 +135,8 @@ connectDB().then(async () => {
           break;
         } else {
           console.log("update in progress");
+          const scorecard = await getScoreCard(match.matchID);
+          await message.push(scorecard);
           client.sendMessage(liveCricket1, message.join("\n"));
           await timeDelay(1800000);
         }
