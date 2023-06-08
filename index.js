@@ -113,7 +113,7 @@ connectDB().then(async () => {
     //find the day`s cricket matchs and save their match Ids to the DB
     //Send cricket Headlines
     //WTC
-    cron.schedule(`0 10 7-11 * *`, async () => {
+    cron.schedule(`0 13 8-11 * *`, async () => {
       let commentary;
       const complete = /Match state Complete/gi;
       const stumps = /Match state stumps/gi;
