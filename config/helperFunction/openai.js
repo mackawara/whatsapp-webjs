@@ -15,21 +15,6 @@ const openAiCall = async (prompt, chatID) => {
 
   //check if there is an existing chat from that number and create if not
 
-  if (!chats[chatID]) {
-    console.log("no previous found");
-    Object.assign(chats, {
-      [chatID]: {
-        messages: [{ role: "user", content: prompt }],
-        calls: 0,
-      },
-    });
-    console.log(chats);
-  } else {
-    console.log("found existing chat");
-    chats[chatID].calls++;
-    chats[chatID].messages.push({ role: "user", content: prompt });
-  }
-
   const { Configuration, OpenAIApi } = require("openai");
   const configuration = new Configuration({
     organization: process.env.OPENAI_ORGANISATION_KEY,
@@ -43,10 +28,10 @@ const openAiCall = async (prompt, chatID) => {
       .createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: chats[chatID]["messages"],
-        temperature: 0.3,
-        max_tokens: 250,
-        frequency_penalty: 0.0,
-        presence_penalty: 0.0,
+        temperature: 1,
+        max_tokens: 150,
+        frequency_penalty: 1.7,
+        presence_penalty: 1.89,
       })
       .catch((err) => {
         console.log("Error recorded " + err.response.data.error.message);
@@ -76,6 +61,7 @@ const openAiCall = async (prompt, chatID) => {
       return error.message;
     }
   } else {
+    //if contact exceeds 10 warnings block them
     contact.warnings = contact.warnings + 1;
     if (contact.warnings > 10) {
       contact.isBlocked = true;
