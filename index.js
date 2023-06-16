@@ -75,14 +75,8 @@ connectDB().then(async () => {
     // get the latest updates
 
     let calls = 0;
-    let date = new Date();
-    let yestdate = date.setDate(date.getDate() - 1);
-    let tommorowDate = date.setDate(date.getDate() + 1);
-    let tommorow = new Date(tommorowDate).toISOString().slice(0, 10);
-    let today = new Date(date).toISOString().slice(0, 10);
-
-    console.log(yesterday, today, tommorow);
-
+   
+   
     /* 
     cron.schedule("40 10,23 * * *", async () => {
       const results = [];
@@ -169,7 +163,7 @@ connectDB().then(async () => {
       }
     });
     //update the database
-    cron.schedule(`0 8 * * *`, async () => {
+    cron.schedule(`27 9 * * *`, async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
