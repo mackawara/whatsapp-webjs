@@ -4,6 +4,8 @@ const getScoreCard = require("./config/helperFunction/getScoreCard");
 
 // connect to mongodb before running anything on the app
 connectDB().then(async () => {
+  const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
+
   // const score = await getScoreCard(66414);
   //console.log(score);
   const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
@@ -48,7 +50,7 @@ connectDB().then(async () => {
     console.log("Client is ready!");
     //functions abd resources
     //Helper Functions
-    const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
+
     const cron = require("node-cron");
 
     //client events and functions
@@ -73,12 +75,13 @@ connectDB().then(async () => {
     // get the latest updates
 
     let calls = 0;
-    const date = new Date();
-    const yestdate = date.setDate(date.getDate() - 1);
-    const tommorowDate = date.setDate(date.getDate() + 1);
-    const tommorow = new Date(tommorowDate).toISOString().slice(0, 10);
-    const today = new Date().toISOString().slice(0, 10);
-    const yesterday = new Date(yestdate).toISOString().slice(0, 10);
+    let date = new Date();
+    let yestdate = date.setDate(date.getDate() - 1);
+    let tommorowDate = date.setDate(date.getDate() + 1);
+    let tommorow = new Date(tommorowDate).toISOString().slice(0, 10);
+    let today = new Date(date).toISOString().slice(0, 10);
+
+    console.log(yesterday, today, tommorow);
 
     /* 
     cron.schedule("40 10,23 * * *", async () => {
@@ -113,38 +116,11 @@ connectDB().then(async () => {
     //find the day`s cricket matchs and save their match Ids to the DB
     //Send cricket Headlines
     //WTC
-    cron.schedule(`50 15 8-11 * *`, async () => {
-      let commentary;
-      const complete = /Match state Complete/gi;
-      const stumps = /Match state stumps/gi;
-      const continueCondition = /Match state.(lunch|tea|dinner)/gi;
-      do {
-        //send message prefixed with group invite
-        console.log(commentary);
-        const cricketGroupInvite = `*For on the dot Live cricket updates Join our group* : https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
-        const update = await getCommentary(65805);
 
-        const message = [cricketGroupInvite, update];
-        if (continueCondition.test(update)) {
-          console.log("continue condition");
-          await timeDelay(900000);
-          continue;
-        } else if (complete.test(update) || stumps.test(update)) {
-          console.log("break condition");
-          client.sendMessage(liveCricket1, message.join("\n"));
-          break;
-        } else {
-          console.log("update in progress");
-          const scorecard = await getScoreCard(match.matchID);
-          message.push(scorecard);
-          client.sendMessage(liveCricket1, message.join("\n"));
-          await timeDelay(1800000);
-        }
-        //updates at 25 minutes intervals
-      } while (true);
-    });
-
-    cron.schedule(`15 5 * * *`, async () => {
+    cron.schedule(`45 9 * * *`, async () => {
+      let date = new Date();
+      let yestdate = date.setDate(date.getDate() - 1);
+      let yesterday = new Date(yestdate).toISOString().slice(0, 10);
       const matchesYesterday = await matchIDModel
         .find({ date: yesterday })
         .exec();
@@ -193,14 +169,15 @@ connectDB().then(async () => {
       }
     });
     //update the database
-    cron.schedule(`0 5 * * *`, async () => {
+    cron.schedule(`0 8 * * *`, async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
     // Live updates
 
-    cron.schedule(`15 5 * * *`, async () => {
+    cron.schedule(`28 9 * * *`, async () => {
       // getMatchIds("recent", calls);
+      let today = new Date().toISOString().slice(0, 10);
       const fixtures = [`*Selected Upcoming Fixtures *\n\n`];
       const matchesToday = await matchIDModel
         .find({
@@ -253,10 +230,6 @@ connectDB().then(async () => {
                 }
                 //updates at 25 minutes intervals
               } while (true);
-              client.sendMessage(
-                liveCricket1,
-                await getCommentary(match.matchID)
-              );
             }
           );
 
