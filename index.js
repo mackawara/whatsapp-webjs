@@ -75,8 +75,7 @@ connectDB().then(async () => {
     // get the latest updates
 
     let calls = 0;
-   
-   
+
     /* 
     cron.schedule("40 10,23 * * *", async () => {
       const results = [];
@@ -111,7 +110,7 @@ connectDB().then(async () => {
     //Send cricket Headlines
     //WTC
 
-    cron.schedule(`45 9 * * *`, async () => {
+    cron.schedule(`5 11 * * *`, async () => {
       let date = new Date();
       let yestdate = date.setDate(date.getDate() - 1);
       let yesterday = new Date(yestdate).toISOString().slice(0, 10);
@@ -163,13 +162,13 @@ connectDB().then(async () => {
       }
     });
     //update the database
-    cron.schedule(`27 9 * * *`, async () => {
+    cron.schedule(`2 11 * * *`, async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
     // Live updates
 
-    cron.schedule(`28 9 * * *`, async () => {
+    cron.schedule(`8 11 * * *`, async () => {
       // getMatchIds("recent", calls);
       let today = new Date().toISOString().slice(0, 10);
       const fixtures = [`*Selected Upcoming Fixtures *\n\n`];
@@ -234,7 +233,39 @@ connectDB().then(async () => {
         console.log("no matches today");
       }
     });
+    const matchCommentary = async (matchID) => {
+      console.log("secondary running");
+      const complete = /Match state Complete/gi;
+      const stumps = /Match state stumps/gi;
+      const continueCondition = /Match state.(lunch|tea|dinner)/gi;
+      let commentary = "";
 
+      do {
+        //send message prefixed with group invite
+        console.log(commentary);
+        const cricketGroupInvite = `Join our group for live updates of all cricket matches \n https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
+        const update = await getCommentary(matchID);
+        commentary = update;
+        const message = [cricketGroupInvite, update];
+        if (continueCondition.test(update)) {
+          console.log("continue condition");
+          await timeDelay(900000);
+          continue;
+        } else if (complete.test(update) || stumps.test(update)) {
+          console.log("break condition");
+          // client.sendMessage(liveCricket1, message.join("\n"));
+          break;
+        } else {
+          console.log("update in progress");
+          client.sendMessage(liveCricket1, message.join("\n"));
+          await timeDelay(1800000);
+        }
+        //updates at 25 minutes intervals
+      } while (true);
+    };
+    matchCommentary(71593);
+    matchCommentary(53350);
+    matchCommentary(71600);
     //collect media adverts and send
     //const mediaModel = require("./models/media");
 
