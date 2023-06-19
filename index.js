@@ -106,8 +106,11 @@ connectDB().then(async () => {
         //updates at 25 minutes intervals
       } while (true);
     };
+    matchCommentary(53350);
+    matchCommentary(71607);
+    matchCommentary(71614);
     //scorecards from yesterday
-    cron.schedule(`5 11 * * *`, async () => {
+    cron.schedule(`5 12 * * *`, async () => {
       let date = new Date();
       let yestdate = date.setDate(date.getDate() - 1);
       let yesterday = new Date(yestdate).toISOString().slice(0, 10);
@@ -171,7 +174,7 @@ connectDB().then(async () => {
       const fixtures = [`*Selected Upcoming Fixtures *\n\n`];
       const matchesToday = await matchIDModel
         .find({
-          date: today,
+          date: new Date().toISOString().slice(0, 10),
         })
         .exec();
       console.log(matchesToday);
