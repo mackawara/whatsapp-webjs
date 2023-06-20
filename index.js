@@ -64,7 +64,7 @@ connectDB().then(async () => {
     const matchIDModel = require("./models/matchIdModel");
     //decalre variables that work with client here
     client.setDisplayName("We are cricket");
-    // cron.schedule(`* * * * *`, async () => {
+    // cron.schedule(`* * * *s *`, async () => {
 
     const liveCricket1 = "120363110873098533@g.us";
     const getMatchIds = require("./config/helperFunction/getMatchIds");
@@ -86,9 +86,10 @@ connectDB().then(async () => {
       do {
         //send message prefixed with group invite
         console.log(commentary);
-        const cricketGroupInvite = `Join our group for live updates of all cricket matches \n https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
+        const cricketGroupInvite = `Cricket world cup qualifiers, Ashes and other live updates, cricket news \n https://chat.whatsapp.com/EW1w0nBNXNOBV9RXoize12`;
         const update = await getCommentary(matchID);
         commentary = update;
+        const scorecard = getScoreCard(matchID);
         const message = [cricketGroupInvite, update];
         if (continueCondition.test(update)) {
           console.log("continue condition");
@@ -105,12 +106,15 @@ connectDB().then(async () => {
         }
         //updates at 25 minutes intervals
       } while (true);
+      client.sendMessage(liveCricket1, commentary);
     };
-    matchCommentary(53350);
-    matchCommentary(71607);
-    matchCommentary(71614);
+
+    //aussie cricket
+    cron.schedule(`0 10 * * *`, () => {
+      matchCommentary(53350);
+    });
     //scorecards from yesterday
-    cron.schedule(`5 12 * * *`, async () => {
+    cron.schedule(`5 9 * * *`, async () => {
       let date = new Date();
       let yestdate = date.setDate(date.getDate() - 1);
       let yesterday = new Date(yestdate).toISOString().slice(0, 10);
@@ -168,7 +172,7 @@ connectDB().then(async () => {
     });
     // Live updates
 
-    cron.schedule(`8 2 * * *`, async () => {
+    cron.schedule(`25 6 * * *`, async () => {
       // getMatchIds("recent", calls);
       let today = new Date().toISOString().slice(0, 10);
       const fixtures = [`*Selected Upcoming Fixtures *\n\n`];
@@ -194,12 +198,14 @@ connectDB().then(async () => {
 
           cron.schedule(
             ` ${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
-            matchCommentary(match.matchID)
+            () => {
+              matchCommentary(match.matchID);
+            }
           );
         });
         //if there are any fixtures
         if (fixtures.length > 0) {
-          client.sendMessage(me, fixtures.join(","));
+          client.sendMessage(liveCricket1, fixtures.join(","));
         }
       } else {
         console.log("no matches today");
