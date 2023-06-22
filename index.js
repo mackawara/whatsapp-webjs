@@ -109,10 +109,7 @@ connectDB().then(async () => {
       client.sendMessage(liveCricket1, commentary);
     };
 
-    //aussie cricket
-    cron.schedule(`0 10 * * *`, () => {
-      matchCommentary(53350);
-    });
+    
     //scorecards from yesterday
     cron.schedule(`5 9 * * *`, async () => {
       let date = new Date();
@@ -166,7 +163,7 @@ connectDB().then(async () => {
       }
     });
     //update the database
-    cron.schedule(`2 2 * * *`, async () => {
+    cron.schedule(`2 6 * * *`, async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
