@@ -109,7 +109,6 @@ connectDB().then(async () => {
       client.sendMessage(liveCricket1, commentary);
     };
 
-    
     //scorecards from yesterday
     cron.schedule(`5 9 * * *`, async () => {
       let date = new Date();
@@ -169,7 +168,7 @@ connectDB().then(async () => {
     });
     // Live updates
 
-    cron.schedule(`25 6 * * *`, async () => {
+    cron.schedule(`30 6 * * *`, async () => {
       // getMatchIds("recent", calls);
       let today = new Date().toISOString().slice(0, 10);
       const fixtures = [`*Selected Upcoming Fixtures *\n\n`];
