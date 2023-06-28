@@ -76,7 +76,7 @@ connectDB().then(async () => {
 
     let calls = 0;
 
-    const matchCommentary = async (matchID) => {
+    const matchCommentary = async (matchID, interval) => {
       console.log("secondary running");
       const complete = /Match state Complete/gi;
       const stumps = /Match state stumps/gi;
@@ -97,12 +97,12 @@ connectDB().then(async () => {
           continue;
         } else if (complete.test(update) || stumps.test(update)) {
           console.log("break condition");
-          // client.sendMessage(liveCricket1, message.join("\n"));
+          client.sendMessage(liveCricket1, message.join("\n"));
           break;
         } else {
           console.log("update in progress");
           client.sendMessage(liveCricket1, message.join("\n"));
-          await timeDelay(1800000);
+          await timeDelay(interval);
         }
         //updates at 25 minutes intervals
       } while (true);
@@ -168,7 +168,7 @@ connectDB().then(async () => {
     });
     // Live updates
 
-    cron.schedule(`31 8 * * *`, async () => {
+    cron.schedule(`31 9 * * *`, async () => {
       // getMatchIds("recent", calls);
       let today = new Date().toISOString().slice(0, 10);
       const fixtures = [`*Selected Upcoming Fixtures *\n\n`];
@@ -192,12 +192,21 @@ connectDB().then(async () => {
             `*${match.date}*\n*${match.seriesName}*\n${match.fixture}\n${match.startingTime}\n\n`
           );
 
-          cron.schedule(
-            ` ${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
-            () => {
-              matchCommentary(match.matchID);
-            }
-          );
+          if (match.matchType == "TEST") {
+            cron.schedule(
+              ` ${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
+              () => {
+                matchCommentary(match.matchID, 1200000);
+              }
+            );
+          } else {
+            cron.schedule(
+              ` ${minutes} ${hours} ${startDate} ${month} *`,
+              () => {
+                matchCommentary(match.matchID, 900000);
+              }
+            );
+          }
         });
         //if there are any fixtures
         if (fixtures.length > 0) {
