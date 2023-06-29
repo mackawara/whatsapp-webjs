@@ -167,8 +167,10 @@ connectDB().then(async () => {
       getMatchIds("recent", calls);
     });
     // Live updates
-
-    cron.schedule(`31 9 * * *`, async () => {
+cron.schedule(`30 9 * * *`,()=>{
+  matchCommentary(53352,2700000)
+})
+    cron.schedule(`35 6 * * *`, async () => {
       // getMatchIds("recent", calls);
       let today = new Date().toISOString().slice(0, 10);
       const fixtures = [`*Selected Upcoming Fixtures *\n\n`];
@@ -196,14 +198,14 @@ connectDB().then(async () => {
             cron.schedule(
               ` ${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
               () => {
-                matchCommentary(match.matchID, 1200000);
+                matchCommentary(match.matchID, 2700000);
               }
             );
           } else {
             cron.schedule(
               ` ${minutes} ${hours} ${startDate} ${month} *`,
               () => {
-                matchCommentary(match.matchID, 900000);
+                matchCommentary(match.matchID, 1800000);
               }
             );
           }
