@@ -168,7 +168,8 @@ connectDB().then(async () => {
     });
     // Live updates
     cron.schedule(`01 10 * * *`, () => {
-      matchCommentary(53352, 2700000);
+      matchCommentary(53352, 1800000);
+      matchCommentary(71754, 1800000);
     });
     cron.schedule(`35 9 * * *`, async () => {
       // getMatchIds("recent", calls);
