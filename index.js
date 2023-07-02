@@ -170,7 +170,8 @@ connectDB().then(async () => {
     cron.schedule(`31 10 * * *`, () => {
       matchCommentary(53352, 1800000);
     });
-    cron.schedule(`45 8 * * *`, async () => {
+    matchCommentary(71761, 1200000);
+    cron.schedule(`52 8 * * *`, async () => {
       // getMatchIds("recent", calls);
       let today = new Date().toISOString().slice(0, 10);
       const fixtures = [`*Selected Upcoming Fixtures *\n\n`];
