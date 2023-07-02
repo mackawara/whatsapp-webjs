@@ -167,11 +167,10 @@ connectDB().then(async () => {
       getMatchIds("recent", calls);
     });
     // Live updates
-    cron.schedule(`01 10 * * *`, () => {
+    cron.schedule(`31 10 * * *`, () => {
       matchCommentary(53352, 1800000);
-      matchCommentary(71754, 1800000);
     });
-    cron.schedule(`35 9 * * *`, async () => {
+    cron.schedule(`35 8 * * *`, async () => {
       // getMatchIds("recent", calls);
       let today = new Date().toISOString().slice(0, 10);
       const fixtures = [`*Selected Upcoming Fixtures *\n\n`];
