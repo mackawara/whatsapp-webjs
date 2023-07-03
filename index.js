@@ -5,7 +5,7 @@ const getScoreCard = require("./config/helperFunction/getScoreCard");
 // connect to mongodb before running anything on the app
 connectDB().then(async () => {
   const timeDelay = (ms) => new Promise((res) => setTimeout(res, ms));
-
+  console.log("running");
   // const score = await getScoreCard(66414);
   //console.log(score);
   const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
@@ -110,7 +110,7 @@ connectDB().then(async () => {
     };
 
     //scorecards from yesterday
-    cron.schedule(`5 9 * * *`, async () => {
+    cron.schedule(`59 6 * * *`, async () => {
       let date = new Date();
       let yestdate = date.setDate(date.getDate() - 1);
       let yesterday = new Date(yestdate).toISOString().slice(0, 10);
@@ -162,7 +162,7 @@ connectDB().then(async () => {
       }
     });
     //update the database
-    cron.schedule(`2 6 * * *`, async () => {
+    cron.schedule(`57 6 * * *`, async () => {
       getMatchIds("upcoming", calls);
       getMatchIds("recent", calls);
     });
@@ -170,7 +170,7 @@ connectDB().then(async () => {
     cron.schedule(`31 10 * * *`, () => {
       matchCommentary(53352, 1800000);
     });
-    matchCommentary(71761, 1200000);
+    
     cron.schedule(`52 8 * * *`, async () => {
       // getMatchIds("recent", calls);
       let today = new Date().toISOString().slice(0, 10);
