@@ -111,8 +111,10 @@ connectDB().then(async () => {
       } while (true);
       client.sendMessage(liveCricket1, commentary);
     };
-    matchCommentary("72819", 1200000);
 
+    cron.schedule(`1 14 * * *`, async () => {
+      matchCommentary("72819", 1200000);
+    });
     //scorecards from yesterday
     cron.schedule(`59 6 * * *`, async () => {
       let date = new Date();
