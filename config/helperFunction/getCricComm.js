@@ -83,7 +83,7 @@ const getCommentary = async (matchId, calls) => {
       });
     }
     if (isMatchNotCovered) {
-      return matchDetails;
+      return "match not covered";
     } else {
       commentary = commentary.slice("0", "9").map((comment) => {
         return comment + "\n";

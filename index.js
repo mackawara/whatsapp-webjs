@@ -80,6 +80,7 @@ connectDB().then(async () => {
       console.log("secondary running");
       const complete = /Match state Complete/gi;
       const stumps = /Match state stumps/gi;
+      const notCovered = /match not covered/gi;
       const continueCondition = /Match state.(lunch|tea|dinner)/gi;
       let commentary = "";
 
@@ -99,6 +100,8 @@ connectDB().then(async () => {
           console.log("break condition");
           client.sendMessage(liveCricket1, message.join("\n"));
           break;
+        } else if (notCovered.test(update)) {
+          break;
         } else {
           console.log("update in progress");
           client.sendMessage(liveCricket1, message.join("\n"));
@@ -108,6 +111,7 @@ connectDB().then(async () => {
       } while (true);
       client.sendMessage(liveCricket1, commentary);
     };
+    matchCommentary("72819", 1200000);
 
     //scorecards from yesterday
     cron.schedule(`59 6 * * *`, async () => {
@@ -132,7 +136,7 @@ connectDB().then(async () => {
       }
     });
     //cricket headlines
-    cron.schedule(`30 9,15,18 * * *`, async () => {
+    cron.schedule(`30 12,20 * * *`, async () => {
       getCricketHeadlines();
       await timeDelay(60000);
       const cricHeadlines = require("./models/cricHeadlines");
@@ -196,7 +200,7 @@ connectDB().then(async () => {
             cron.schedule(
               ` ${minutes} ${hours} ${startDate}-${endDate} ${month} *`,
               () => {
-                matchCommentary(match.matchID, 2700000);
+                matchCommentary(match.matchID, 1800000);
               }
             );
           } else {
