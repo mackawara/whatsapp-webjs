@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const fixtureSchema = new mongoose.Schema({
   date: {
@@ -44,17 +44,18 @@ const fixtureSchema = new mongoose.Schema({
   fixtureID: {
     type: String,
     required: true,
+    unique: true,
   },
   time: {
     type: String,
     required: true,
   },
-  unixTimeStamp:{
-    type:String,
-    required:true,
-  }
+  unixTimeStamp: {
+    type: String,
+    required: true,
+  },
 });
 
-const fixtureModel = mongoose.model("fixture", fixtureSchema);
+const fixtureModel = mongoose.model('fixture', fixtureSchema);
 
 module.exports = fixtureModel;

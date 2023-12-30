@@ -1,0 +1,47 @@
+name: Build and deploy Docker app  DOCKER HUB
+
+on:
+  push:
+    branches: [main, staging]
+    paths:
+      - src/**
+      - 'package.json'
+      - .github/**
+      - './*'
+
+env:
+  ME: ${{secrets.ME}}
+  EXECPATH: ${{secrets.EXECPATH}}
+  PORT: ${{secrets.PORT}}
+  NODE_ENV: ${{secrets.NODE_ENV}}
+  ORACLE_VM_PRIVATE_KEY: ${{secrets.ORACLE_PRIVATE_KEY}}
+  ORACLE_VM_URL: ${{secrets.ORACLE_VM_URL}}
+  ORACLE_USERNAME: ${{secrets.ORACLE_USERNAME}}
+  FOOTBALLAPIKEY: ${{secrets.FOOTBALLAPIKEY}}
+  RAPIDAPIHOST: ${{secrets.RAPIDAPIHOST}}
+  AMNESTYGROUP: ${{secrets.AMNESTYGROUP}}
+  SOCCER_GROUP1: ${{secrets.SOCCER_GROUP1}}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set permissions for private key
+        run: |
+          echo "${{ secrets.ORACLE_VM_PRIVATE_KEY }}" > nothandoracle.key
+          chmod 600 nothandoracle.key
+      - name: SSH into EC2 instance and navigate to repo and replace .env file
+        run: |
+          ssh -o StrictHostKeyChecking=no -i  nothandoracle.key $ORACLE_USERNAME@$ORACLE_VM_URL 'cd repos/soccer  && rm -f .env '
+      - name: create .env file
+        run: |
+          ssh -o StrictHostKeyChecking=no -i $ORACLE_USERNAME@$ORACLE_VM_URL 'cat <<EOF > .env
+          ME= ${{secrets.ME}}
+          DB_STRING= ${{secrets.DB_STRING}}
+          FOOTBALLAPIKEY= ${{secrets.DB_STRING}}
+          RAPIDAPIHOST= ${{secrets.RAPIDAPIHOST}}
+          PORT= ${{secrets.PORT}}
+          EOF
+          '

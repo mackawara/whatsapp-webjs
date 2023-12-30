@@ -4,3 +4,4 @@ node_modules/
 .wwebjs_auth/
 /.wwebjs_auth
 whatsapp-webjs
+.wwebjs_cache/

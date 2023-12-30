@@ -1,15 +1,13 @@
-const FixtureModel = require("../../models/footballFixtures");
-const moment = require("moment");
-var date = moment();
-const englishPremier = new RegExp("epl", "i");
-const laLiga = new RegExp("La liga", "i");
-const serieA = new RegExp("Serie A", "i");
-const zpsl = new RegExp("ZPSL", "i");
-const europa = new RegExp("Europa", "i");
-const uefa = new RegExp("ucl", "i");
+const FixtureModel = require('../../models/footballFixtures');
+const englishPremier = new RegExp('epl', 'i');
+const laLiga = new RegExp('La liga', 'i');
+const serieA = new RegExp('Serie A', 'i');
+const zpsl = new RegExp('ZPSL', 'i');
+const europa = new RegExp('Europa', 'i');
+const uefa = new RegExp('ucl', 'i');
 //Fetches fixtures from datatbase
 const getFixtures = async (competition, status) => {
-  console.log("get fixtures running");
+  console.log('get fixtures running');
   let league;
   if (englishPremier.test(competition)) {
     league = 39;
@@ -24,10 +22,9 @@ const getFixtures = async (competition, status) => {
   } else if (uefa.test(competition)) {
     league = 2;
   }
-  const slash = new RegExp("/", "g");
-  const date = new Date().toLocaleDateString().replace(slash, "-");
+  const slash = new RegExp('/', 'g');
   const message = [];
-  const testRegex = new RegExp(`${status}`, "i", "g");
+  const testRegex = new RegExp(`${status}`, 'i', 'g');
   const fixtures = await FixtureModel.find({
     //  matchStatus: "Not Started",
     leagueId: league,
@@ -36,19 +33,19 @@ const getFixtures = async (competition, status) => {
   }).exec();
   let comp, round;
   if (fixtures.length > 0) {
-    fixtures.forEach((fixture) => {
+    fixtures.forEach(fixture => {
       const line = `Kickoff: ${fixture.time} *${fixture.score.trim()}* \n ${
         fixture.matchStatus
       }\n`;
       comp = fixture.competition;
-      round = fixture.round.slice("-2");
+      round = fixture.round.slice('-2');
       message.push(line);
     });
-    const formatted = `${comp} MatchDay:${round} \n${message.join("")}`;
+    const formatted = `${comp} MatchDay:${round} \n${message.join('')}`;
 
     return formatted;
   } else {
-    return ""; // return empty string if no matching fixtures
+    return ''; // return empty string if no matching fixtures
   }
 };
 module.exports = getFixtures;
