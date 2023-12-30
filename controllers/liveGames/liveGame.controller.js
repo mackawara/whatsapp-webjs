@@ -11,14 +11,17 @@ const scoresUpdate = async fixturesToday => {
   let cronString = utils.generateCronScheduleForgames(gamesRemainingToday);
   console.log(cronString);
   // const liveUpdateJob = cron.schedule(cronString, async () => {
-  const liveScores = await getLiveScores(live); // if empty string it means no score
+  const liveScores = await getLiveScores('live'); // if empty string it means no score
   while (!liveScores == '' && !gamesRemainingToday.length == 0) {
     console.log('cron triggerd');
     if (liveScores === '') {
       const completedMatchIds = gamesRemainingToday
         .filter(fixture => isBefore(fixture.timestamp, new Date()))
         .map(fixture => fixture.fixtureId);
-      const fulltimeScores = await getLiveScores(completed, completedMatchIds);
+      const fulltimeScores = await getLiveScores(
+        'completed',
+        completedMatchIds
+      );
       sendUpdateToGroup(
         system.AMNESTYGROUP,
         `Live Updates every 10 minutes \n\n ${fulltimeScores}`
