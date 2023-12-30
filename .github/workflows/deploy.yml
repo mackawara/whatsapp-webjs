@@ -10,17 +10,9 @@ on:
       - './*'
 
 env:
-  ME: ${{secrets.ME}}
-  EXECPATH: ${{secrets.EXECPATH}}
-  PORT: ${{secrets.PORT}}
-  NODE_ENV: ${{secrets.NODE_ENV}}
   ORACLE_VM_PRIVATE_KEY: ${{secrets.ORACLE_PRIVATE_KEY}}
   ORACLE_VM_URL: ${{secrets.ORACLE_VM_URL}}
   ORACLE_USERNAME: ${{secrets.ORACLE_USERNAME}}
-  FOOTBALLAPIKEY: ${{secrets.FOOTBALLAPIKEY}}
-  RAPIDAPIHOST: ${{secrets.RAPIDAPIHOST}}
-  AMNESTYGROUP: ${{secrets.AMNESTYGROUP}}
-  SOCCER_GROUP1: ${{secrets.SOCCER_GROUP1}}
 
 jobs:
   build:
@@ -32,16 +24,9 @@ jobs:
         run: |
           echo "${{ secrets.ORACLE_VM_PRIVATE_KEY }}" > nothandoracle.key
           chmod 600 nothandoracle.key
-      - name: SSH into EC2 instance and navigate to repo and replace .env file
+      - name: SSH into EC2 instance and navigate to repo and reset branch to main
         run: |
-          ssh -o StrictHostKeyChecking=no -i  nothandoracle.key $ORACLE_USERNAME@$ORACLE_VM_URL 'cd repos/soccer  && rm -f .env '
-      - name: create .env file
+          ssh -o StrictHostKeyChecking=no -i  nothandoracle.key $ORACLE_USERNAME@$ORACLE_VM_URL 'cd repos/whatsapp-webjs  && git fetch --all && git reset --hard origin/main'
+      - name: Restart app using pm2
         run: |
-          ssh -o StrictHostKeyChecking=no -i $ORACLE_USERNAME@$ORACLE_VM_URL 'cat <<EOF > .env
-          ME= ${{secrets.ME}}
-          DB_STRING= ${{secrets.DB_STRING}}
-          FOOTBALLAPIKEY= ${{secrets.DB_STRING}}
-          RAPIDAPIHOST= ${{secrets.RAPIDAPIHOST}}
-          PORT= ${{secrets.PORT}}
-          EOF
-          '
+          ssh -o StrictHostKeyChecking=no -i  nothandoracle.key $ORACLE_USERNAME@$ORACLE_VM_URL 'pm2 restart soccer '
