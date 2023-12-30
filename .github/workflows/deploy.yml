@@ -25,13 +25,15 @@ jobs:
           echo "${{ secrets.ORACLE_VM_PRIVATE_KEY }}" > nothandoracle.key
           chmod 600 nothandoracle.key
       - name: SSH into EC2 instance and navigate to repo and reset branch to main
-        run: |
-          ssh -o StrictHostKeyChecking=no -i  nothandoracle.key $ORACLE_USERNAME@$ORACLE_VM_URL ' <<EOF> cd repos/whatsapp-webjs &&
+       run: |
+          ssh -o StrictHostKeyChecking=no -i nothandoracle.key $ORACLE_USERNAME@$ORACLE_VM_URL <<EOF
+          cd repos/whatsapp-webjs &&
           rm -rf node_modules &&
           git fetch --all &&
           git reset --hard origin/main &&
           sudo npm install
-          EOF '
+          EOF
+        
       - name: Restart app using pm2
         run: |
           ssh -o StrictHostKeyChecking=no -i  nothandoracle.key $ORACLE_USERNAME@$ORACLE_VM_URL 'pm2 restart soccer'
