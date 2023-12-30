@@ -39,7 +39,7 @@ const scoresUpdate = async fixturesToday => {
     ); // continously filters to see if any games are remaining that day
     console.log(gamesRemainingToday);
   }
-  liveUpdateJob.stop();
+  //liveUpdateJob.stop();
   // });
 };
 const sendUpdateToGroup = async (recipient, message) => {

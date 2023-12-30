@@ -4,10 +4,11 @@ on:
   push:
     branches: [main, staging]
     paths:
-      - src/**
+      - '**'
       - 'package.json'
       - .github/**
       - './**'
+      - '.**'
 
 env:
   ORACLE_VM_PRIVATE_KEY: ${{secrets.ORACLE_PRIVATE_KEY}}
