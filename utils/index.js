@@ -31,7 +31,6 @@ const scoreFormatter = (score, matchStatus, home, away) => {
 const timeDelay = ms => new Promise(res => setTimeout(res, ms));
 
 const generateCronScheduleForgames = startingTimesUnix => {
-  console.log(startingTimesUnix);
   const firstGame = min(startingTimesUnix);
   const lastGame = max(startingTimesUnix);
   const mins = getMinutes(firstGame);

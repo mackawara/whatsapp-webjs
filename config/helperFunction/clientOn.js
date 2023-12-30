@@ -1,56 +1,56 @@
 const clientOn = async (client, arg1, arg2) => {
   const me = process.env.ME;
 
-  if (arg1 == "auth_failure") {
-    client.on("auth_failure", (msg) => {
+  if (arg1 == 'auth_failure') {
+    client.on('auth_failure', msg => {
       // Fired if session restore was unsuccessful
-      console.error("AUTHENTICATION FAILURE", msg);
+      console.error('AUTHENTICATION FAILURE', msg);
     });
   }
-  if (arg1 == "authenticated") {
-    client.on("authenticated", async (session) => {
+  if (arg1 == 'authenticated') {
+    client.on('authenticated', async session => {
       console.log(`client authenticated`);
     });
   }
-  const qrcode = require("qrcode-terminal");
-  if (arg1 == "qr") {
-    client.on("qr", (qr) => {
+  const qrcode = require('qrcode-terminal');
+  if (arg1 == 'qr') {
+    client.on('qr', qr => {
       qrcode.generate(qr, { small: true });
       console.log(qr);
     });
   }
 
-  const contactModel = require("../../models/contactsModel");
+  const contactModel = require('../../models/contactsModel');
   let groupName, grpDescription;
-  if (arg1 == "message") {
-    client.on(`message`, async (msg) => {
+  if (arg1 == 'message') {
+    client.on(`message`, async msg => {
       const chat = await msg.getChat();
       const contact = await msg.getContact();
 
       const msgBody = msg.body;
-      msgBody.split(" ").forEach((word) => {
+      msgBody.split(' ').forEach(word => {
         const keywords = {
           businessKeywords: [
-            "receipt",
-            "invoice books",
-            "cartridges",
-            "toner",
-            "catridge",
+            'receipt',
+            'invoice books',
+            'cartridges',
+            'toner',
+            'catridge',
 
-            "ink cartridge",
-            "printer cartridge",
-            "CCTV",
-            "camera",
-            "internet",
-            "Hp cartridge",
-            "kyocera",
-            "computer repairs",
-            "photo shoot",
-            "hard drives",
-            "RAM",
-            "laptops",
-            "computer",
-            "cricket",
+            'ink cartridge',
+            'printer cartridge',
+            'CCTV',
+            'camera',
+            'internet',
+            'Hp cartridge',
+            'kyocera',
+            'computer repairs',
+            'photo shoot',
+            'hard drives',
+            'RAM',
+            'laptops',
+            'computer',
+            'cricket',
           ],
           usdKeyword: [
             `for eco`,
@@ -74,30 +74,26 @@ const clientOn = async (client, arg1, arg2) => {
           );
         }
       });
-      //queries chatGPT work in progress
-      /* if (msgBody.includes("openAi")) {
-        const response = await callOpenAi(msgBody);
-        msg.reply(response);
-      } */
+
       if (chat.isGroup) {
-        console.log(chat.name, chat.id._serialised);
+        console.log(chat.name, chat.id._serialized);
 
         // console.log(msg.body,groupName,contact);
         //grpOwner = chat.owner.user;
 
-        if (/matchid/gi.test(msgBody.replaceAll(" ", ""))) {
-          console.log("matchid receieved");
+        if (/matchid/gi.test(msgBody.replaceAll(' ', ''))) {
+          console.log('matchid receieved');
           // getCommentary()
 
           //get the math they want
           const matchId = msgBody
-            .replace(/\s/g, "")
-            .slice("8")
+            .replace(/\s/g, '')
+            .slice('8')
             .trim()
-            .replace(":", "");
+            .replace(':', '');
           //const matchCommentary = await getCommentary(matchId); // check if message contains a req for ID
 
-          msg.reply("Do stuff"); //do stuff
+          msg.reply('Do stuff'); //do stuff
         }
       } else {
         let from = msg.from;
@@ -111,7 +107,7 @@ const clientOn = async (client, arg1, arg2) => {
             serialisedNumber: contact.id._serialised,
             isBlocked: contact.isBlocked,
           });
-          newContact.save().then(() => console.log("saved"));
+          newContact.save().then(() => console.log('saved'));
         }
 
         chat.sendSeen();
@@ -120,8 +116,8 @@ const clientOn = async (client, arg1, arg2) => {
     });
   }
   //run when group is left
-  else if (arg1 == "group-leave") {
-    client.on("group_leave", (notification) => {
+  else if (arg1 == 'group-leave') {
+    client.on('group_leave', notification => {
       console.log(notification);
       // User has left or been kicked from the group.
 
@@ -134,19 +130,19 @@ const clientOn = async (client, arg1, arg2) => {
         `User ${notification.id.participant} just left  the group`
       );
     });
-  } else if (arg1 == "group-join") {
-    client.on("group_join", (notification) => {
+  } else if (arg1 == 'group-join') {
+    client.on('group_join', notification => {
       console.log(notification);
       // User has joined or been added to the group.
-      console.log("join", notification);
+      console.log('join', notification);
       /*  client.sendMessage(
         notification.id.participant,
         "welcome to ... Here are the group rules for your convenience.... \n"
       ) */
       // notification.reply("User joined.");
     });
-  } else if (arg1 == "before" && arg2 == "after") {
-    client.on("message_revoke_everyone", async (after, before) => {
+  } else if (arg1 == 'before' && arg2 == 'after') {
+    client.on('message_revoke_everyone', async (after, before) => {
       // Fired whenever a message is deleted by anyone (including you)
       console.log(after); // message after it was deleted.
       if (before) {

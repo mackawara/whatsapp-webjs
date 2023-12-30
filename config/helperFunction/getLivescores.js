@@ -3,19 +3,23 @@ const client = require('../wwebjsConfig');
 const { matchStatusFormatter, scoreFormatter } = require('../../utils/index');
 const system = require('../../constants/system');
 
-/* only queries fixutres and scores for current */
-const leagues = [3, 2, 401, 135, 39, 140];
-const ids = leagues.join('-');
-console.log(`these are the league ids` + ids);
-const getLiveScores = async () => {
+const getLiveScores = async (type, fixtures) => {
+  const ids = system.LEAGUES_FOLLOWED.join('-');
+  let params;
+  if (type === 'live') {
+    params = {
+      live: ids,
+    };
+  } else if (type === 'completed') {
+    params = {
+      ids: fixtures.join('-'),
+    };
+  }
   try {
     const options = {
       method: 'GET',
       url: `${system.FOOTBALL_API_URL}/fixtures`,
-      params: {
-        live: ids,
-        //live: 'all',
-      },
+      params: params,
       headers: system.REQUEST_HEADERS,
     };
 
@@ -50,7 +54,6 @@ const getLiveScores = async () => {
       );
       return `${competition} *${scores}*  ${matchStatus} \n`;
     });
-    console.log(liveScores.join('\n'));
     return liveScores.join('\n');
   } catch (err) {
     console.log(err);

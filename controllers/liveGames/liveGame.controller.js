@@ -6,39 +6,50 @@ const client = require('../../config/wwebjsConfig');
 const system = require('../../constants/system');
 
 const scoresUpdate = async fixturesToday => {
-  let gamesRemainingToday = fixturesToday.map(fixture => fixture.timestamp);
-  console.log(gamesRemainingToday);
+  let gamesRemainingToday = await fixturesToday.map(
+    fixture => fixture.timestamp
+  );
+  console.log('rr');
   let cronString = utils.generateCronScheduleForgames(gamesRemainingToday);
-  console.log(cronString);
-  // const liveUpdateJob = cron.schedule(cronString, async () => {
+  // cron.schedule(cronString, async () => {
   const liveScores = await getLiveScores('live'); // if empty string it means no score
-  while (!liveScores == '' && !gamesRemainingToday.length == 0) {
-    console.log('cron triggerd');
+  console.log(gamesRemainingToday.length);
+  do {
+    console.log('in looop');
     if (liveScores === '') {
       const completedMatchIds = gamesRemainingToday
         .filter(fixture => isBefore(fixture.timestamp, new Date()))
         .map(fixture => fixture.fixtureId);
+
       const fulltimeScores = await getLiveScores(
         'completed',
         completedMatchIds
       );
+      console.log(`these are the completed match ids` + completedMatchIds);
       sendUpdateToGroup(
         system.AMNESTYGROUP,
         `Live Updates every 10 minutes \n\n ${fulltimeScores}`
       );
+      const now = new Date().toTimeString();
+      console.log(now);
+      gamesRemainingToday = gamesRemainingToday.filter(
+        fixture => parseInt(now) < parseInt(fixture.timestamp)
+      ); // continously filters to see if any games are remaining that day
       console.log('no liv fixtures in progress');
+      if (!gamesRemainingToday.length > 0) {
+        console.log('now breaking');
+        break;
+      }
     } else {
       sendUpdateToGroup(
         system.AMNESTYGROUP,
         `Live Updates every 10 minutes \n\n ${liveScores}`
       );
-      utils.timeDelay(system.UPDATE_INTERVAL);
     }
-    gamesRemainingToday = gamesRemainingToday.filter(fixture =>
-      isAfter(fixture.timestamp, new Date())
-    ); // continously filters to see if any games are remaining that day
-    console.log(gamesRemainingToday);
-  }
+    await utils.timeDelay(system.UPDATE_INTERVAL);
+
+    console.log('games now left' + gamesRemainingToday);
+  } while (!liveScores == '');
   //liveUpdateJob.stop();
   // });
 };

@@ -7,6 +7,7 @@ const updateFootballDb = require('./config/helperFunction/updateFootballDb');
 const cron = require('node-cron');
 const { scoresUpdate } = require('./controllers/liveGames/liveGame.controller');
 const { isAfter } = require('date-fns');
+const system = require('./constants/system');
 require('dotenv').config();
 // connect to mongodb before running anything on the app
 connectDB().then(async () => {
@@ -33,8 +34,28 @@ connectDB().then(async () => {
         fixtureId: match.fixtureID,
       };
     });
-
-    scoresUpdate(fixturesToUpdate);
+    cron.schedule(`30 10,18 * * *`, () => {
+      try {
+        client.sendMessage(
+          system.AMNESTYGROUP,
+          `*Fixtures for today* \n\n` +
+            matchesToday
+              .map(
+                match => `${match.competition} ${match.fixture} ${match.time}`
+              )
+              .join('\n\n')
+        );
+      } catch (err) {
+        console.log(err);
+      }
+    });
+    cron.schedule(`10 12 * * *`, () => {
+      updateFootballDb();
+    });
+    //schedule livescores
+    cron.schedule(`10 9 * * *`, () => {
+      scoresUpdate(fixturesToUpdate);
+    });
   });
 
   //Send day`s fixtures evry 4 hours

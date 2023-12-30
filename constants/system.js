@@ -7,7 +7,7 @@ const REQUEST_HEADERS = {
 const LEAGUES_FOLLOWED = [3, 2, 401, 135, 39, 140];
 const AMNESTYGROUP = process.env.AMNESTYGROUP;
 const FOOTBALL_API_URL = `https://api-football-v1.p.rapidapi.com/v3`;
-const UPDATE_INTERVAL = 66000;
+const UPDATE_INTERVAL = 660000;
 module.exports = {
   REQUEST_HEADERS,
   FOOTBALL_API_URL,
