@@ -28,6 +28,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i nothandoracle.key $ORACLE_USERNAME@$ORACLE_VM_URL <<EOF
           cd repos/whatsapp-webjs &&
+          pm2 stop soccer &&
           rm -rf node_modules &&
           git fetch --all &&
           git reset --hard origin/main &&
@@ -36,4 +37,4 @@ jobs:
 
       - name: Restart app using pm2
         run: |
-          ssh -o StrictHostKeyChecking=no -i  nothandoracle.key $ORACLE_USERNAME@$ORACLE_VM_URL 'pm2 restart soccer'
+          ssh -o StrictHostKeyChecking=no -i  nothandoracle.key $ORACLE_USERNAME@$ORACLE_VM_URL 'pm2 start soccer'
