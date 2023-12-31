@@ -9,12 +9,12 @@ const {
   scoresUpdate,
   sendUpdateToGroup,
 } = require('./controllers/liveGames/liveGame.controller');
-const { isAfter, startOfYesterday } = require('date-fns');
+const { isAfter, startOfYesterday, addDays } = require('date-fns');
 const system = require('./constants/system');
 require('dotenv').config();
 // connect to mongodb before running anything on the app
 connectDB().then(async () => {
-  client.initialize();
+  // client.initialize();
 
   const clientOn = require('./config/helperFunction/clientOn');
   //client
@@ -22,58 +22,73 @@ connectDB().then(async () => {
   clientOn(client, 'auth_failure');
   clientOn(client, 'qr');
   //clientOn(client2, "qr");
-  client.on('ready', async () => {
-    clientOn(client, `message`);
-    clientOn(client, 'group-join');
-    clientOn(client, 'group-leave');
-    //get the first match of the day
-    let fixturesToUpdate, matchesToday;
-    const yesterday = startOfYesterday();
+  //client.on('ready', async () => {
+  clientOn(client, `message`);
+  clientOn(client, 'group-join');
+  clientOn(client, 'group-leave');
+  //get the first match of the day
+  let fixturesToUpdate, matchesToday, matchesTommorow;
+  const yesterday = startOfYesterday();
+  cron.schedule(`0 2 * * *`, async () => {
     try {
       matchesToday = await footballFixturesModel.find({
         date: new Date().toISOString().slice(0, 10),
       });
+      matchesTommorow = await footballFixturesModel.find({
+        date: new Date().toISOString().slice(0, 10),
+      });
       fixturesToUpdate = matchesToday.map(match => {
         return {
-          timestamp: match.unixTimeStamp * 1000,
+          timestamp: parseInt(match.unixTimeStamp) * 1000,
           fixtureId: match.fixtureID,
         };
       });
     } catch (err) {
       console.log(err);
     }
+  });
 
-    cron.schedule(`30 6,14 * * *`, async () => {
-      try {
-        const matchesYestday = await footballFixturesModel.find({
-          date: new Date(yesterday).toISOString().slice(0, 10),
-        });
-        const yesterdayScores = await getLiveScores(
-          'completed',
-          matchesYestday.map(match => match.fixtureID)
-        );
-        sendUpdateToGroup(system.AMNESTYGROUP, yesterdayScores);
-        sendUpdateToGroup(
-          system.AMNESTYGROUP,
-          `*Fixtures for today* \n\n` +
-            matchesToday
-              .map(
-                match => `${match.competition} ${match.fixture} ${match.time}`
-              )
-              .join('\n\n')
-        );
-      } catch (err) {
-        console.log(err);
-      }
-    });
-    cron.schedule(`13 6 * * *`, () => {
-      updateFootballDb();
-    });
-    //schedule livescores
-    cron.schedule(`10 9 * * *`, () => {
-      scoresUpdate(fixturesToUpdate);
+  cron.schedule(`47 6,14 * * *`, async () => {
+    try {
+      const matchesYestday = await footballFixturesModel.find({
+        date: new Date(yesterday).toISOString().slice(0, 10),
+      });
+      const yesterdayScores = await getLiveScores(
+        'completed',
+        matchesYestday.map(match => match.fixtureID)
+      );
+      yesterdayScores == ''
+        ? console.log('no matches from yesterday')
+        : sendUpdateToGroup(system.AMNESTYGROUP, yesterdayScores);
+      !matchesToday.length > 0
+        ? console.log('no matches today')
+        : sendUpdateToGroup(
+            system.AMNESTYGROUP,
+            `*Fixtures for today* \n\n` +
+              matchesToday
+                .map(
+                  match => `${match.competition} ${match.fixture} ${match.time}`
+                )
+                .join('\n\n')
+          );
+    } catch (err) {
+      console.log(err);
+    }
+  });
+  // await updateFootballDb();
+  cron.schedule(`30 11 * * *`, () => {
+    scoresUpdate(fixturesToUpdate);
+  });
+
+  // update fixtures ever sun mon fri
+  cron.schedule(`22 4 * * 0,1,5`, () => {
+    console.log('cron');
+    system.LEAGUES_FOLLOWED.forEach(league => {
+      updateFootballDb(league);
     });
   });
+
+  // });
 
   //Send day`s fixtures evry 4 hours
   /* cron.schedule('3 18 * * *', async () => {

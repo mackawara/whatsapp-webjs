@@ -6,25 +6,24 @@ const client = require('../../config/wwebjsConfig');
 const system = require('../../constants/system');
 
 const scoresUpdate = async fixturesToday => {
-  let gamesRemainingToday = await fixturesToday.map(
-    fixture => fixture.timestamp
-  );
-  console.log('rr');
-  let cronString = utils.generateCronScheduleForgames(gamesRemainingToday);
-  cron.schedule(cronString, async () => {
+  if (!fixturesToday.length > 0) {
+    return;
+  }
+  let startingTimes = await fixturesToday.map(fixture => fixture.timestamp);
+  const now = new Date();
+
+  let cronString = utils.generateCronScheduleForgames(startingTimes);
+  console.log(cronString);
+  const liveUpdateJob = cron.schedule(cronString, async () => {
     const liveScores = await getLiveScores('live'); // if empty string it means no score
-    console.log(gamesRemainingToday.length);
     do {
       console.log('in looop');
       if (liveScores === '') {
-        /*  const completedMatchIds = gamesRemainingToday
-        .filter(fixture => isBefore(fixture.timestamp, new Date()))
-        .map(fixture => fixture.fixtureId); */
+        const completedMatchIds = gamesRemainingToday
+          .filter(fixture => isBefore(fixture.timestamp, new Date()))
+          .map(fixture => fixture.fixtureId);
 
-        const fulltimeScores = await getLiveScores(
-          'completed',
-          gamesRemainingToday
-        );
+        const fulltimeScores = await getLiveScores('completed', startingTimes);
         console.log(`these are the completed match ids` + completedMatchIds);
         sendUpdateToGroup(
           system.AMNESTYGROUP,
@@ -32,12 +31,13 @@ const scoresUpdate = async fixturesToday => {
         );
         const now = new Date().toTimeString();
         console.log(now);
-        gamesRemainingToday = gamesRemainingToday.filter(
+        startingTimes = startingTimes.filter(
           fixture => parseInt(now) < parseInt(fixture.timestamp)
         ); // continously filters to see if any games are remaining that day
         await utils.timeDelay(system.UPDATE_INTERVAL);
+
         console.log('no liv fixtures in progress');
-        if (!gamesRemainingToday.length > 0) {
+        if (!startingTimes.length > 0) {
           console.log('now breaking');
           break;
         }
@@ -48,10 +48,10 @@ const scoresUpdate = async fixturesToday => {
         );
       }
       await utils.timeDelay(system.UPDATE_INTERVAL);
-
-      console.log('games now left' + gamesRemainingToday);
+      console.log('games now left' + startingTimes);
     } while (!liveScores == '');
-    //liveUpdateJob.stop();
+
+    liveUpdateJob.stop();
   });
 };
 const sendUpdateToGroup = async (recipient, message) => {

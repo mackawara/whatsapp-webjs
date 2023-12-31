@@ -1,14 +1,13 @@
 const axios = require('axios');
 const { max, min, getHours, getMinutes, addDays, add } = require('date-fns');
 const fixtureModel = require('../../models/footballFixtures');
+const system = require('../../constants/system');
 
 const { scoreFormatter, matchStatusFormatter } = require('../../utils/index');
 
 /* only queries fixutres and scores for current */
 
 const callFootballApi = async competition => {
-  const todayDate = new Date().toISOString().slice(0, 10);
-  const weekFromToday = add(new Date(), 7).toISOString().slice(0, 10);
   let league;
   if (/english premier|premiership|epl/i.test(competition)) {
     league = 39;
@@ -26,13 +25,20 @@ const callFootballApi = async competition => {
     league = competition;
   }
 
+  const yday = new Date(system.YESTERDAY).toISOString().slice(0, 10);
+
+  const sevenDaysFromNow = new Date(system.SEVEN_DAYS_FROM_NOW)
+    .toISOString()
+    .slice(0, 10);
+
   const options = {
     method: 'GET',
     url: `https://api-football-v1.p.rapidapi.com/v3/fixtures`,
     params: {
-      date: todayDate,
-
-      // timezone: "Africa/Harare",
+      from: yday,
+      to: sevenDaysFromNow,
+      season: 2023,
+      league: competition,
     },
     headers: {
       'X-RapidAPI-Key': process.env.FOOTBALLAPIKEY,
@@ -48,17 +54,18 @@ const callFootballApi = async competition => {
     .catch(function (error) {
       console.error(error);
     });
+
   //writeFile(results, "callFootball.json");
 
   try {
     results.forEach(async result => {
-      //  console.log(result.league.name.replaceAll(" ", ""));
       const leagues = [3, 2, 401, 135, 39, 140];
 
       if (leagues.includes(result.league.id)) {
         const time = new Date(
           result.fixture.timestamp * 1000
         ).toLocaleTimeString();
+
         const fixtureID = result.fixture.id;
         const leagueId = result.league.id;
         const venue = result.fixture.venue.name;
@@ -74,7 +81,6 @@ const callFootballApi = async competition => {
           winner
         );
         const unixTimeStamp = result.fixture.timestamp;
-
         const penalties = result.score.penalty;
         const scoresHome = result.goals.home; //? result.goals.home : "";
         const scoresAway = result.goals.away; //? result.goals.home : "";
@@ -101,18 +107,16 @@ const callFootballApi = async competition => {
         //check if the fixture is all in the DB and update otherwise create new fixture
         const queryAndSave = async function () {
           const result = await fixtureModel
-            .find({
+            .findOne({
               fixtureID: fixtureID,
             })
             .exec();
 
-          if (result.length < 1) {
-            fixture.save().then(() => console.log('now saved'));
+          if (!result) {
+            await fixture.save();
+            console.log('now saved');
           } else {
-            const fixtureFound = await fixtureModel.findOne({
-              fixtureID: fixtureID,
-            });
-            fixtureFound.overwrite({
+            result.overwrite({
               matchStatus: matchStatus,
               fixture: `${home} vs ${away}`,
               venue: venue,
@@ -122,13 +126,13 @@ const callFootballApi = async competition => {
               away: away,
               time: time,
               leagueId: leagueId,
-              score: scores,
+              score: score,
               fixtureID: fixtureID,
               competition: competition,
               unixTimeStamp: unixTimeStamp,
             });
 
-            await fixtureFound.save().then(() => {
+            await result.save().then(() => {
               console.log('fixture updated');
             });
           }
