@@ -66,7 +66,7 @@ connectDB().then(async () => {
         console.log(err);
       }
     });
-    cron.schedule(`42 5 * * *`, () => {
+    cron.schedule(`13 6 * * *`, () => {
       updateFootballDb();
     });
     //schedule livescores
