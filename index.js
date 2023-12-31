@@ -5,8 +5,11 @@ const utils = require('./utils/index');
 const footballFixturesModel = require('./models/footballFixtures');
 const updateFootballDb = require('./config/helperFunction/updateFootballDb');
 const cron = require('node-cron');
-const { scoresUpdate } = require('./controllers/liveGames/liveGame.controller');
-const { isAfter } = require('date-fns');
+const {
+  scoresUpdate,
+  sendUpdateToGroup,
+} = require('./controllers/liveGames/liveGame.controller');
+const { isAfter, startOfYesterday } = require('date-fns');
 const system = require('./constants/system');
 require('dotenv').config();
 // connect to mongodb before running anything on the app
@@ -24,19 +27,33 @@ connectDB().then(async () => {
     clientOn(client, 'group-join');
     clientOn(client, 'group-leave');
     //get the first match of the day
+    let fixturesToUpdate, matchesToday;
+    const yesterday = startOfYesterday();
+    try {
+      matchesToday = await footballFixturesModel.find({
+        date: new Date().toISOString().slice(0, 10),
+      });
+      fixturesToUpdate = matchesToday.map(match => {
+        return {
+          timestamp: match.unixTimeStamp * 1000,
+          fixtureId: match.fixtureID,
+        };
+      });
+    } catch (err) {
+      console.log(err);
+    }
 
-    const matchesToday = await footballFixturesModel.find({
-      date: new Date().toISOString().slice(0, 10),
-    });
-    const fixturesToUpdate = matchesToday.map(match => {
-      return {
-        timestamp: match.unixTimeStamp * 1000,
-        fixtureId: match.fixtureID,
-      };
-    });
-    cron.schedule(`30 10,18 * * *`, () => {
+    cron.schedule(`30 6,14 * * *`, async () => {
       try {
-        client.sendMessage(
+        const matchesYestday = await footballFixturesModel.find({
+          date: new Date(yesterday).toISOString().slice(0, 10),
+        });
+        const yesterdayScores = await getLiveScores(
+          'completed',
+          matchesYestday.map(match => match.fixtureID)
+        );
+        sendUpdateToGroup(system.AMNESTYGROUP, yesterdayScores);
+        sendUpdateToGroup(
           system.AMNESTYGROUP,
           `*Fixtures for today* \n\n` +
             matchesToday
@@ -49,7 +66,7 @@ connectDB().then(async () => {
         console.log(err);
       }
     });
-    cron.schedule(`10 12 * * *`, () => {
+    cron.schedule(`42 5 * * *`, () => {
       updateFootballDb();
     });
     //schedule livescores
