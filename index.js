@@ -48,7 +48,7 @@ connectDB().then(async () => {
       }
     });
 
-    cron.schedule(`4 7,14 * * *`, async () => {
+    cron.schedule(`8 7,14 * * *`, async () => {
       console.log(system.AMNESTYGROUP);
       try {
         const matchesYestday = await footballFixturesModel.find({
