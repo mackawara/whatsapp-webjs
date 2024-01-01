@@ -42,7 +42,6 @@ const getLiveScores = async (type, fixtures, date) => {
         : result.teams.away.winner
         ? result.teams.away
         : false;
-      console.log(winner);
       const matchStatus = matchStatusFormatter(
         result.fixture.status,
         result.score.penalty,
