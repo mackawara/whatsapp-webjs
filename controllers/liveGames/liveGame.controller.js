@@ -62,6 +62,10 @@ const sendUpdateToGroup = async (recipient, message) => {
       minDelayTimeInSecs) *
     1000;
   await utils.timeDelay(delayTime);
-  client.sendMessage(recipient, message);
+  try {
+    client.sendMessage(recipient, message);
+  } catch (err) {
+    console.log(err);
+  }
 };
 module.exports = { sendUpdateToGroup, scoresUpdate };
