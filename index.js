@@ -86,7 +86,7 @@ connectDB().then(async () => {
           : sendUpdateToGroup(
               system.AMNESTYGROUP,
               `*Selected Fixtures for tommorow* \n\n` +
-                matchesToday
+                matchesTommorow
                   .map(
                     match =>
                       `${match.competition} ${match.fixture} ${match.time}`

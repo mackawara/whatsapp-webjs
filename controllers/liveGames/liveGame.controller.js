@@ -15,8 +15,9 @@ const scoresUpdate = async fixturesToday => {
   let cronString = utils.generateCronScheduleForgames(startingTimes);
   console.log(cronString);
   const liveUpdateJob = cron.schedule(cronString, async () => {
-    const liveScores = await getLiveScores('live'); // if empty string it means no score
+    let liveScores; // if empty string it means no score
     do {
+      liveScores = await getLiveScores('live');
       console.log('in looop');
       if (liveScores === '') {
         const completedMatchIds = gamesRemainingToday
@@ -31,10 +32,9 @@ const scoresUpdate = async fixturesToday => {
         );
         const now = new Date().toTimeString();
         console.log(now);
-        startingTimes = startingTimes.filter(
-          fixture => parseInt(now) < parseInt(fixture.timestamp)
+        startingTimes = startingTimes.filter(fixture =>
+          isAfter(fixture.timestamp, now)
         ); // continously filters to see if any games are remaining that day
-        await utils.timeDelay(system.UPDATE_INTERVAL);
 
         console.log('no liv fixtures in progress');
         if (!startingTimes.length > 0) {
