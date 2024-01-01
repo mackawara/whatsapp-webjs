@@ -31,9 +31,6 @@ connectDB().then(async () => {
     const yesterday = startOfYesterday();
     cron.schedule(`0 2 * * *`, async () => {
       try {
-        matchesToday = await footballFixturesModel.find({
-          date: new Date().toISOString().slice(0, 10),
-        });
         matchesTommorow = await footballFixturesModel.find({
           date: new Date().toISOString().slice(0, 10),
         });
@@ -48,9 +45,11 @@ connectDB().then(async () => {
       }
     });
 
-    cron.schedule(`8 7,14 * * *`, async () => {
-      console.log(system.AMNESTYGROUP);
+    cron.schedule(`13 7,14 * * *`, async () => {
       try {
+        const matchesToday = await footballFixturesModel.find({
+          date: new Date().toISOString().slice(0, 10),
+        });
         const matchesYestday = await footballFixturesModel.find({
           date: new Date(yesterday).toISOString().slice(0, 10),
         });
