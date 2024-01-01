@@ -29,11 +29,12 @@ connectDB().then(async () => {
     //get the first match of the day
     let fixturesToUpdate, matchesToday, matchesTommorow;
     const yesterday = startOfYesterday();
-    cron.schedule(`26 14 * * *`, async () => {
+    cron.schedule(`26 15 * * *`, async () => {
       try {
-        matchesTommorow = await footballFixturesModel.find({
+        const matchesToday = await footballFixturesModel.find({
           date: new Date().toISOString().slice(0, 10),
         });
+
         fixturesToUpdate = matchesToday.map(match => {
           return {
             timestamp: parseInt(match.unixTimeStamp) * 1000,
@@ -46,8 +47,11 @@ connectDB().then(async () => {
       }
     });
 
-    cron.schedule(`13 7,14 * * *`, async () => {
+    cron.schedule(`16 7,15 * * *`, async () => {
       try {
+        const matchesTommorow = await footballFixturesModel.find({
+          date: new Date().toISOString().slice(0, 10),
+        });
         const matchesToday = await footballFixturesModel.find({
           date: new Date().toISOString().slice(0, 10),
         });
@@ -69,6 +73,19 @@ connectDB().then(async () => {
           : sendUpdateToGroup(
               system.AMNESTYGROUP,
               `*Fixtures for today* \n\n` +
+                matchesToday
+                  .map(
+                    match =>
+                      `${match.competition} ${match.fixture} ${match.time}`
+                  )
+                  .join('\n\n')
+            );
+
+        !matchesTommorow.length > 0
+          ? console.log('no matches tommorow')
+          : sendUpdateToGroup(
+              system.AMNESTYGROUP,
+              `*Selected Fixtures for tommorow* \n\n` +
                 matchesToday
                   .map(
                     match =>
