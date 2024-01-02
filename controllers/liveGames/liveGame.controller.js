@@ -1,4 +1,4 @@
-const { isAfter, isBefore } = require('date-fns');
+const { isAfter, isBefore, min } = require('date-fns');
 const getLiveScores = require('../../config/helperFunction/getLivescores');
 const utils = require('../../utils/index');
 const cron = require('node-cron');
@@ -9,11 +9,14 @@ const scoresUpdate = async fixturesToday => {
   if (!fixturesToday.length > 0) {
     return;
   }
+  const gamesRemainingToday = fixturesToday;
   let startingTimes = await fixturesToday.map(fixture => fixture.timestamp);
-  const now = new Date();
 
   let cronString = utils.generateCronScheduleForgames(startingTimes);
   console.log(cronString);
+  if (!cronString) {
+    return;
+  }
   const liveUpdateJob = cron.schedule(cronString, async () => {
     let liveScores; // if empty string it means no score
     do {
@@ -24,13 +27,16 @@ const scoresUpdate = async fixturesToday => {
           .filter(fixture => isBefore(fixture.timestamp, new Date()))
           .map(fixture => fixture.fixtureId);
 
-        const fulltimeScores = await getLiveScores('completed', startingTimes);
+        const fulltimeScores = await getLiveScores(
+          'completed',
+          completedMatchIds
+        );
         console.log(`these are the completed match ids` + completedMatchIds);
         sendUpdateToGroup(
           system.AMNESTYGROUP,
           `Live Updates every 10 minutes \n\n ${fulltimeScores}`
         );
-        const now = new Date().toTimeString();
+        const now = new Date();
         console.log(now);
         startingTimes = startingTimes.filter(fixture =>
           isAfter(fixture.timestamp, now)
@@ -40,6 +46,11 @@ const scoresUpdate = async fixturesToday => {
         if (!startingTimes.length > 0) {
           console.log('now breaking');
           break;
+        } else {
+          const nextMatchStartsIn = parseInt(
+            min(startingTimes) - parseInt(now)
+          );
+          await utils.timeDelay(nextMatchStartsIn);
         }
       } else {
         sendUpdateToGroup(
@@ -49,7 +60,7 @@ const scoresUpdate = async fixturesToday => {
       }
       await utils.timeDelay(system.UPDATE_INTERVAL);
       console.log('games now left' + startingTimes);
-    } while (!liveScores == '');
+    } while (!liveScores === '' && !startingTimes.length > 0);
 
     liveUpdateJob.stop();
   });

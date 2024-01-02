@@ -33,18 +33,16 @@ const timeDelay = ms => new Promise(res => setTimeout(res, ms));
 const generateCronScheduleForgames = startingTimesUnix => {
   try {
     if (startingTimesUnix.length == 0) {
-      return `0 11 * * *`;
+      return false;
     }
     // add fix for NaN
     const firstGame = min(startingTimesUnix);
-    const lastGame = max(startingTimesUnix);
     const mins = getMinutes(firstGame) ?? 0;
     const firstGameHours = getHours(firstGame) ?? 0;
-    const lastGameHours = parseInt(getHours(lastGame) ?? 0) + 2;
-    const cronString = `${mins} ${firstGameHours}-${lastGameHours} * * *`;
+    const cronString = `${mins} ${firstGameHours} * * *`;
     return cronString;
   } catch (err) {
-    return `0 11 * * *`;
+    return false;
   }
 };
 

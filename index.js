@@ -29,7 +29,7 @@ connectDB().then(async () => {
     //get the first match of the day
     let fixturesToUpdate, matchesToday, matchesTommorow;
     const yesterday = startOfYesterday();
-    cron.schedule(`26 15 * * *`, async () => {
+    cron.schedule(`1 11 * * *`, async () => {
       try {
         const matchesToday = await footballFixturesModel.find({
           date: new Date().toISOString().slice(0, 10),
@@ -50,7 +50,7 @@ connectDB().then(async () => {
     cron.schedule(`16 7,15 * * *`, async () => {
       try {
         const matchesTommorow = await footballFixturesModel.find({
-          date: new Date().toISOString().slice(0, 10),
+          date: new Date(system.TOMMOROW).toISOString().slice(0, 10),
         });
         const matchesToday = await footballFixturesModel.find({
           date: new Date().toISOString().slice(0, 10),
@@ -65,8 +65,8 @@ connectDB().then(async () => {
         yesterdayScores == ''
           ? console.log('no matches from yesterday')
           : sendUpdateToGroup(
-              `Results from yesterday\`s matches` + system.AMNESTYGROUP,
-              yesterdayScores
+              system.AMNESTYGROUP,
+              `Results from yesterday\`s matches` + yesterdayScores
             );
         !matchesToday.length > 0
           ? console.log('no matches today')
@@ -100,7 +100,8 @@ connectDB().then(async () => {
     // await updateFootballDb();
     /*  cron.schedule(`30 11 * * *`, () => {});
      */
-    // update fixtures ever sun mon fri
+    // update fixtures ever sun mon fri for the next 7 days
+
     cron.schedule(`22 4 * * 0,1,5`, () => {
       console.log('cron');
       system.LEAGUES_FOLLOWED.forEach(league => {
