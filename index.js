@@ -9,7 +9,7 @@ const {
   scoresUpdate,
   sendUpdateToGroup,
 } = require('./controllers/liveGames/liveGame.controller');
-const { isAfter, startOfYesterday, addDays } = require('date-fns');
+const { isAfter, startOfYesterday, addDays, add, sub } = require('date-fns');
 const system = require('./constants/system');
 require('dotenv').config();
 // connect to mongodb before running anything on the app
@@ -28,8 +28,8 @@ connectDB().then(async () => {
     clientOn(client, 'group-leave');
     //get the first match of the day
     let fixturesToUpdate, matchesToday, matchesTommorow;
-    const yesterday = startOfYesterday();
-    cron.schedule(`1 11 * * *`, async () => {
+
+    cron.schedule(`27 10 * * *`, async () => {
       try {
         const matchesToday = await footballFixturesModel.find({
           date: new Date().toISOString().slice(0, 10),
@@ -41,42 +41,47 @@ connectDB().then(async () => {
             fixtureId: match.fixtureID,
           };
         });
+        console.log('fixtures update');
         scoresUpdate(fixturesToUpdate);
       } catch (err) {
         console.log(err);
       }
     });
 
-    cron.schedule(`16 7,15 * * *`, async () => {
+    cron.schedule(`37 5,16 * * *`, async () => {
       try {
+        const tommorow = add(new Date(), { days: 1 });
         const matchesTommorow = await footballFixturesModel.find({
-          date: new Date(system.TOMMOROW).toISOString().slice(0, 10),
+          date: tommorow.toISOString().slice(0, 10),
         });
         const matchesToday = await footballFixturesModel.find({
           date: new Date().toISOString().slice(0, 10),
         });
+        const yesterday = sub(new Date(), { days: 1 });
+        console.log(yesterday.toISOString().slice(0, 10));
         const matchesYestday = await footballFixturesModel.find({
-          date: new Date(yesterday).toISOString().slice(0, 10),
+          date: yesterday.toISOString().slice(0, 10),
         });
-        const yesterdayScores = await getLiveScores(
-          'completed',
-          matchesYestday.map(match => match.fixtureID)
-        );
+
+        const yesterdayScores = await getLiveScores({
+          fixtures: matchesYestday.map(fixture => fixture.fixtureID),
+        });
         yesterdayScores == ''
           ? console.log('no matches from yesterday')
           : sendUpdateToGroup(
               system.AMNESTYGROUP,
-              `Results from yesterday\`s matches` + yesterdayScores
+              `Results from yesterday\`s ${yesterday.toLocaleDateString} matches\n\n` +
+                yesterdayScores
             );
         !matchesToday.length > 0
           ? console.log('no matches today')
           : sendUpdateToGroup(
               system.AMNESTYGROUP,
-              `*Fixtures for today* \n\n` +
+              `*Selected Fixtures for today* \n\n` +
                 matchesToday
                   .map(
                     match =>
-                      `${match.competition} ${match.fixture} ${match.time}`
+                      `${match.competition} \n${match.fixture} \n${match.time}`
                   )
                   .join('\n\n')
             );
@@ -89,7 +94,7 @@ connectDB().then(async () => {
                 matchesTommorow
                   .map(
                     match =>
-                      `${match.competition} ${match.fixture} ${match.time}`
+                      `${match.competition} \n${match.fixture} \n${match.time}`
                   )
                   .join('\n\n')
             );

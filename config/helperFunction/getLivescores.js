@@ -3,14 +3,14 @@ const client = require('../wwebjsConfig');
 const { matchStatusFormatter, scoreFormatter } = require('../../utils/index');
 const system = require('../../constants/system');
 
-const getLiveScores = async (type, fixtures, date) => {
+const getLiveScores = async ({ type, fixtures, date }) => {
   const ids = system.LEAGUES_FOLLOWED.join('-');
   let params;
   if (type === 'live') {
     params = {
       live: ids,
     };
-  } else if (type === 'completed') {
+  } else if (fixtures) {
     params = {
       ids: fixtures.join('-'),
     };
@@ -19,6 +19,7 @@ const getLiveScores = async (type, fixtures, date) => {
       from: date,
     };
   }
+
   try {
     const options = {
       method: 'GET',
