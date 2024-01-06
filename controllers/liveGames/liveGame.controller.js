@@ -18,49 +18,55 @@ const scoresUpdate = async fixturesToday => {
   if (!cronString) {
     return;
   }
-  //const liveUpdateJob = cron.schedule(cronString, async () => {
-  let liveScores; // if empty string it means no score
-  do {
-    liveScores = await getLiveScores({ type: 'live' });
-    console.log('in looop');
-    if (liveScores === '') {
-      const now = new Date();
-      const completedMatchIds = gamesRemainingToday
-        .filter(fixture => isBefore(fixture.timestamp, now))
-        .map(fixture => fixture.fixtureId);
+  const liveUpdateJob = cron.schedule(cronString, async () => {
+    let liveScores; // if empty string it means no score
+    do {
+      liveScores = await getLiveScores({ type: 'live' });
+      console.log('in looop');
+      if (liveScores === '') {
+        const now = new Date();
+        const completedMatchIds = gamesRemainingToday
+          .filter(fixture => isBefore(fixture.timestamp, now))
+          .map(fixture => fixture.fixtureId);
 
-      const fulltimeScores = await getLiveScores({
-        fixtures: completedMatchIds,
-      });
-      console.log(`these are the completed match ids` + completedMatchIds);
-      sendUpdateToGroup(`Full time scores \n\n ${fulltimeScores}`);
-      console.log(now);
-      startingTimes = startingTimes.filter(fixture => isAfter(fixture, now)); // continously filters to see if any games are remaining that day
+        const fulltimeScores = await getLiveScores({
+          fixtures: completedMatchIds,
+        });
+        console.log(`these are the completed match ids` + completedMatchIds);
+        sendUpdateToGroup(`Full time scores \n\n ${fulltimeScores}`);
+        console.log(now);
+        startingTimes = startingTimes.filter(fixture => isAfter(fixture, now)); // continously filters to see if any games are remaining that day
 
-      console.log('no liv fixtures in progress');
-      if (!startingTimes.length > 0) {
-        console.log('now breaking');
-        break;
+        console.log('no liv fixtures in progress');
+        if (!startingTimes.length > 0) {
+          console.log('now breaking');
+          break;
+        } else {
+          const nextMatchStartsIn = parseInt(
+            min(startingTimes) - parseInt(now)
+          );
+          await utils.timeDelay(nextMatchStartsIn);
+        }
       } else {
-        const nextMatchStartsIn = parseInt(min(startingTimes) - parseInt(now));
-        await utils.timeDelay(nextMatchStartsIn);
+        sendUpdateToGroup(
+          `Live Updates every 10 minutes \n\n ${liveScores} \n\n` +
+            system.GROUP_INVITE
+        );
       }
-    } else {
-      sendUpdateToGroup(`Live Updates every 10 minutes \n\n ${liveScores}`);
-    }
-    console.log('games now left' + startingTimes);
-    await utils.timeDelay(system.UPDATE_INTERVAL);
-  } while (!liveScores === '' && !startingTimes.length > 0);
+      console.log('games now left' + startingTimes);
+      await utils.timeDelay(system.UPDATE_INTERVAL);
+    } while (!liveScores === '' && !startingTimes.length > 0);
 
-  // liveUpdateJob.stop();
-  //});
+    liveUpdateJob.stop();
+  });
 };
-const sendUpdateToGroup = async message => {
-  const group = await GroupsModel.find()
+const sendUpdateToGroup = async (message, caption) => {
+  const groups = await GroupsModel.find()
     .limit(2)
     .catch(err => {
       console.log(err);
     });
+
   const maxDelayTimeInSecs = 97;
   const minDelayTimeInSecs = 33;
   const delayTime =
@@ -69,8 +75,8 @@ const sendUpdateToGroup = async message => {
     1000;
   await utils.timeDelay(delayTime);
   try {
-    group.forEach(async group => {
-      client.sendMessage(group.serialisedNumber, message);
+    groups.forEach(async group => {
+      client.sendMessage(group.serialisedNumber, message, caption ?? {});
       await utils.timeDelay(delayTime);
     });
   } catch (err) {

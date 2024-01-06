@@ -46,8 +46,10 @@ connectDB().then(async () => {
       process.env.ME,
       'For real time live scores updated every 5-10 minutes, statistics, standings, odds and all soccer news please join this group or add this number Soccerbot to your group! https://chat.whatsapp.com/EjpJ7BMGlW044kCYNfFHAi'
     );
+    sendUpdateToGroup('testing');
     cron.schedule(`10 14 * * 1,4,5`, async () => {
       system.LEAGUES_FOLLOWED.forEach(async league => {
+        console.log('scorers');
         const leagueFollowed = await LeaguesModel.findOne({ id: league });
         const media = await MessageMedia.fromUrl(leagueFollowed.logo);
         const topScorers = await TopScorers.find({ leagueId: league })
@@ -65,12 +67,13 @@ connectDB().then(async () => {
             } Matches `;
           })
           .slice(0, 5);
-        sendUpdateToGroup(media, {
+        const caption = {
           caption:
             `*${leagueFollowed.name} ${system.SEASON}-${
               parseInt(system.SEASON) + 1
             } Top Scorers*\n\n` + leagueTopScorers.join('\n\n'),
-        });
+        };
+        sendUpdateToGroup(media, caption);
       });
     });
     //schedule todays fixtures
@@ -92,7 +95,7 @@ connectDB().then(async () => {
       }
     });
     //send yesterdays scores
-    cron.schedule(`49 5,16 * * *`, async () => {
+    cron.schedule(`30 9,16 * * *`, async () => {
       try {
         const tommorow = add(new Date(), { days: 1 });
         const matchesTommorow = await footballFixturesModel.find({

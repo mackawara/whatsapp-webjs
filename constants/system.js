@@ -10,6 +10,8 @@ const AMNESTYGROUP = process.env.AMNESTYGROUP;
 const SOCCERUPDATE_GROUP = process.env.SOCCER_UPDATES_1;
 
 const FOOTBALL_API_URL = `https://api-football-v1.p.rapidapi.com/v3`;
+const GROUP_INVITE =
+  'For real time live scores updated every 5-10 minutes, statistics, standings, odds and all soccer news please join this group or add this number Soccerbot to your group! https://chat.whatsapp.com/EjpJ7BMGlW044kCYNfFHAi';
 const UPDATE_INTERVAL = 660000;
 const YESTERDAY = startOfYesterday();
 const TOMMOROW = endOfTomorrow();
@@ -26,4 +28,5 @@ module.exports = {
   TOMMOROW,
   SEVEN_DAYS_FROM_NOW,
   SEASON,
+  GROUP_INVITE,
 };
