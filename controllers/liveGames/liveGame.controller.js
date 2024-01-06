@@ -2,7 +2,7 @@ const { isAfter, isBefore, min } = require('date-fns');
 const getLiveScores = require('../../config/helperFunction/getLivescores');
 const utils = require('../../utils/index');
 const cron = require('node-cron');
-const client = require('../../config/wwebjsConfig');
+const { client, MessageMedia } = require('../../config/wwebjsConfig');
 const system = require('../../constants/system');
 const GroupsModel = require('../../models/groups');
 

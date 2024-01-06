@@ -42,10 +42,14 @@ connectDB().then(async () => {
         getStatistics(league, 'players/topscorers');
       });
     });
-
+    client.sendMessage(
+      process.env.ME,
+      'For real time live scores updated every 5-10 minutes, statistics, standings, odds and all soccer news please join this group or add this number Soccerbot to your group! https://chat.whatsapp.com/EjpJ7BMGlW044kCYNfFHAi'
+    );
     cron.schedule(`10 14 * * 1,4,5`, async () => {
       system.LEAGUES_FOLLOWED.forEach(async league => {
-        const LeagueName = await LeaguesModel.findOne({ id: league });
+        const leagueFollowed = await LeaguesModel.findOne({ id: league });
+        const media = await MessageMedia.fromUrl(leagueFollowed.logo);
         const topScorers = await TopScorers.find({ leagueId: league })
           .sort({
             goalsScored: -1,
@@ -61,11 +65,12 @@ connectDB().then(async () => {
             } Matches `;
           })
           .slice(0, 5);
-        sendUpdateToGroup(
-          `*${LeagueName.name} ${system.SEASON}-${
-            parseInt(system.SEASON) + 1
-          } Top Scorers*\n\n` + leagueTopScorers.join('\n\n')
-        );
+        sendUpdateToGroup(media, {
+          caption:
+            `*${leagueFollowed.name} ${system.SEASON}-${
+              parseInt(system.SEASON) + 1
+            } Top Scorers*\n\n` + leagueTopScorers.join('\n\n'),
+        });
       });
     });
     //schedule todays fixtures
