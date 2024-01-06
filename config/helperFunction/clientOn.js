@@ -1,3 +1,6 @@
+const contactModel = require('../../models/contactsModel');
+const GroupsModel = require('../../models/groups');
+const qrcode = require('qrcode-terminal');
 const clientOn = async (client, arg1, arg2) => {
   const me = process.env.ME;
 
@@ -12,7 +15,13 @@ const clientOn = async (client, arg1, arg2) => {
       console.log(`client authenticated`);
     });
   }
-  const qrcode = require('qrcode-terminal');
+  if (arg1 == 'ready') {
+    client.on('ready', async session => {
+      console.log(`client ready`);
+      client.sendMessage(process.env.ME, 'successful deploy');
+    });
+  }
+
   if (arg1 == 'qr') {
     client.on('qr', qr => {
       qrcode.generate(qr, { small: true });
@@ -20,82 +29,49 @@ const clientOn = async (client, arg1, arg2) => {
     });
   }
 
-  const contactModel = require('../../models/contactsModel');
   let groupName, grpDescription;
   if (arg1 == 'message') {
     client.on(`message`, async msg => {
       const chat = await msg.getChat();
       const contact = await msg.getContact();
 
-      const msgBody = msg.body;
-      msgBody.split(' ').forEach(word => {
-        const keywords = {
-          businessKeywords: [
-            'receipt',
-            'invoice books',
-            'cartridges',
-            'toner',
-            'catridge',
-
-            'ink cartridge',
-            'printer cartridge',
-            'CCTV',
-            'camera',
-            'internet',
-            'Hp cartridge',
-            'kyocera',
-            'computer repairs',
-            'photo shoot',
-            'hard drives',
-            'RAM',
-            'laptops',
-            'computer',
-            'cricket',
-          ],
-          usdKeyword: [
-            `for eco`,
-            `for ecocash`,
-            `USD available`,
-            `for zipit`,
-            `US for`,
-            `for bank transfer`,
-            `US for`,
-            `usd available`,
-            `ìnternal transfer`,
-          ],
-        };
-
-        if (keywords.businessKeywords.includes(word)) {
-          console.log(msg);
-          //do stuff
-          client.sendMessage(
-            me,
-            `Business keyword alert:\n ${msg.body} from ${msg.getContact()}`
-          );
-        }
-      });
-
       if (chat.isGroup) {
-        console.log(chat.name, chat.id._serialized);
-
-        // console.log(msg.body,groupName,contact);
-        //grpOwner = chat.owner.user;
-
-        if (/matchid/gi.test(msgBody.replaceAll(' ', ''))) {
-          console.log('matchid receieved');
-          // getCommentary()
-
-          //get the math they want
-          const matchId = msgBody
-            .replace(/\s/g, '')
-            .slice('8')
-            .trim()
-            .replace(':', '');
-          //const matchCommentary = await getCommentary(matchId); // check if message contains a req for ID
-
-          msg.reply('Do stuff'); //do stuff
+        console.log('gropu message');
+        const savedGroup = await GroupsModel.findOne({
+          serialisedNumber: chat.id._serialized,
+        });
+        console.log(savedGroup);
+        if (!savedGroup) {
+          console.log('not saved');
+          const newGroup = new GroupsModel({
+            serialisedNumber: chat.id._serialized,
+            notifyName: chat.name,
+            number: chat.id.user,
+            group: chat.name,
+            date: new Date().toISOString().slice(0, 10),
+          });
+          try {
+            newGroup.save().then(result => {
+              console.log(result);
+            });
+          } catch (err) {
+            console.log(err.data);
+          }
         }
-      } else {
+        /* msgBody.split(' ').forEach(word => {
+            if (keywords.businessKeywords.includes(word)) {
+              client.sendMessage(
+                me,
+                `Business keyword alert:\n ${msg.body} from Group ${chat.name} from ${msg.author}`
+              );
+            }
+          }); */
+        //grpOwner = chat.owner.user;
+      }
+
+      // console.log(msg.body,groupName,contact);
+      //grpOwner = chat.owner.user;
+      else {
         let from = msg.from;
 
         let senderNotifyName = await contact.pushname;
@@ -143,7 +119,6 @@ const clientOn = async (client, arg1, arg2) => {
     });
   } else if (arg1 == 'before' && arg2 == 'after') {
     client.on('message_revoke_everyone', async (after, before) => {
-      // Fired whenever a message is deleted by anyone (including you)
       console.log(after); // message after it was deleted.
       if (before) {
         console.log(before); // message before it was deleted.

@@ -1,7 +1,12 @@
 const connectDB = require('./config/database');
-const client = require('./config/wwebjsConfig');
+const { client, MessageMedia } = require('./config/wwebjsConfig');
 const getLiveScores = require('./config/helperFunction/getLivescores');
+const getLeagues = require('./config/helperFunction/getLeagues');
+const TopScorers = require('./models/topScorers');
+const getStatistics = require('./controllers/statistics/statistics.controller');
 const utils = require('./utils/index');
+const GroupsModel = require('./models/groups');
+const LeaguesModel = require('./models/leagues');
 const footballFixturesModel = require('./models/footballFixtures');
 const updateFootballDb = require('./config/helperFunction/updateFootballDb');
 const cron = require('node-cron');
@@ -13,9 +18,9 @@ const { isAfter, startOfYesterday, addDays, add, sub } = require('date-fns');
 const system = require('./constants/system');
 require('dotenv').config();
 // connect to mongodb before running anything on the app
+
 connectDB().then(async () => {
   client.initialize();
-
   const clientOn = require('./config/helperFunction/clientOn');
   //client
   clientOn(client, 'authenticated');
@@ -23,13 +28,48 @@ connectDB().then(async () => {
   clientOn(client, 'qr');
   //clientOn(client2, "qr");
   client.on('ready', async () => {
+    console.log('client is ready');
     clientOn(client, `message`);
     clientOn(client, 'group-join');
     clientOn(client, 'group-leave');
+    client.sendMessage(process.env.ME, 'deploy successfully');
     //get the first match of the day
-    let fixturesToUpdate, matchesToday, matchesTommorow;
+    let fixturesToUpdate;
+    //update Top Scorers
+    cron.schedule(`58 23 * * 1,3,5`, async () => {
+      console.log('updating top scorers');
+      system.LEAGUES_FOLLOWED.forEach(async league => {
+        getStatistics(league, 'players/topscorers');
+      });
+    });
 
-    cron.schedule(`27 10 * * *`, async () => {
+    cron.schedule(`10 14 * * 1,4,5`, async () => {
+      system.LEAGUES_FOLLOWED.forEach(async league => {
+        const LeagueName = await LeaguesModel.findOne({ id: league });
+        const topScorers = await TopScorers.find({ leagueId: league })
+          .sort({
+            goalsScored: -1,
+          })
+          .limit(5);
+        const leagueTopScorers = topScorers
+          .map((stats, index) => {
+            const rank = index + 1;
+            return `${rank}. *${stats.name}* (${stats.teamName})\n ${
+              stats.goalsScored
+            } Goals , ${stats.assists ?? '?'} Assists  in ${
+              stats.appearences
+            } Matches `;
+          })
+          .slice(0, 5);
+        sendUpdateToGroup(
+          `*${LeagueName.name} ${system.SEASON}-${
+            parseInt(system.SEASON) + 1
+          } Top Scorers*\n\n` + leagueTopScorers.join('\n\n')
+        );
+      });
+    });
+    //schedule todays fixtures
+    cron.schedule(`51 9 * * *`, async () => {
       try {
         const matchesToday = await footballFixturesModel.find({
           date: new Date().toISOString().slice(0, 10),
@@ -41,14 +81,13 @@ connectDB().then(async () => {
             fixtureId: match.fixtureID,
           };
         });
-        console.log('fixtures update');
         scoresUpdate(fixturesToUpdate);
       } catch (err) {
         console.log(err);
       }
     });
-
-    cron.schedule(`37 5,16 * * *`, async () => {
+    //send yesterdays scores
+    cron.schedule(`49 5,16 * * *`, async () => {
       try {
         const tommorow = add(new Date(), { days: 1 });
         const matchesTommorow = await footballFixturesModel.find({
@@ -69,14 +108,12 @@ connectDB().then(async () => {
         yesterdayScores == ''
           ? console.log('no matches from yesterday')
           : sendUpdateToGroup(
-              system.AMNESTYGROUP,
               `Results from yesterday\`s ${yesterday.toLocaleDateString} matches\n\n` +
                 yesterdayScores
             );
         !matchesToday.length > 0
           ? console.log('no matches today')
           : sendUpdateToGroup(
-              system.AMNESTYGROUP,
               `*Selected Fixtures for today* \n\n` +
                 matchesToday
                   .map(
@@ -89,7 +126,6 @@ connectDB().then(async () => {
         !matchesTommorow.length > 0
           ? console.log('no matches tommorow')
           : sendUpdateToGroup(
-              system.AMNESTYGROUP,
               `*Selected Fixtures for tommorow* \n\n` +
                 matchesTommorow
                   .map(

@@ -1,5 +1,5 @@
 const axios = require('axios');
-const client = require('../wwebjsConfig');
+const { client } = require('../wwebjsConfig');
 const { matchStatusFormatter, scoreFormatter } = require('../../utils/index');
 const system = require('../../constants/system');
 
