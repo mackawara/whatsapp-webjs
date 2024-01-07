@@ -46,7 +46,7 @@ connectDB().then(async () => {
 
     sendUpdateToGroup('testing');
     // top scorers charts
-    cron.schedule(`10 10 * * 1,4,`, async () => {
+    cron.schedule(`10 10 * * 1,4`, async () => {
       system.LEAGUES_FOLLOWED.forEach(async league => {
         const leagueFollowed = await LeaguesModel.findOne({ id: league });
         const media = await MessageMedia.fromUrl(leagueFollowed.logo);
