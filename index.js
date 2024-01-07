@@ -16,6 +16,7 @@ const {
 } = require('./controllers/liveGames/liveGame.controller');
 const { isAfter, startOfYesterday, addDays, add, sub } = require('date-fns');
 const system = require('./constants/system');
+const getStandings = require('./controllers/statistics/standings.controller');
 require('dotenv').config();
 // connect to mongodb before running anything on the app
 
@@ -42,14 +43,11 @@ connectDB().then(async () => {
         getStatistics(league, 'players/topscorers');
       });
     });
-    client.sendMessage(
-      process.env.ME,
-      'For real time live scores updated every 5-10 minutes, statistics, standings, odds and all soccer news please join this group or add this number Soccerbot to your group! https://chat.whatsapp.com/EjpJ7BMGlW044kCYNfFHAi'
-    );
+
     sendUpdateToGroup('testing');
-    cron.schedule(`10 14 * * 1,4,5`, async () => {
+    // top scorers charts
+    cron.schedule(`10 10 * * 1,4,`, async () => {
       system.LEAGUES_FOLLOWED.forEach(async league => {
-        console.log('scorers');
         const leagueFollowed = await LeaguesModel.findOne({ id: league });
         const media = await MessageMedia.fromUrl(leagueFollowed.logo);
         const topScorers = await TopScorers.find({ leagueId: league })
@@ -74,10 +72,22 @@ connectDB().then(async () => {
             } Top Scorers*\n\n` + leagueTopScorers.join('\n\n'),
         };
         sendUpdateToGroup(media, caption);
+        await utils.timeDelay(Math.random(10) * 10000);
+      });
+    });
+    cron.schedule(`7 11 * * 1,4`, async () => {
+      system.LEAGUES_FOLLOWED.forEach(async league => {
+        const standings = await getStandings(league);
+        const standingsMedia = await MessageMedia.fromUrl(standings.media);
+        const standingsCaption = {
+          caption: standings.standings + `\n\n${system.GROUP_INVITE}`,
+        };
+        sendUpdateToGroup(standingsMedia, standingsCaption);
+        await utils.timeDelay(Math.random(10) * 10000);
       });
     });
     //schedule todays fixtures
-    cron.schedule(`51 9 * * *`, async () => {
+    cron.schedule(`51 14 * * *`, async () => {
       try {
         const matchesToday = await footballFixturesModel.find({
           date: new Date().toISOString().slice(0, 10),
@@ -116,8 +126,7 @@ connectDB().then(async () => {
         yesterdayScores == ''
           ? console.log('no matches from yesterday')
           : sendUpdateToGroup(
-              `Results from yesterday\`s ${yesterday.toLocaleDateString} matches\n\n` +
-                yesterdayScores
+              `Results from yesterday\`s matches\n\n` + yesterdayScores
             );
         !matchesToday.length > 0
           ? console.log('no matches today')

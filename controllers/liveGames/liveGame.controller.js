@@ -22,9 +22,10 @@ const scoresUpdate = async fixturesToday => {
     let liveScores; // if empty string it means no score
     do {
       liveScores = await getLiveScores({ type: 'live' });
-      console.log('in looop');
+      const now = new Date();
+      startingTimes = startingTimes.filter(fixture => isAfter(fixture, now)); // continously filters to see if any games are remaining that day
+      console.log(liveScores);
       if (liveScores === '') {
-        const now = new Date();
         const completedMatchIds = gamesRemainingToday
           .filter(fixture => isBefore(fixture.timestamp, now))
           .map(fixture => fixture.fixtureId);
@@ -33,9 +34,9 @@ const scoresUpdate = async fixturesToday => {
           fixtures: completedMatchIds,
         });
         console.log(`these are the completed match ids` + completedMatchIds);
-        sendUpdateToGroup(`Full time scores \n\n ${fulltimeScores}`);
-        console.log(now);
-        startingTimes = startingTimes.filter(fixture => isAfter(fixture, now)); // continously filters to see if any games are remaining that day
+        sendUpdateToGroup(
+          `Full time scores \n\n ${fulltimeScores} \n\n${system.GROUP_INVITE}`
+        );
 
         console.log('no liv fixtures in progress');
         if (!startingTimes.length > 0) {
@@ -48,15 +49,16 @@ const scoresUpdate = async fixturesToday => {
           await utils.timeDelay(nextMatchStartsIn);
         }
       } else {
+        console.log('not empty');
         sendUpdateToGroup(
-          `Live Updates every 10 minutes \n\n ${liveScores} \n\n` +
+          `*SoccerBot Live Updates every 10 minutes* \n\n ${liveScores} \n\n` +
             system.GROUP_INVITE
         );
       }
-      console.log('games now left' + startingTimes);
-      await utils.timeDelay(system.UPDATE_INTERVAL);
-    } while (!liveScores === '' && !startingTimes.length > 0);
 
+      await utils.timeDelay(system.UPDATE_INTERVAL);
+    } while (liveScores !== '' || !startingTimes.length > 0);
+    console.log('while loop broken');
     liveUpdateJob.stop();
   });
 };

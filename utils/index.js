@@ -37,7 +37,8 @@ const generateCronScheduleForgames = startingTimesUnix => {
     }
     // add fix for NaN
     const firstGame = min(startingTimesUnix);
-    const mins = getMinutes(firstGame) ?? 0;
+    const mins = parseInt(getMinutes(firstGame) ?? 0) + 12;
+    console.log(mins);
     const firstGameHours = getHours(firstGame) ?? 0;
     const cronString = `${mins} ${firstGameHours} * * *`;
     return cronString;
