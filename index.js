@@ -75,15 +75,22 @@ connectDB().then(async () => {
         await utils.timeDelay(Math.random(10) * 10000);
       });
     });
-    cron.schedule(`7 11 * * 1,4`, async () => {
+    cron.schedule(`7 11 * * 1,2,4`, async () => {
       system.LEAGUES_FOLLOWED.forEach(async league => {
-        const standings = await getStandings(league);
-        const standingsMedia = await MessageMedia.fromUrl(standings.media);
-        const standingsCaption = {
-          caption: standings.standings + `\n\n${system.GROUP_INVITE}`,
-        };
-        sendUpdateToGroup(standingsMedia, standingsCaption);
-        await utils.timeDelay(Math.random(10) * 10000);
+        try {
+          const standings = await getStandings(league);
+          if (standings == '') return;
+
+          const standingsMedia = await MessageMedia.fromUrl(standings.media);
+
+          const standingsCaption = {
+            caption: standings.standings + `\n\n${system.GROUP_INVITE}`,
+          };
+          sendUpdateToGroup(standingsMedia, standingsCaption);
+          await utils.timeDelay(Math.random(10) * 10000);
+        } catch (err) {
+          console.log(err);
+        }
       });
     });
     //schedule todays fixtures

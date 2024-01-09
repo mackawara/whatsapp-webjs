@@ -15,10 +15,14 @@ const getStandings = async league => {
   try {
     const response = await axios.request(options);
 
-    const { id, name, season, standings, logo } = await response.data
+    const { id, name, season, standings, logo, type } = await response.data
       .response[0].league;
     // console.log(id, name, season, standings);
-
+    const lengthOfStandings = standings.length;
+    const lastIndex = lengthOfStandings - 1;
+    if (/cup/gi.test(type) || !standings[lastIndex].current) {
+      return '';
+    }
     const standingsMapped = standings[0]
       .map(ranking => {
         return `${ranking.rank}. *${ranking.team.name}*\n*M* ${ranking.all.played}  *W* ${ranking.all.win} *D* ${ranking.all.draw} *L* ${ranking.all.lose} *GD* ${ranking.goalsDiff}  Pts ${ranking.points}`;
@@ -34,9 +38,9 @@ const getStandings = async league => {
       return;
     }); */
     // console.log(rank, id, team, season);
-    return;
   } catch (error) {
     console.error(error);
+    return '';
   }
 };
 module.exports = getStandings;
