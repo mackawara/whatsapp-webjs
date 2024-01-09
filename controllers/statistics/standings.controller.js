@@ -1,5 +1,6 @@
 const axios = require('axios');
 const system = require('../../constants/system');
+const { sub, isBefore } = require('date-fns');
 
 const getStandings = async league => {
   const options = {
@@ -14,13 +15,25 @@ const getStandings = async league => {
 
   try {
     const response = await axios.request(options);
-
-    const { id, name, season, standings, logo, type } = await response.data
+    if (response.data.response.length == 0) {
+      return '';
+    }
+    const { id, name, season, standings, logo } = await response.data
       .response[0].league;
+    console.log(name, season, logo, id);
     // console.log(id, name, season, standings);
-    const lengthOfStandings = standings.length;
-    const lastIndex = lengthOfStandings - 1;
-    if (/cup/gi.test(type) || !standings[lastIndex].current) {
+    /*  const lengthOfStandings = standings.length;
+    const lastIndex = lengthOfStandings - 1; */
+    const fourDaysAgo = sub(new Date(), { days: 4 });
+    console.log(standings[0]['update']);
+    const isOlderThan4Days = isBefore(standings[0][0]['update'], fourDaysAgo);
+    console.log(isOlderThan4Days);
+    /*  if (staans) {
+      console.log('returning');
+      return '';
+    } */
+    if (isOlderThan4Days) {
+      console.log('no recent update');
       return '';
     }
     const standingsMapped = standings[0]
