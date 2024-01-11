@@ -20,20 +20,11 @@ const getStandings = async league => {
     }
     const { id, name, season, standings, logo } = await response.data
       .response[0].league;
-    console.log(name, season, logo, id);
-    // console.log(id, name, season, standings);
-    /*  const lengthOfStandings = standings.length;
-    const lastIndex = lengthOfStandings - 1; */
     const fourDaysAgo = sub(new Date(), { days: 4 });
-    console.log(standings[0]['update']);
     const isOlderThan4Days = isBefore(standings[0][0]['update'], fourDaysAgo);
-    console.log(isOlderThan4Days);
-    /*  if (staans) {
-      console.log('returning');
-      return '';
-    } */
+
     if (isOlderThan4Days) {
-      console.log('no recent update');
+      console.log('no recent update from' + name);
       return '';
     }
     const standingsMapped = standings[0]
@@ -46,11 +37,6 @@ const getStandings = async league => {
       standings: `*${name} ${season} Standings*\n\n${standingsMapped}`,
       media: logo,
     };
-    //  const { id, name, standings } = league;
-    /*  const leagueStandings = standings.map(async rank => {
-      return;
-    }); */
-    // console.log(rank, id, team, season);
   } catch (error) {
     console.error(error);
     return '';

@@ -75,11 +75,12 @@ connectDB().then(async () => {
         await utils.timeDelay(Math.random(10) * 10000);
       });
     });
-    cron.schedule(`7 11 * * 1,2,4`, async () => {
+    // send standing update
+    cron.schedule(`3 16 * * 1,2,4`, async () => {
       system.LEAGUES_FOLLOWED.forEach(async league => {
-        console.log(league);
         try {
           const standings = await getStandings(league);
+          console.log(standings);
           if (standings == '') return;
 
           const standingsMedia = await MessageMedia.fromUrl(standings.media);
@@ -95,7 +96,7 @@ connectDB().then(async () => {
       });
     });
     //schedule todays fixtures
-    cron.schedule(`51 14 * * *`, async () => {
+    cron.schedule(`51 11 * * *`, async () => {
       try {
         const matchesToday = await footballFixturesModel.find({
           date: new Date().toISOString().slice(0, 10),
@@ -165,7 +166,7 @@ connectDB().then(async () => {
     });
 
     // update fixtures ever sun mon fri for the next 7 days
-
+    // if no fixtures on that day send top scorers charts , standings etc
     cron.schedule(`22 4 * * 0,1,5`, () => {
       console.log('cron');
       system.LEAGUES_FOLLOWED.forEach(league => {
@@ -173,43 +174,6 @@ connectDB().then(async () => {
       });
     });
   });
-
-  //Send day`s fixtures evry 4 hours
-  /* cron.schedule('3 18 * * *', async () => {
-  console.log('runing');
-  // run every six minutes from 13horus to 23hrs
-  await updateFootballDb(); // update the db first
-  const groupLink = ``;
-  let update = [groupLink];
-  const epl = await getFixtures('epl', 'upcoming');
-  const laliga = await getFixtures('la liga, upcoming');
-  const zpsl = await getFixtures('zpsl, upcoming');
-  const ucl = await getFixtures('uefa, upcoming');
-  const europa = await getFixtures('europa, upcoming');
-  console.log(epl, laliga, zosl, europa);
-  if (!epl == '') {
-    update.push(epl);
-  }
-  if (!laliga == '') {
-    update.push(laliga);
-  }
-  if (!zpsl == '') {
-    update.push(zpsl);
-  }
-  if (!ucl == '') {
-    update.push(ucl);
-  }
-  if (!europa == '') {
-    update.push(europa);
-  }
-  //  let message = update.filter((result) => !result == "");
-
-  if (update.length > 0) {
-    await client.sendMessage(liveSoccer1, update.join('\n'));
-  } else {
-    console.log('no upcoming matsche today');
-  }
-}); */
 
   client.on('disconnected', reason => {
     console.log('Client was logged out', reason);
