@@ -1,7 +1,14 @@
 const mongoose = require('mongoose');
 const createIndexes = async models => {
   try {
-    await Promise.all(models.map(model => model.createIndexes()));
+    await Promise.all(
+      models.map(model =>
+        mongoose
+          .model(model)
+          .createIndexes()
+          .then(result => console.log(result))
+      )
+    );
     console.log('Index update process completed.');
   } catch (error) {
     console.log('Error updating indexes:', error);
@@ -13,7 +20,8 @@ const connectDB = async () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    await createIndexes();
+    const models = await mongoose.modelNames();
+    await createIndexes(models);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (err) {
     console.error(err);
