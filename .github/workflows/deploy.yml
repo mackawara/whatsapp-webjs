@@ -1,4 +1,4 @@
-name: Build and deploy Docker app  DOCKER HUB
+name: SSH into Oracle VM and update and restart
 
 on:
   push:

@@ -76,7 +76,7 @@ connectDB().then(async () => {
       });
     });
     // send standing update
-    cron.schedule(`3 16 * * 1,2,4`, async () => {
+    cron.schedule(`39 9 * * 1,2,5`, async () => {
       system.LEAGUES_FOLLOWED.forEach(async league => {
         try {
           const standings = await getStandings(league);
@@ -167,7 +167,7 @@ connectDB().then(async () => {
 
     // update fixtures ever sun mon fri for the next 7 days
     // if no fixtures on that day send top scorers charts , standings etc
-    cron.schedule(`22 4 * * 0,1,5`, () => {
+    cron.schedule(`38 10 * * 0,1,5`, () => {
       console.log('cron');
       system.LEAGUES_FOLLOWED.forEach(league => {
         updateFootballDb(league);

@@ -16,6 +16,7 @@ const GroupsSchema = new mongoose.Schema({
     type: String,
     required: true,
     Unique: true,
+    index: true,
   },
 });
 

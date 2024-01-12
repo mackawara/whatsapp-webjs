@@ -21,6 +21,7 @@ const topScorersSchema = new mongoose.Schema({
   goalsScored: {
     type: Number,
     required: true,
+    index: true,
   },
   assists: {
     type: Number,
@@ -46,6 +47,7 @@ const topScorersSchema = new mongoose.Schema({
   playerId: {
     type: Number,
     required: true,
+    index: true,
     // unique: true,
   },
   playerPhoto: {
