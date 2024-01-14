@@ -44,7 +44,6 @@ connectDB().then(async () => {
       });
     });
 
-    sendUpdateToGroup('testing');
     // top scorers charts
     cron.schedule(`10 10 * * 1,4`, async () => {
       system.LEAGUES_FOLLOWED.forEach(async league => {
@@ -96,7 +95,7 @@ connectDB().then(async () => {
       });
     });
     //schedule todays fixtures
-    cron.schedule(`51 11 * * *`, async () => {
+    cron.schedule(`33 16 * * *`, async () => {
       try {
         const matchesToday = await footballFixturesModel.find({
           date: new Date().toISOString().slice(0, 10),
@@ -167,7 +166,7 @@ connectDB().then(async () => {
 
     // update fixtures ever sun mon fri for the next 7 days
     // if no fixtures on that day send top scorers charts , standings etc
-    cron.schedule(`38 10 * * 0,1,5`, () => {
+    cron.schedule(`32 16 * * 0,1,5`, () => {
       console.log('cron');
       system.LEAGUES_FOLLOWED.forEach(league => {
         updateFootballDb(league);
