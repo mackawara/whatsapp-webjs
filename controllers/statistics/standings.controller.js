@@ -1,6 +1,7 @@
 const axios = require('axios');
 const system = require('../../constants/system');
 const { sub, isBefore } = require('date-fns');
+const logger = require('../../services/winston');
 
 const getStandings = async league => {
   const options = {
@@ -24,21 +25,25 @@ const getStandings = async league => {
     const isOlderThan4Days = isBefore(standings[0][0]['update'], fourDaysAgo);
 
     if (isOlderThan4Days) {
-      console.log('no recent update from' + name);
+      logger.info('no recent update from' + name);
       return '';
     }
-    const standingsMapped = standings[0]
-      .map(ranking => {
-        return `${ranking.rank}. *${ranking.team.name}*\n*M* ${ranking.all.played}  *W* ${ranking.all.win} *D* ${ranking.all.draw} *L* ${ranking.all.lose} *GD* ${ranking.goalsDiff}  Pts ${ranking.points}`;
+    const standingsMapped = standings
+      .forEach(standing => {
+        standing
+          .map(ranking => {
+            return `${ranking.rank}. *${ranking.team.name}*\n*M* ${ranking.all.played}  *W* ${ranking.all.win} *D* ${ranking.all.draw} *L* ${ranking.all.lose} *GD* ${ranking.goalsDiff}  Pts ${ranking.points}`;
+          })
+          .join('\n\n');
       })
-      .join('\n\n');
-    console.log(standingsMapped);
+      .join('\n\n\n\n');
+    logger.info(standingsMapped);
     return {
       standings: `*${name} ${season} Standings*\n\n${standingsMapped}`,
       media: logo,
     };
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return '';
   }
 };

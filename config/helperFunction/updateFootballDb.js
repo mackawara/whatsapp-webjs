@@ -4,27 +4,11 @@ const fixtureModel = require('../../models/footballFixtures');
 const system = require('../../constants/system');
 
 const { scoreFormatter, matchStatusFormatter } = require('../../utils/index');
+const logger = require('../../services/winston');
 
 /* only queries fixutres and scores for current */
 
 const callFootballApi = async competition => {
-  let league;
-  if (/english premier|premiership|epl/i.test(competition)) {
-    league = 39;
-  } else if (/serie a|italy league/i.test(competition)) {
-    league = 135;
-  } else if (/liga|la liga/i.test(competition)) {
-    league = 140;
-  } else if (/zpsl|zimbabwe/i.test(competition)) {
-    league = 401;
-  } else if (/ucl|uefa|champions league/i.test(competition)) {
-    league = 2;
-  } else if (/europa/i.test(competition)) {
-    league = 3;
-  } else {
-    league = competition;
-  }
-
   const yday = new Date(system.YESTERDAY).toISOString().slice(0, 10);
 
   const sevenDaysFromNow = new Date(system.SEVEN_DAYS_FROM_NOW)
@@ -52,14 +36,14 @@ const callFootballApi = async competition => {
       return response.data.response;
     })
     .catch(function (error) {
-      console.error(error);
+      logger.error(error);
     });
 
   //writeFile(results, "callFootball.json");
 
   try {
     results.forEach(async result => {
-      const leagues = [3, 2, 401, 135, 39, 140];
+      const leagues = system.LEAGUES_FOLLOWED;
 
       if (leagues.includes(result.league.id)) {
         const time = new Date(
@@ -113,8 +97,9 @@ const callFootballApi = async competition => {
             .exec();
 
           if (!result) {
-            await fixture.save();
-            console.log('now saved');
+            await fixture
+              .save()
+              .then(result => logger.log(`${result.fixture} saved`));
           } else {
             result.overwrite({
               matchStatus: matchStatus,
@@ -132,18 +117,17 @@ const callFootballApi = async competition => {
               unixTimeStamp: unixTimeStamp,
             });
 
-            await result.save().then(() => {
-              console.log('fixture updated');
-            });
+            await result
+              .save()
+              .then(result => logger.log(`${result.fixture} saved`));
           }
         };
 
-        queryAndSave();
         return unixTimeStamp;
       }
     });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
   }
 };
 

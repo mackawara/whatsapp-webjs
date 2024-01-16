@@ -1,23 +1,25 @@
 const contactModel = require('../../models/contactsModel');
 const GroupsModel = require('../../models/groups');
+
 const qrcode = require('qrcode-terminal');
+const logger = require('../../services/winston');
 const clientOn = async (client, arg1, arg2) => {
   const me = process.env.ME;
 
   if (arg1 == 'auth_failure') {
     client.on('auth_failure', msg => {
       // Fired if session restore was unsuccessful
-      console.error('AUTHENTICATION FAILURE', msg);
+      logger.error('AUTHENTICATION FAILURE', msg);
     });
   }
   if (arg1 == 'authenticated') {
     client.on('authenticated', async session => {
-      console.log(`client authenticated`);
+      logger.info(`client authenticated`);
     });
   }
   if (arg1 == 'ready') {
     client.on('ready', async session => {
-      console.log(`client ready`);
+      logger.info(`client ready`);
       client.sendMessage(process.env.ME, 'successful deploy');
     });
   }
@@ -25,7 +27,7 @@ const clientOn = async (client, arg1, arg2) => {
   if (arg1 == 'qr') {
     client.on('qr', qr => {
       qrcode.generate(qr, { small: true });
-      console.log(qr);
+      logger.info(qr);
     });
   }
 
@@ -36,13 +38,14 @@ const clientOn = async (client, arg1, arg2) => {
       const contact = await msg.getContact();
 
       if (chat.isGroup) {
-        console.log('gropu message');
+        logger.silly('gropu message');
+
         const savedGroup = await GroupsModel.findOne({
           serialisedNumber: chat.id._serialized,
         });
-        console.log(savedGroup);
+        logger.info(savedGroup);
         if (!savedGroup) {
-          console.log('not saved');
+          logger.silly('not saved');
           const newGroup = new GroupsModel({
             serialisedNumber: chat.id._serialized,
             notifyName: chat.name,
@@ -52,10 +55,10 @@ const clientOn = async (client, arg1, arg2) => {
           });
           try {
             newGroup.save().then(result => {
-              console.log(result);
+              logger.info(result);
             });
           } catch (err) {
-            console.log(err.data);
+            logger.error(err.data);
           }
         }
         /* msgBody.split(' ').forEach(word => {
@@ -69,7 +72,7 @@ const clientOn = async (client, arg1, arg2) => {
         //grpOwner = chat.owner.user;
       }
 
-      // console.log(msg.body,groupName,contact);
+      // logger.info(msg.body,groupName,contact);
       //grpOwner = chat.owner.user;
       else {
         let from = msg.from;
@@ -83,7 +86,7 @@ const clientOn = async (client, arg1, arg2) => {
             serialisedNumber: contact.id._serialised,
             isBlocked: contact.isBlocked,
           });
-          newContact.save().then(() => console.log('saved'));
+          newContact.save().then(() => logger.info(' new group saved'));
         }
 
         chat.sendSeen();
@@ -94,7 +97,7 @@ const clientOn = async (client, arg1, arg2) => {
   //run when group is left
   else if (arg1 == 'group-leave') {
     client.on('group_leave', notification => {
-      console.log(notification);
+      logger.silly(notification);
       // User has left or been kicked from the group.
 
       /* client.sendMessage(
@@ -108,9 +111,9 @@ const clientOn = async (client, arg1, arg2) => {
     });
   } else if (arg1 == 'group-join') {
     client.on('group_join', notification => {
-      console.log(notification);
+      logger.info(notification);
       // User has joined or been added to the group.
-      console.log('join', notification);
+      logger.info('join', notification);
       /*  client.sendMessage(
         notification.id.participant,
         "welcome to ... Here are the group rules for your convenience.... \n"
@@ -119,9 +122,9 @@ const clientOn = async (client, arg1, arg2) => {
     });
   } else if (arg1 == 'before' && arg2 == 'after') {
     client.on('message_revoke_everyone', async (after, before) => {
-      console.log(after); // message after it was deleted.
+      logger.info(after); // message after it was deleted.
       if (before) {
-        console.log(before); // message before it was deleted.
+        logger.info(before); // message before it was deleted.
       } else {
         client.sendMessage(me, `this message was deleted${before.body}`);
       }

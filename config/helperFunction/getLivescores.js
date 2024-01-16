@@ -60,7 +60,7 @@ const getLiveScores = async ({ type, fixtures, date }) => {
     });
     return liveScores.join('\n');
   } catch (err) {
-    console.log(err);
+    logger.info(err);
     return '';
   }
 };

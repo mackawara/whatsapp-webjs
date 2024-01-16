@@ -1,5 +1,6 @@
 const { max, getHours, min, getMinutes } = require('date-fns');
-
+const logger = require('../services/winston');
+logger;
 const matchStatusFormatter = (status, penalty, winner) => {
   //check if the match is finished or hasnt started
 
@@ -38,7 +39,7 @@ const generateCronScheduleForgames = startingTimesUnix => {
     // add fix for NaN
     const firstGame = min(startingTimesUnix);
     const mins = parseInt(getMinutes(firstGame) ?? 0) + 12;
-    console.log(mins);
+    logger.info(mins);
     const firstGameHours = getHours(firstGame) ?? 0;
     const cronString = `${mins} ${firstGameHours} * * *`;
     return cronString;

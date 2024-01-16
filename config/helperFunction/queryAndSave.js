@@ -1,3 +1,5 @@
+const logger = require('../../services/winston');
+
 const queryAndSave = async function (model, item, queryString, itemId) {
   const stringified = `${queryString}`;
 
@@ -9,12 +11,12 @@ const queryAndSave = async function (model, item, queryString, itemId) {
 
   if (result.length < 1) {
     try {
-      item.save().then(() => console.log("now saved"));
+      item.save().then(() => logger.log('now saved'));
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   } else {
-    console.log("item saved already");
+    logger.log('item saved already');
   }
 };
 module.exports = queryAndSave;

@@ -2,6 +2,7 @@ const axios = require('axios');
 const system = require('../../constants/system');
 const TopScorersModel = require('../../models/topScorers');
 const topScorersModel = require('../../models/topScorers');
+const logger = require('../../services/winston');
 const getStatistics = async (league, stat) => {
   const options = {
     method: 'GET',
@@ -71,36 +72,36 @@ const getStatistics = async (league, stat) => {
         playerId,
         name,
       };
-      console.log(topScorer);
+      logger.info(topScorer);
       const player = await TopScorersModel.findOne({ playerId, leagueId });
 
       if (!player) {
-        console.log('player not found');
+        logger.info('player not found');
         const saveNewTopScorer = new TopScorersModel(topScorer);
         await saveNewTopScorer
           .save()
           .then(result =>
-            console.log(`successfully saved new topscorer` + result)
+            logger.info(`successfully saved new topscorer` + result)
           )
           .catch(err =>
-            console.log(`there was an error saving new Scorrer to DB ${err}`)
+            logger.info(`there was an error saving new Scorrer to DB ${err}`)
           );
       } else if (player) {
-        console.log('player');
-        console.log(player);
+        logger.info('player');
+        logger.info(player);
         await TopScorersModel.findOneAndUpdate(
           { playerId },
           { $set: topScorer },
           { new: true, runValidators: true }
         )
-          .then(result => console.log('succesfully updated' + result.playerId))
+          .then(result => logger.info('succesfully updated' + result.playerId))
           .catch(err =>
-            console.log(`there was an error updating to DB ${err}`)
+            logger.info(`there was an error updating to DB ${err}`)
           );
       }
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
 };
 module.exports = getStatistics;

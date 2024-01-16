@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const logger = require('../services/winston');
 const createIndexes = async models => {
   try {
     await Promise.all(
@@ -6,12 +7,12 @@ const createIndexes = async models => {
         mongoose
           .model(model)
           .createIndexes()
-          .then(result => console.log(result))
+          .then(result => logger.info(result))
       )
     );
-    console.log('Index update process completed.');
+    logger.info('Index update process completed.');
   } catch (error) {
-    console.log('Error updating indexes:', error);
+    logger.info('Error updating indexes:', error);
   }
 };
 const connectDB = async () => {
@@ -22,9 +23,9 @@ const connectDB = async () => {
     });
     const models = await mongoose.modelNames();
     await createIndexes(models);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    logger.info(`MongoDB Connected: ${conn.connection.host}`);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     process.exit(1);
   }
 };

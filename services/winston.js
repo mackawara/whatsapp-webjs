@@ -8,8 +8,12 @@ const transports = LEVELS.map(level => {
 });
 const logger = winston.createLogger({
   level: 'info',
-  format: winston.format.json(),
-  defaultMeta: { service: 'user-service' },
+  format: winston.format.combine(
+    winston.format.colorize(),
+    winston.format.simple()
+  ),
+  level: process.env.NODE_ENV === 'production' ? 'debug' : 'silly',
+  // defaultMeta: { service: 'user-service' },
   //transports: transports,
 });
 

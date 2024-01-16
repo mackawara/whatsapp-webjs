@@ -7,7 +7,7 @@ const europa = new RegExp('Europa', 'i');
 const uefa = new RegExp('ucl', 'i');
 //Fetches fixtures from datatbase
 const getFixtures = async (competition, status) => {
-  console.log('get fixtures running');
+  logger.info('get fixtures running');
   let league;
   if (englishPremier.test(competition)) {
     league = 39;
