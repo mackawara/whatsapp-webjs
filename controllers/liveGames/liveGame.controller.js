@@ -19,53 +19,55 @@ const scoresUpdate = async fixturesToday => {
   if (!cronString) {
     return;
   }
-  //const liveUpdateJob = cron.schedule(cronString, async () => {
-  let liveScores; // if empty string it means no score
-  do {
-    liveScores = await getLiveScores({ type: 'live' });
-    const now = new Date();
-    startingTimes = startingTimes.filter(fixture => isAfter(fixture, now)); // continously filters to see if any games are remaining that day
-    logger.info(liveScores);
-    if (liveScores === '') {
-      const completedMatchIds = gamesRemainingToday
-        .filter(fixture => isBefore(fixture.timestamp, now))
-        .map(fixture => fixture.fixtureId);
+  const liveUpdateJob = cron.schedule(cronString, async () => {
+    let liveScores; // if empty string it means no score
+    do {
+      liveScores = await getLiveScores({ type: 'live' });
+      const now = new Date();
+      startingTimes = startingTimes.filter(fixture => isAfter(fixture, now)); // continously filters to see if any games are remaining that day
+      logger.info(liveScores);
+      if (liveScores === '') {
+        const completedMatchIds = gamesRemainingToday
+          .filter(fixture => isBefore(fixture.timestamp, now))
+          .map(fixture => fixture.fixtureId);
 
-      const fulltimeScores = await getLiveScores({
-        fixtures: completedMatchIds,
-      });
-      logger.info(`these are the completed match ids` + completedMatchIds);
-      if (fulltimeScores !== '') {
+        const fulltimeScores = await getLiveScores({
+          fixtures: completedMatchIds,
+        });
+        logger.info(`these are the completed match ids` + completedMatchIds);
+        if (fulltimeScores !== '') {
+          sendUpdateToGroup(
+            `Full time scores \n\n ${fulltimeScores} \n\n${system.GROUP_INVITE}`
+          );
+        }
+
+        logger.info('no liv fixtures in progress');
+        if (!startingTimes.length > 0) {
+          logger.info('now breaking');
+          break;
+        } else {
+          const nextMatchStartsIn = parseInt(
+            min(startingTimes) - parseInt(now)
+          );
+          await utils.timeDelay(nextMatchStartsIn);
+        }
+      } else {
+        logger.info('not empty');
         sendUpdateToGroup(
-          `Full time scores \n\n ${fulltimeScores} \n\n${system.GROUP_INVITE}`
+          `*SoccerBot Live Updates every 20-30 minutes* \n\n ${liveScores} \n\n` +
+            system.GROUP_INVITE
         );
       }
 
-      logger.info('no liv fixtures in progress');
-      if (!startingTimes.length > 0) {
-        logger.info('now breaking');
-        break;
-      } else {
-        const nextMatchStartsIn = parseInt(min(startingTimes) - parseInt(now));
-        await utils.timeDelay(nextMatchStartsIn);
-      }
-    } else {
-      logger.info('not empty');
-      sendUpdateToGroup(
-        `*SoccerBot Live Updates every 20-30 minutes* \n\n ${liveScores} \n\n` +
-          system.GROUP_INVITE
-      );
-    }
-
-    await utils.timeDelay(system.UPDATE_INTERVAL);
-  } while (liveScores !== '' || !startingTimes.length > 0);
-  logger.info('while loop broken');
-  liveUpdateJob.stop();
-  //});
+      await utils.timeDelay(system.UPDATE_INTERVAL);
+    } while (liveScores !== '' || !startingTimes.length > 0);
+    logger.info('while loop broken');
+    liveUpdateJob.stop();
+  });
 };
 const sendUpdateToGroup = async (message, caption) => {
   let groups =
-    !system.NODE_ENV == 'local'
+    system.NODE_ENV !== 'local'
       ? await GroupsModel.find()
           .lean()
           .limit(2)

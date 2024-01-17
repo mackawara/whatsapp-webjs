@@ -57,7 +57,7 @@ connectDB().then(async () => {
         const leagueTopScorers = topScorers
           .map((stats, index) => {
             const rank = index + 1;
-            return `${rank}. *${stats.name}* (${stats.teamName})\n ${
+            return ` ${rank}. *${stats.name}* (${stats.teamName})\n ${
               stats.goalsScored
             } Goals , ${stats.assists ?? '?'} Assists  in ${
               stats.appearences
@@ -100,7 +100,7 @@ connectDB().then(async () => {
       });
     });
     //schedule todays fixtures
-    /* cron.schedule(`33 11 * * *`, async () => {
+    cron.schedule(`33 11 * * *`, async () => {
       try {
         const matchesToday = await footballFixturesModel.find({
           date: new Date().toISOString().slice(0, 10),
@@ -116,7 +116,23 @@ connectDB().then(async () => {
       } catch (err) {
         logger.info(err);
       }
-    }); */
+    });
+    //to be removed
+    try {
+      const matchesToday = await footballFixturesModel.find({
+        date: new Date().toISOString().slice(0, 10),
+      });
+
+      fixturesToUpdate = matchesToday.map(match => {
+        return {
+          timestamp: parseInt(match.unixTimeStamp) * 1000,
+          fixtureId: match.fixtureID,
+        };
+      });
+      scoresUpdate(fixturesToUpdate);
+    } catch (err) {
+      logger.info(err);
+    }
     //send recent scores updates
     cron.schedule(`30 9,16 * * *`, async () => {
       try {

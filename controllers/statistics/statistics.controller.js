@@ -1,7 +1,6 @@
 const axios = require('axios');
 const system = require('../../constants/system');
 const TopScorersModel = require('../../models/topScorers');
-const topScorersModel = require('../../models/topScorers');
 const logger = require('../../services/winston');
 const getStatistics = async (league, stat) => {
   const options = {
