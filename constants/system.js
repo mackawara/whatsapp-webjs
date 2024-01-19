@@ -8,6 +8,7 @@ const REQUEST_HEADERS = {
 const LEAGUES_FOLLOWED = [3, 2, 4, 7, 401, 6, 143, 135, 556, 39, 140];
 const AMNESTYGROUP = process.env.AMNESTYGROUP;
 const SOCCERUPDATE_GROUP = process.env.SOCCER_UPDATES_1;
+const ME = process.env.ME;
 
 const FOOTBALL_API_URL = `https://api-football-v1.p.rapidapi.com/v3`;
 const GROUP_INVITE =
@@ -28,6 +29,7 @@ module.exports = {
   AMNESTYGROUP,
   YESTERDAY,
   TOMMOROW,
+  ME,
   SEVEN_DAYS_FROM_NOW,
   SEASON,
   GROUP_INVITE,

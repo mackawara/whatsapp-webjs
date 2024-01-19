@@ -4,6 +4,7 @@ const { sub, isBefore } = require('date-fns');
 const logger = require('../../services/winston');
 
 const getStandings = async league => {
+  logger.silly('Updating standings');
   const options = {
     method: 'GET',
     url: `${system.FOOTBALL_API_URL}/standings`,
@@ -21,8 +22,8 @@ const getStandings = async league => {
     }
     const { id, name, season, standings, logo } = await response.data
       .response[0].league;
-    const fourDaysAgo = sub(new Date(), { days: 4 });
-    const isOlderThan4Days = isBefore(standings[0][0]['update'], fourDaysAgo);
+    const sixDaysAgo = sub(new Date(), { days: 6 });
+    const isOlderThan4Days = isBefore(standings[0][0]['update'], sixDaysAgo);
 
     if (isOlderThan4Days) {
       logger.info('no recent update from' + name);

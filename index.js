@@ -16,6 +16,7 @@ const { add, sub } = require('date-fns');
 const system = require('./constants/system');
 const getStandings = require('./controllers/statistics/standings.controller');
 const logger = require('./services/winston');
+const updateFixtures = require('./config/helperFunction/updateFootballDb');
 require('dotenv').config();
 
 // connect to mongodb before running anything on the app
@@ -33,8 +34,7 @@ connectDB().then(async () => {
     clientOn(client, `message`);
     clientOn(client, 'group-join');
     clientOn(client, 'group-leave');
-    sendUpdateToGroup('deploy successfully');
-    //get the first match of the day
+
     let fixturesToUpdate;
     //update Top Scorers
     cron.schedule(`58 23 * * 1,3,5`, async () => {
@@ -85,7 +85,7 @@ connectDB().then(async () => {
           const standings = await getStandings(league);
           logger.info(standings);
           if (standings == '') {
-            logger.info('No recent standings update');
+            logger.info('No recent standings update from ');
             return;
           }
           const standingsMedia = await MessageMedia.fromUrl(standings.media);
@@ -117,81 +117,93 @@ connectDB().then(async () => {
         logger.info(err);
       }
     });
-    //to be removed
-    try {
-      const matchesToday = await footballFixturesModel.find({
-        date: new Date().toISOString().slice(0, 10),
-      });
-
-      fixturesToUpdate = matchesToday.map(match => {
-        return {
-          timestamp: parseInt(match.unixTimeStamp) * 1000,
-          fixtureId: match.fixtureID,
-        };
-      });
-      scoresUpdate(fixturesToUpdate);
-    } catch (err) {
-      logger.info(err);
-    }
-    //send recent scores updates
-    cron.schedule(`30 9,16 * * *`, async () => {
-      try {
-        const tommorow = add(new Date(), { days: 1 });
-        const matchesTommorow = await footballFixturesModel.find({
-          date: tommorow.toISOString().slice(0, 10),
-        });
-        const matchesToday = await footballFixturesModel.find({
-          date: new Date().toISOString().slice(0, 10),
-        });
-        const yesterday = sub(new Date(), { days: 1 });
-        logger.info(yesterday.toISOString().slice(0, 10));
-        const matchesYestday = await footballFixturesModel.find({
+    cron.schedule(`23 5 * * *`, async () => {
+      const yesterday = sub(new Date(), { days: 1 });
+      logger.info(
+        'Updating yesterdays fixtures' + yesterday.toISOString().slice(0, 10)
+      );
+      const matchesYestday = await footballFixturesModel
+        .find({
           date: yesterday.toISOString().slice(0, 10),
-        });
+        })
+        .lean();
+      //update the scores
+      if (!matchesYestday.length > 0) {
+        logger.silly('There are no matches from yesterday');
+        return;
+      } else {
+        const fixtureIDs = matchesYestday.map(match => match.fixtureID);
+        logger.silly('matches from yesterday' + fixtureIDs);
+        await updateFixtures({ fixtureIDs: fixtureIDs });
+      }
+    });
+    client.sendMessage(system.NODE_ENV + 'deployed successfully');
+    //send yesterday score update
+    cron.schedule(`30 7,16 * * *`, async () => {
+      try {
+        const yesterday = sub(new Date(), { days: 1 });
+        const yesterdayFixtures = await footballFixturesModel
+          .find({
+            date: yesterday.toISOString().slice(0, 10),
+          })
+          .lean();
 
-        const yesterdayScores = await getLiveScores({
-          fixtures: matchesYestday.map(fixture => fixture.fixtureID),
-        });
-        yesterdayScores == ''
+        !yesterdayFixtures.length > 0
           ? logger.info('no matches from yesterday')
           : sendUpdateToGroup(
-              `Results from yesterday\`s matches\n\n` + yesterdayScores
-            );
-        !matchesToday.length > 0
-          ? logger.info('no matches today')
-          : sendUpdateToGroup(
-              `*Selected Fixtures for today* \n\n` +
-                matchesToday
-                  .map(
-                    match =>
-                      `${match.competition} \n${match.fixture} \n${match.time}`
-                  )
+              `Results from yesterday\`s matches\n\n` +
+                yesterdayFixtures
+                  .map(fixture => `${fixture.competition} ${fixture.score}`)
                   .join('\n\n')
             );
-
-        !matchesTommorow.length > 0
-          ? logger.info('no matches tommorow')
-          : sendUpdateToGroup(
-              `*Selected Fixtures for tommorow* \n\n` +
-                matchesTommorow
-                  .map(
-                    match =>
-                      `${match.competition} \n${match.fixture} \n${match.time}`
-                  )
-                  .join('\n\n')
-            );
+        //  await utils.timeDelay(Math.random())
       } catch (err) {
         logger.info(err);
       }
     });
+    cron.schedule(`30 10 * * *`, async () => {
+      const matchesToday = await footballFixturesModel.find({
+        date: new Date().toISOString().slice(0, 10),
+      });
+      !matchesToday.length > 0
+        ? logger.info('no matches today')
+        : sendUpdateToGroup(
+            `*Selected Fixtures for today* \n\n` +
+              matchesToday
+                .map(match =>
+                  match.matchStatus == 'Match Finished'
+                    ? `${match.competition} ${match.score}`
+                    : `${match.competition} \n${match.fixture} \n${match.time}`
+                )
+                .join('\n\n')
+          );
+    });
+    // fixture fo tommorow
+    cron.schedule(`45 11,17 * * *`, async () => {
+      const tommorow = add(new Date(), { days: 1 });
+      const matchesTommorow = await footballFixturesModel.find({
+        date: tommorow.toISOString().slice(0, 10),
+      });
 
+      !matchesTommorow.length > 0
+        ? logger.info('no matches tommorow')
+        : sendUpdateToGroup(
+            `*Selected Fixtures for tommorow* \n\n` +
+              matchesTommorow
+                .map(
+                  match =>
+                    `${match.competition} \n${match.fixture} \n${match.time}`
+                )
+                .join('\n\n')
+          );
+    });
     // update fixtures ever sun mon fri for the next 7 days
     // if no fixtures on that day send top scorers charts , standings etc
-    cron.schedule(`59 23 * * *`, () => {
+    cron.schedule(`59 23 * * 1,5`, () => {
       logger.info('updating all league fixtures');
       system.LEAGUES_FOLLOWED.forEach(league => {
         logger.info('updating ' + league);
-        updateFootballDb(league);
+        updateFootballDb({ league: league });
       });
     });
   });

@@ -4,6 +4,7 @@ const fixtureSchema = new mongoose.Schema({
   date: {
     type: String,
     required: true,
+    index: true,
   },
   venue: {
     type: String,
