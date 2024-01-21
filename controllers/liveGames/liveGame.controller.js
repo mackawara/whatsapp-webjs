@@ -15,7 +15,7 @@ const scoresUpdate = async fixturesToday => {
   let startingTimes = await fixturesToday.map(fixture => fixture.timestamp);
 
   let cronString = utils.generateCronScheduleForgames(startingTimes);
-  logger.info(cronString);
+  logger.info('fixtures scheduled to run livescores at ' + cronString);
   if (!cronString) {
     return;
   }
@@ -67,19 +67,15 @@ const scoresUpdate = async fixturesToday => {
 };
 const sendUpdateToGroup = async (message, caption) => {
   let groups =
-    system.NODE_ENV !== 'local'
+    system.NODE_ENV == 'production'
       ? await GroupsModel.find()
           .lean()
           .limit(2)
           .catch(err => {
             logger.info(err);
           })
-      : await GroupsModel.find({ serialisedNumber: system.AMNESTYGROUP })
-          .lean()
-          .catch(err => {
-            logger.info(err);
-          });
-
+      : [{ serialisedNumber: system.AMNESTYGROUP }];
+  logger.silly(groups);
   const maxDelayTimeInSecs = 97;
   const minDelayTimeInSecs = 33;
   const delayTime =

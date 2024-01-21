@@ -92,6 +92,7 @@ connectDB().then(async () => {
           const standingsCaption = {
             caption: standings.standings + `\n\n${system.GROUP_INVITE}`,
           };
+          await utils.timeDelay(60000);
           sendUpdateToGroup(standingsMedia, standingsCaption);
           await utils.timeDelay(Math.random(10) * 10000);
         } catch (err) {
@@ -100,7 +101,7 @@ connectDB().then(async () => {
       });
     });
     //schedule todays fixtures
-    cron.schedule(`33 11 * * *`, async () => {
+    cron.schedule(`33 9 * * *`, async () => {
       try {
         const matchesToday = await footballFixturesModel.find({
           date: new Date().toISOString().slice(0, 10),
@@ -117,7 +118,8 @@ connectDB().then(async () => {
         logger.info(err);
       }
     });
-    cron.schedule(`23 5 * * *`, async () => {
+    //Update yesterdays mathces
+    cron.schedule(`23 7 * * *`, async () => {
       const yesterday = sub(new Date(), { days: 1 });
       logger.info(
         'Updating yesterdays fixtures' + yesterday.toISOString().slice(0, 10)
@@ -137,9 +139,9 @@ connectDB().then(async () => {
         await updateFixtures({ fixtureIDs: fixtureIDs });
       }
     });
-    client.sendMessage(system.NODE_ENV + 'deployed successfully');
+    client.sendMessage(system.ME, system.NODE_ENV + ' deployed successfully');
     //send yesterday score update
-    cron.schedule(`30 7,16 * * *`, async () => {
+    cron.schedule(`30 7 * * *`, async () => {
       try {
         const yesterday = sub(new Date(), { days: 1 });
         const yesterdayFixtures = await footballFixturesModel
@@ -161,10 +163,12 @@ connectDB().then(async () => {
         logger.info(err);
       }
     });
+
     cron.schedule(`30 10 * * *`, async () => {
       const matchesToday = await footballFixturesModel.find({
         date: new Date().toISOString().slice(0, 10),
       });
+      //matches today
       !matchesToday.length > 0
         ? logger.info('no matches today')
         : sendUpdateToGroup(

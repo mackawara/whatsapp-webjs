@@ -1,6 +1,7 @@
 const axios = require('axios');
 const system = require('../../constants/system');
 const LeaguesModel = require('../../models/leagues');
+const logger = require('../../services/winston');
 const getLeagues = async () => {
   const options = {
     method: 'GET',

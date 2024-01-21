@@ -13,7 +13,7 @@ const ME = process.env.ME;
 const FOOTBALL_API_URL = `https://api-football-v1.p.rapidapi.com/v3`;
 const GROUP_INVITE =
   'For live scores during live games, statistics, standings, odds and all soccer news join this group or add SoccerBot to your group 263711489602! https://chat.whatsapp.com/EjpJ7BMGlW044kCYNfFHAi';
-const UPDATE_INTERVAL = 1320000;
+const UPDATE_INTERVAL = 1800000;
 const YESTERDAY = startOfYesterday();
 const TOMMOROW = endOfTomorrow();
 const SEVEN_DAYS_FROM_NOW = addDays(new Date(), 7);

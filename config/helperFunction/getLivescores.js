@@ -2,11 +2,13 @@ const axios = require('axios');
 const { client } = require('../wwebjsConfig');
 const { matchStatusFormatter, scoreFormatter } = require('../../utils/index');
 const system = require('../../constants/system');
+const logger = require('../../services/winston');
 
 const getLiveScores = async ({ type, fixtures, date }) => {
   const ids = system.LEAGUES_FOLLOWED.join('-');
   let params;
   if (type === 'live') {
+    logger.info(ids);
     params = {
       live: ids,
     };
@@ -19,7 +21,7 @@ const getLiveScores = async ({ type, fixtures, date }) => {
       from: date,
     };
   }
-
+  logger.info(params);
   try {
     const options = {
       method: 'GET',
