@@ -38,7 +38,7 @@ const clientOn = async (client, arg1, arg2) => {
       const contact = await msg.getContact();
 
       if (chat.isGroup) {
-        logger.silly('gropu message');
+        logger.silly('group message');
 
         const savedGroup = await GroupsModel.findOne({
           serialisedNumber: chat.id._serialized,
@@ -70,6 +70,12 @@ const clientOn = async (client, arg1, arg2) => {
             }
           }); */
         //grpOwner = chat.owner.user;
+      }
+      if (!msg.isStatus && msg.type == 'chat' && !chat.isGroup) {
+        msg.reply(
+          'Askme_AI services are now available on this number +263774725543'
+        );
+        return;
       }
 
       // logger.info(msg.body,groupName,contact);
@@ -111,7 +117,7 @@ const clientOn = async (client, arg1, arg2) => {
     });
   } else if (arg1 == 'group-join') {
     client.on('group_join', notification => {
-      logger.info(notification);
+      logger.silly(notification);
       // User has joined or been added to the group.
       logger.info('join', notification);
       /*  client.sendMessage(
